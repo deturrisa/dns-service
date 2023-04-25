@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.dnsservice.service.FooServiceTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2023-04-24T14:54:59" hostname="alexs-MacBook-Pro.local" time="0.006">
+  <properties/>
+  <testcase name="Should do something()" classname="com.dnsservice.service.FooServiceTest" time="0.006"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
