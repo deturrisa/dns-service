@@ -1,0 +1,12 @@
+spring:
+  jpa:
+    show_sql: true
+    open-in-view: false
+    generate-ddl: false
+    properties.hibernate.temp.use_jdbc_metadata_defaults: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate.ddl-auto: validate
+  datasource:
+    url: jdbc:postgresql://localhost:5432/dns-service
+    username: username
+    password: password

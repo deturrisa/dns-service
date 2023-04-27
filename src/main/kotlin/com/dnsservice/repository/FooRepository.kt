@@ -1,4 +1,9 @@
 package com.dnsservice.repository
 
-class FooRepository {
-}
+import com.dnsservice.entity.FooEntity
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.stereotype.Repository
+import java.util.UUID
+
+@Repository
+interface FooRepository : JpaRepository<FooEntity, UUID>
