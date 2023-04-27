@@ -1,29 +1,40 @@
-# Compiled class files
-*.class
-*.jar
-
-# Log files
-logs/
-*.log
+# Gradle files
+.gradle/
+build/
 
 # IntelliJ IDEA files
 .idea/
 *.iml
 *.ipr
 *.iws
+out/
+*.class
 
 # Eclipse files
-.settings/
 .classpath
 .project
+.settings/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
 
-# Gradle files
-.gradle/
-build/
+# Logs
+logs/
+*.log
+*.log.*
+*.access
+*.trace
 
-# Maven files
-target/
+# IntelliJ IDEA code style files
+codestyles/
+*.code-workspace
 
-# OS generated files
+# Spring Boot DevTools files
+.restart*
+
+# Other
 .DS_Store
-Thumbs.db
+target/
