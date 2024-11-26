@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: dns-service
+  sql:
+    init:
+      mode: always
+  datasource:
+    url: ${POSTGRES_DB:jdbc:postgresql://localhost:5432/dns_service}
+    username: ${POSTGRES_USER:username}
+    password: ${POSTGRES_PASSWORD:password}
+    hikari:
+      data-source-properties:
+        socketTimeout: 600
+  jpa:
+    generate-ddl: false
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate

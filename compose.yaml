@@ -1,0 +1,96 @@
+services:
+  data_store:
+    image: "postgres:${POSTGRES_VERSION:-latest}"
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB:-dns_service}"
+      POSTGRES_USER: "${POSTGRES_USER:-username}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
+    ports:
+      - "${POSTGRES_EXPORT_PORT:-5432}:5432"
+    volumes:
+      - "postgresData:/var/lib/postgresql/data"
+    networks:
+      backend:
+        aliases:
+          - postgres
+
+  kafka:
+    platform: linux/x86_64
+    image: "confluentinc/cp-kafka:${KAFKA_CONFLUENT_VERSION:-6.2.8}"
+    environment:
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_MIN_INSYNC_REPLICAS: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_LISTENERS: "PLAINTEXT://kafka:${KAFKA_EXPORT_PORT:-9092}"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:${KAFKA_EXPORT_PORT:-9092}"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "BROKER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_BROKER_ID: "1"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS: "1"
+      KAFKA_LOG_FLUSH_INTERVAL_MESSAGES: "9999999999"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:22181"
+    depends_on:
+      - zookeeper
+    ports:
+      - "${KAFKA_EXPORT_PORT:-9092}:9092"
+    networks:
+      backend:
+        aliases:
+          - kafka
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+      - "8079:8079"
+      - "5005:5005" # Debug port
+    environment:
+      POSTGRES_DB: "jdbc:postgresql://postgres:5432/dns_service"
+      KAFKA_CONNECTION: "kafka:9092"
+      SCHEMA_REGISTRY_URL: "http://schema_registry:8081"
+      SCHEMA_REGISTRY_AUTO_REG: "true"
+    depends_on:
+      - kafka
+      - data_store
+    networks:
+      backend:
+        aliases:
+          - dns-service
+
+  schema_registry:
+    platform: linux/x86_64
+    image: confluentinc/cp-schema-registry:6.2.8
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema_registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9092
+    depends_on:
+      - kafka
+      - zookeeper
+    networks:
+      backend:
+        aliases:
+          - schema_registry
+
+  zookeeper:
+    platform: linux/x86_64
+    image: "confluentinc/cp-zookeeper:${KAFKA_CONFLUENT_VERSION:-6.2.8}"
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 22181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+    networks:
+      backend:
+        aliases:
+          - zookeeper
+
+networks:
+  backend:
+
+volumes:
+  postgresData:
