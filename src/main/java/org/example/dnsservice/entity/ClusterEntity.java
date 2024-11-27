@@ -13,7 +13,6 @@ import java.util.List;
 public class ClusterEntity implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @NotNull

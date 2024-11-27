@@ -13,7 +13,6 @@ import java.util.List;
 public class ServerEntity implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @NotNull
