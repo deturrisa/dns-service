@@ -4,6 +4,7 @@ import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import org.example.dnsservice.configuration.DatabaseConfiguration;
 import org.example.dnsservice.entity.ClusterEntity;
 import org.example.dnsservice.entity.ServerEntity;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +30,8 @@ public class ClusterRepositoryTest {
     }
 
     @Test
-    public void findById_ExistingClusterAndServerEntities_ReturnsServerEntity(){
-        clusterRepository.findAll();
+    public void findAll_ExistingClusterAndServerEntities_ReturnsServerEntity(){
+        Assertions.assertNotNull(clusterRepository.findById(5));
     }
 
 }
