@@ -25,10 +25,11 @@ public class ServerEntity implements Serializable {
     @JoinColumn(name = "cluster_id", nullable = false)
     private ClusterEntity cluster;
 
-    public ServerEntity(int id, String friendlyName, String ipString) {
+    public ServerEntity(int id, String friendlyName, String ipString, ClusterEntity cluster) {
         this.id = id;
         this.friendlyName = friendlyName;
         this.ipString = ipString;
+        this.cluster = cluster;
     }
 
     public ServerEntity(){

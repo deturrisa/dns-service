@@ -20,17 +20,9 @@ public class ClusterRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        ClusterEntity clusterEntity = new ClusterEntity();
-        clusterEntity.setId(5);
-        clusterEntity.setName("Geneva");
-        clusterEntity.setSubdomain("ge");
+        ClusterEntity clusterEntity = new ClusterEntity(5,"Geneva","ge");
 
-
-        ServerEntity serverEntity = new ServerEntity();
-        serverEntity.setId(20);
-        serverEntity.setFriendlyName("my-web-1");
-        serverEntity.setIpString("9.9.9.9");
-        serverEntity.setCluster(clusterEntity);
+        ServerEntity serverEntity = new ServerEntity(20,"my-web-1","9.9.9.9",clusterEntity);
 
         clusterEntity.addServer(serverEntity);
         clusterRepository.save(clusterEntity);
