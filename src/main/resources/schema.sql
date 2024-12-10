@@ -1,10 +1,10 @@
-CREATE TABLE cluster (
+CREATE TABLE IF NOT EXITS cluster (
     id INT PRIMARY KEY,
     name VARCHAR(25) NOT NULL,
     subdomain VARCHAR(2) NOT NULL
 );
 
-CREATE TABLE server (
+CREATE TABLE IF NOT EXISTS server (
     id INT PRIMARY KEY,
     friendly_name VARCHAR(255) NOT NULL,
     cluster_id INT NOT NULL,
