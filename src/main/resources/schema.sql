@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXITS cluster (
+CREATE TABLE IF NOT EXISTS cluster (
     id INT PRIMARY KEY,
     name VARCHAR(25) NOT NULL,
     subdomain VARCHAR(2) NOT NULL
