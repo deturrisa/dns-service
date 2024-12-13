@@ -17,19 +17,16 @@ import java.util.stream.Collectors;
 @Service
 public class ServerService {
 
-    private DnsR53Client dnsR53Client;
-    private ServerRepository serverRepository;
-    private R53Properties r53Properties;
+    private final AwsR53Service awsR53Service;
+    private final ServerRepository serverRepository;
+    private final R53Properties r53Properties;
 
     private final Logger log = LoggerFactory.getLogger(ServerService.class);
 
     @Autowired
-    public ServerService(ServerRepository serverRepository,
-                         DnsR53Client dnsR53Client,
-                         R53Properties r53Properties
-    ) {
+    public ServerService(ServerRepository serverRepository, AwsR53Service awsR53Service, R53Properties r53Properties) {
         this.serverRepository = serverRepository;
-        this.dnsR53Client = dnsR53Client;
+        this.awsR53Service = awsR53Service;
         this.r53Properties = r53Properties;
     }
 
@@ -50,8 +47,7 @@ public class ServerService {
     }
 
     private List<ResourceRecordSet> getAAndCNameRecords() {
-
-        return dnsR53Client.getResourceRecordSets(r53Properties.hostedZoneId()).join()
+        return awsR53Service.getResourceRecordSets(r53Properties.hostedZoneId()).join()
         .resourceRecordSets().stream()
                 .filter(recordSet -> recordSet.type().equals(RRType.A) || recordSet.type().equals(RRType.CNAME))
                 .collect(Collectors.toList());

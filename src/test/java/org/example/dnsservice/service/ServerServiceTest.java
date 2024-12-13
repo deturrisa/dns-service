@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 public class ServerServiceTest {
 
     @Mock
-    private DnsR53Client dnsR53Client;
+    private AwsR53Service awsR53Service;
 
     @Mock
     private ServerRepository serverRepository;
@@ -83,7 +83,7 @@ public class ServerServiceTest {
         ServerEntity hkServer2 = new ServerEntity(5,"rackspace-2","235.235.235.235",hkClusterEntity);
 
         when(serverRepository.findAll()).thenReturn(List.of(hkServer1,hkServer2));
-        when(dnsR53Client.getResourceRecordSets(r53Properties.hostedZoneId())).thenReturn(
+        when(awsR53Service.getResourceRecordSets(r53Properties.hostedZoneId())).thenReturn(
                 CompletableFuture.completedFuture(defaultResourceRecordSetsResponse)
         );
 

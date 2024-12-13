@@ -9,12 +9,12 @@ import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 
 @Service
-public class DnsR53Client {
+public class AwsR53Service {
 
     private final Route53AsyncClient route53AsyncClient;
 
     @Autowired
-    public DnsR53Client(Route53AsyncClient route53AsyncClient) {
+    public AwsR53Service(Route53AsyncClient route53AsyncClient) {
         this.route53AsyncClient = route53AsyncClient;
     }
 
