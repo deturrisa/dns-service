@@ -23,13 +23,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    //TODO uncomment
-    //implementation("org.springframework.boot:spring-boot-starter-security")
-    //implementation("org.springframework.security:spring-security-web")
-
-    //Spring cloud vault dependencies - TODO uncomment
-    //implementation("org.springframework.cloud:spring-cloud-starter-vault-config:4.1.1")
-    //implementation("org.springframework.cloud:spring-cloud-starter-bootstrap:4.1.1")
 
     //Open API
     implementation("com.google.code.findbugs:jsr305:3.0.1")
@@ -45,8 +38,8 @@ dependencies {
     implementation("org.mozilla:rhino:1.7.12")
 
     // AWS
-    implementation("software.amazon.awssdk:s3:2.20.110")
     implementation("software.amazon.awssdk:sts:2.20.110")
+    implementation("software.amazon.awssdk:route53:2.20.110")
 
     // Kafka
     implementation("org.apache.kafka:kafka-clients")
