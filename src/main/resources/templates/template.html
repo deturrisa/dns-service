@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Entries</title>
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>UI: Currently published DNS entries</h1>
+    <h2><i>"Showing all A entries on #{domain} and matching them to our server records if available.”</i></h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Friendly Name (sort ascending)</th>
+          <th>Cluster</th>
+          <th>DNS status (A records pointing to this server’s IP)</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="server : ${serverEntries}">
+            <td th:text="'server' + ${server.serverId()}"></td>
+            <td th:text="${server.cluster()}"></td>
+            <td th:text="${server.dnsStatus()}"></td>
+            <td th:text="${server.action()}"></td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>

@@ -20,13 +20,17 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate
+  thymeleaf:
+    templates:
+      file: template
+      path: templates/
 aws:
   r53:
     access-key: ${AWS_ACCESS_KEY_ID:test}
     secret-key: ${AWS_SECRET_KEY_ID:test}
-    region: ${AWS_SECRET_KEY_ID:us-east-1}
+    region: ${AWS_R53_REGION:us-east-1}
     role: ${AWS_ACCESS_ROLE:test}
-    use-local: ${USE_LOCAL_R53:false}
-    local-address: ${R53_LOCAL_ADDRESS:http://localhost:9090/}
-    hosted-zone-id: ${R53_HOSTED_ZONE_ID:test}
-    endpoint-override: ${AWS_R53_ENDPOINT_OVERRIDE:https://route53.us-east-1.amazonaws.com/}
+    use-local: ${USE_LOCAL_R53:true}
+    local-address: ${AWS_R53_LOCAL_ADDRESS:http://localhost:9090/}
+    hosted-zone-id: ${AWS_R53_HOSTED_ZONE_ID:test}
+    endpoint-override: ${AWS_R53_ENDPOINT_OVERRIDE:https://route53.amazonaws.com/}

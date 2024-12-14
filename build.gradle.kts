@@ -23,6 +23,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 
     //Open API
     implementation("com.google.code.findbugs:jsr305:3.0.1")
@@ -63,8 +64,6 @@ dependencies {
     implementation ("org.springframework:spring-webmvc:6.1.14")
     implementation ("org.springframework:spring-web:6.1.14")
 
-    //- TODO uncomment
-    //testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.zonky.test:embedded-database-spring-test:2.5.0")
     testImplementation("io.zonky.test:embedded-postgres:2.0.6")
 

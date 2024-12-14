@@ -28,14 +28,21 @@ public class AwsConfiguration {
             value = {useLocalR53PropertyKey},
             havingValue = "false"
     )
-    public Route53AsyncClient r53Client(R53Properties r53Properties) throws UnknownHostException {
+    public Route53AsyncClient r53Client(R53Properties r53Properties) {
         return Route53AsyncClient.builder()
-                .credentialsProvider(roleAssumingCredentialsProviderChain(r53Properties))
+                .credentialsProvider(getStaticCredentialsProvider(r53Properties))
                 .endpointOverride(URI.create(r53Properties.endpointOverride()))
                 .region(Region.of(r53Properties.region()))
                 .build();
 
     }
+
+    private StaticCredentialsProvider getStaticCredentialsProvider(R53Properties r53Properties){
+        AwsBasicCredentials awsCredentials  =
+                AwsBasicCredentials.create(r53Properties.accessKey(), r53Properties.secretKey());
+        return StaticCredentialsProvider.create(awsCredentials);
+    }
+
     private AwsCredentialsProvider roleAssumingCredentialsProviderChain(R53Properties r53Properties) throws UnknownHostException {
         return AwsCredentialsProviderChain.of(
                 assumeRoleCredentialsProvider(r53Properties),
