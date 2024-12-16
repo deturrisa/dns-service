@@ -10,17 +10,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = {"/dns-service"}, produces = {"application/html"})
-public class ServerController {
+public class HomeController {
 
     private final UIService uiService;
 
     @Autowired
-    public ServerController(UIService uiService) {
+    public HomeController(UIService uiService) {
         this.uiService = uiService;
     }
 
-    @GetMapping("/servers")
-    public ResponseEntity<String> demo(){
+    @GetMapping("/home")
+    public ResponseEntity<String> home(){
         String html = uiService.renderHtml();
         return ResponseEntity.ok().contentLength(html.length())
                 .contentType(MediaType.TEXT_HTML).body(html);

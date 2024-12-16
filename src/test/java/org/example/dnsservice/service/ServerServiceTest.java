@@ -12,11 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsResponse;
-import software.amazon.awssdk.services.route53.model.RRType;
-import software.amazon.awssdk.services.route53.model.ResourceRecord;
-import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
-import java.util.Arrays;
+import org.example.dnsservice.util.TestUtil.TestData;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,37 +39,6 @@ public class ServerServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    private ListResourceRecordSetsResponse defaultResourceRecordSetsResponse =
-            ListResourceRecordSetsResponse.builder()
-                    .resourceRecordSets(
-                            Arrays.asList(
-                                    ResourceRecordSet.builder()
-                                            .name("domain.com.")
-                                            .type(RRType.NS)
-                                            .ttl(172800L)
-                                            .resourceRecords(
-                                                    Arrays.asList(
-                                                            ResourceRecord.builder()
-                                                                    .value("ns-1173.awsdns-31.org.")
-                                                                    .build(),
-                                                            ResourceRecord.builder()
-                                                                    .value("ns-428.awsdns-11.com.")
-                                                                    .build()
-                                                    )
-                                            )
-                                            .build(),
-                                    ResourceRecordSet.builder()
-                                            .name("domain.com.")
-                                            .type(RRType.SOA)
-                                            .ttl(900L)
-                                            .resourceRecords(Arrays.asList(ResourceRecord.builder()
-                                                    .value("ns-1243.awsdns-11.org. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400")
-                                                    .build()))
-                                            .build()
-                            )
-                    )
-                    .build();
-
     @Test
     public void testGetServerEntryWhenNoAOrCNameRecords(){
         //given
@@ -84,7 +49,7 @@ public class ServerServiceTest {
 
         when(serverRepository.findAll()).thenReturn(List.of(hkServer1,hkServer2));
         when(awsR53Service.getResourceRecordSets(r53Properties.hostedZoneId())).thenReturn(
-                CompletableFuture.completedFuture(defaultResourceRecordSetsResponse)
+                CompletableFuture.completedFuture(TestData.DEFAULT_RESOURCE_RECORD_SETS_RESPONSE)
         );
 
         //when
