@@ -36,6 +36,10 @@ public class ServerEntity implements Serializable {
 
     }
 
+    public String getClusterSubdomain(){
+        return this.cluster.getSubdomain();
+    }
+
     public int getId() {
         return id;
     }

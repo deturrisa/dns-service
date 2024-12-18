@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsResponse;
 import software.amazon.awssdk.services.route53.model.RRType;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 import java.util.ArrayList;
@@ -31,25 +32,72 @@ public class ServerService {
     }
 
     public List<ServerEntry> getServerEntries() {
-        List<ResourceRecordSet> resourceRecordSets = getAAndCNameRecords();
-        List<ServerEntry> serverEntries = new ArrayList<>();
+        ListResourceRecordSetsResponse response = getListResourceRecordSetsResponse();
 
-        if(resourceRecordSets.isEmpty()) {
-            List<ServerEntity> serverEntities = serverRepository.findAll();
+        List<ResourceRecordSet> aRecords = getANameRecords(response);
+        List<ResourceRecordSet> cNameRecords = getCNameRecords(response);
+
+        List<ServerEntry> serverEntries;
+        List<ServerEntity> serverEntities = serverRepository.findAll();
+
+        if(aRecords.isEmpty() && cNameRecords.isEmpty()) {
             serverEntries = serverEntities.stream().map(
-                    serverEntity -> new ServerEntry(serverEntity.getId(),serverEntity.getCluster().getSubdomain())
+                    entity -> new ServerEntry(
+                            entity.getId(),
+                            entity.getClusterSubdomain()
+                    )
             ).collect(Collectors.toList());
             log.info("Found {} servers to load to R53", serverEntries.size());
+
+            return serverEntries;
         }
 
+        serverEntries = serverEntities.stream().map(
+                entity -> new ServerEntry(
+                        entity.getId(),
+                        getSubdomain(
+                                findResourceRecordSetByClusterSubdomain(
+                                        cNameRecords,
+                                        entity.getClusterSubdomain()
+                                )
+                        )
+                )
+        ).collect(Collectors.toList());
 
         return serverEntries;
     }
 
-    private List<ResourceRecordSet> getAAndCNameRecords() {
-        return awsR53Service.getResourceRecordSets(r53Properties.hostedZoneId()).join()
-        .resourceRecordSets().stream()
-                .filter(recordSet -> recordSet.type().equals(RRType.A) || recordSet.type().equals(RRType.CNAME))
+    private ResourceRecordSet findResourceRecordSetByClusterSubdomain(
+            List<ResourceRecordSet> resourceRecordSets,
+            String  clusterSubdomain
+    ){
+        return resourceRecordSets.stream()
+                .filter(
+                        resourceRecordSet -> resourceRecordSet.resourceRecords().stream()
+                        .anyMatch(record -> getSubdomain(record.value()).contains(clusterSubdomain)
+                        )
+                ).findFirst().get(); //TODO throw exception or greater than one match
+    }
+
+    private List<ResourceRecordSet> getCNameRecords(ListResourceRecordSetsResponse response){
+        return response.resourceRecordSets().stream().filter(recordSet -> recordSet.type().equals(RRType.CNAME))
                 .collect(Collectors.toList());
+    }
+
+    private List<ResourceRecordSet> getANameRecords(ListResourceRecordSetsResponse response){
+        return response.resourceRecordSets().stream().filter(recordSet -> recordSet.type().equals(RRType.A))
+                .collect(Collectors.toList());
+    }
+
+    private ListResourceRecordSetsResponse getListResourceRecordSetsResponse(){
+        return awsR53Service.getResourceRecordSets(r53Properties.hostedZoneId()).join();
+    }
+
+    private String getSubdomain(ResourceRecordSet resourceRecordSet){
+        return getSubdomain(resourceRecordSet.name());
+    }
+
+    private String getSubdomain(String value){
+        return value.split("\\.")[0];
     }
 }

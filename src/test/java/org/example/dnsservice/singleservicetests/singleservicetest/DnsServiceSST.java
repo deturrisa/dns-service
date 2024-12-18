@@ -29,7 +29,7 @@ public class DnsServiceSST extends BaseSST {
         serverRepository.saveAll(List.of(hkServer1,hkServer2));
 
         when(awsR53Service.getResourceRecordSets(r53Properties.hostedZoneId())).thenReturn(
-                CompletableFuture.completedFuture(TestData.DEFAULT_RESOURCE_RECORD_SETS_RESPONSE)
+                CompletableFuture.completedFuture(TestData.getDefaultResourceRecordSetsResponse())
         );
 
         //when
