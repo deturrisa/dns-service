@@ -2,6 +2,7 @@ package org.example.dnsservice.service;
 
 import org.example.dnsservice.configuration.R53Properties;
 import org.example.dnsservice.entity.ServerEntity;
+import org.example.dnsservice.exception.ServerEntryException;
 import org.example.dnsservice.model.ServerEntry;
 import org.example.dnsservice.repository.ServerRepository;
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ public class ServerService {
         List<ResourceRecordSet> aRecords = getANameRecords(response);
         List<ResourceRecordSet> cNameRecords = getCNameRecords(response);
 
-        List<ServerEntry> serverEntries;
+        List<ServerEntry> serverEntries = List.of();
         List<ServerEntity> serverEntities = serverRepository.findAll();
 
         if(aRecords.isEmpty() && cNameRecords.isEmpty()) {
@@ -50,33 +51,43 @@ public class ServerService {
             log.info("Found {} servers to load to R53", serverEntries.size());
 
             return serverEntries;
-        }
 
-        serverEntries = serverEntities.stream().map(
-                entity -> new ServerEntry(
-                        entity.getId(),
-                        getSubdomain(
-                                findResourceRecordSetByClusterSubdomain(
-                                        cNameRecords,
-                                        entity.getClusterSubdomain()
-                                )
-                        )
-                )
-        ).collect(Collectors.toList());
+        } else if (aRecords.isEmpty()) {
+            serverEntries = serverEntities.stream().map(
+                    entity -> new ServerEntry(
+                            entity.getId(),
+                            getSubdomain(
+                                    findResourceRecordSetByClusterSubdomain(
+                                            cNameRecords,
+                                            entity.getClusterSubdomain()
+                                    )
+                            )
+                    )
+            ).collect(Collectors.toList());
+            log.info("Found {} servers to load to R53 with match CName records", serverEntries.size());
+            return serverEntries;
+        }
 
         return serverEntries;
     }
 
     private ResourceRecordSet findResourceRecordSetByClusterSubdomain(
             List<ResourceRecordSet> resourceRecordSets,
-            String  clusterSubdomain
+            String clusterSubdomain
     ){
         return resourceRecordSets.stream()
                 .filter(
                         resourceRecordSet -> resourceRecordSet.resourceRecords().stream()
                         .anyMatch(record -> getSubdomain(record.value()).contains(clusterSubdomain)
                         )
-                ).findFirst().get(); //TODO throw exception or greater than one match
+                ).findFirst()
+                .orElseThrow(
+                        () ->new ServerEntryException(
+                                String.format("Cannot find matching resource record from subdomain: [%s]",
+                                        clusterSubdomain
+                                )
+                        )
+                );
     }
 
     private List<ResourceRecordSet> getCNameRecords(ListResourceRecordSetsResponse response){
