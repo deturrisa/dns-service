@@ -67,6 +67,10 @@ public class TestUtil {
                             List.of(
                                     createResourceRecord("la.domain.com")
                             )),
+                    createResourceRecordSet("usa.domain.com.", RRType.CNAME,
+                            List.of(
+                                    createResourceRecord("nyc.domain.com")
+                            )),
                     createResourceRecordSet("hongkong.domain.com.", RRType.A,
                             List.of(
                                     createResourceRecord("1.2.3.4.5"),
@@ -75,6 +79,14 @@ public class TestUtil {
                     createResourceRecordSet("la.domain.com.", RRType.A,
                             List.of(
                                     createResourceRecord("123.123.123.123")
+                            )),
+                    createResourceRecordSet("la.domain.com.", RRType.A,
+                            List.of(
+                                    createResourceRecord("125.125.125.125")
+                            )),
+                    createResourceRecordSet("nyc.domain.com.", RRType.A,
+                            List.of(
+                                    createResourceRecord("111.111.111.111")
                             ))
 
             );

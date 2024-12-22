@@ -54,26 +54,43 @@ public class Route53RecordMapperTest {
         //when
         List<Route53Record> result = mapper.getRoute53Records();
 
-        assertEquals(4, result.size());
+        assertEquals(7, result.size());
 
         assertInstanceOf(CNameRecord.class, result.get(0));
-        CNameRecord usaCNameRecord = (CNameRecord) result.get(0);
-        assertEquals("usa.domain.com.", usaCNameRecord.getResourceRecordSetName());
-        assertEquals("la.domain.com", usaCNameRecord.getResourceRecordValue());
+        CNameRecord usaLaCNameRecord = (CNameRecord) result.get(0);
+        assertEquals("usa.domain.com.", usaLaCNameRecord.getResourceRecordSetName());
+        assertEquals("la.domain.com", usaLaCNameRecord.getResourceRecordValue());
 
-        assertInstanceOf(ARecord.class, result.get(1));
-        assertEquals("hongkong.domain.com.", result.get(1).getResourceRecordSetName());
-        assertEquals("1.2.3.4.5", result.get(1).getResourceRecordValue());
+        assertInstanceOf(CNameRecord.class, result.get(1));
+        CNameRecord usaNycCNameRecord = (CNameRecord) result.get(1);
+        assertEquals("usa.domain.com.", usaNycCNameRecord.getResourceRecordSetName());
+        assertEquals("nyc.domain.com", usaNycCNameRecord.getResourceRecordValue());
 
         assertInstanceOf(ARecord.class, result.get(2));
         assertEquals("hongkong.domain.com.", result.get(2).getResourceRecordSetName());
-        assertEquals("6.7.8.9.10", result.get(2).getResourceRecordValue());
+        assertEquals("1.2.3.4.5", result.get(2).getResourceRecordValue());
 
         assertInstanceOf(ARecord.class, result.get(3));
-        ARecord laARecord = (ARecord) result.get(3);
-        assertEquals("la.domain.com.", laARecord.getResourceRecordSetName());
-        assertEquals("123.123.123.123", laARecord.getResourceRecordValue());
-        assertEquals(usaCNameRecord, laARecord.getCNameRecord());
+        assertEquals("hongkong.domain.com.", result.get(3).getResourceRecordSetName());
+        assertEquals("6.7.8.9.10", result.get(3).getResourceRecordValue());
+
+        assertInstanceOf(ARecord.class, result.get(4));
+        ARecord laARecord1 = (ARecord) result.get(4);
+        assertEquals("la.domain.com.", laARecord1.getResourceRecordSetName());
+        assertEquals("123.123.123.123", laARecord1.getResourceRecordValue());
+        assertEquals(usaLaCNameRecord, laARecord1.getCNameRecord());
+
+        assertInstanceOf(ARecord.class, result.get(5));
+        ARecord laARecord2 = (ARecord) result.get(5);
+        assertEquals("la.domain.com.", laARecord2.getResourceRecordSetName());
+        assertEquals("125.125.125.125", laARecord2.getResourceRecordValue());
+        assertEquals(usaLaCNameRecord, laARecord2.getCNameRecord());
+
+        assertInstanceOf(ARecord.class, result.get(6));
+        ARecord nycRecord1 = (ARecord) result.get(6);
+        assertEquals("nyc.domain.com.", nycRecord1.getResourceRecordSetName());
+        assertEquals("111.111.111.111", nycRecord1.getResourceRecordValue());
+        assertEquals(usaNycCNameRecord, nycRecord1.getCNameRecord());
 
     }
 
