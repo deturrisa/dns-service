@@ -34,7 +34,8 @@ public class Route53RecordMapper {
                     resourceRecord -> new ARecord(
                             resourceRecordSet.name(),
                             getCountryDomain(resourceRecordSet,response),
-                            resourceRecord.value()
+                            resourceRecord.value(),
+                            resourceRecordSet.setIdentifier()
                     )
             )
         ).toList();

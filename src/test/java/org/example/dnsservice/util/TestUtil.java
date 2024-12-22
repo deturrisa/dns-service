@@ -67,6 +67,7 @@ public class TestUtil {
                             )),
                     createAResourceRecordSet(
                             "fra." + DOMAIN_COM,
+                            "fra",
                             createIpResourceRecords(
                                     List.of("12.12.12.12")
                             ),
@@ -74,6 +75,7 @@ public class TestUtil {
                     ),
                     createAResourceRecordSet(
                             "ge." + DOMAIN_COM,
+                            "ge",
                             createIpResourceRecords(
                                     List.of("1.2.3.4")
                             ),
@@ -81,6 +83,7 @@ public class TestUtil {
                     ),
                     createAResourceRecordSet(
                             "hongkong." + DOMAIN_COM,
+                            "hongkong",
                             createIpResourceRecords(
                                     List.of("234.234.234.234","235.235.235.235")
                             ),
@@ -88,6 +91,7 @@ public class TestUtil {
                     ),
                     createAResourceRecordSet(
                             "la." + DOMAIN_COM,
+                            "la",
                             createIpResourceRecords(
                                     List.of("123.123.123.123","125.125.125.125")
                             ),
@@ -95,6 +99,7 @@ public class TestUtil {
                     ),
                     createAResourceRecordSet(
                             "nyc." + DOMAIN_COM,
+                            "nyc",
                             createIpResourceRecords(
                                     List.of("13.13.13.13")
                             ),
@@ -102,6 +107,7 @@ public class TestUtil {
                     ),
                     createAResourceRecordSet(
                             "xyz." + DOMAIN_COM,
+                            "xyz",
                             createIpResourceRecords(
                                     List.of("5.5.5.5")
                             ),
@@ -116,10 +122,12 @@ public class TestUtil {
 
         private static ResourceRecordSet createAResourceRecordSet(
                 String name,
+                String setIdentifier,
                 List<ResourceRecord> ipResourceRecords,
                 GeoLocation geoLocation) {
             return ResourceRecordSet.builder()
                     .name(name)
+                    .setIdentifier(setIdentifier)
                     .type(RRType.A)
                     .geoLocation(geoLocation)
                     .resourceRecords(ipResourceRecords)
