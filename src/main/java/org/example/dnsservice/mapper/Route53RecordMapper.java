@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsResponse;
 import software.amazon.awssdk.services.route53.model.RRType;
-import software.amazon.awssdk.services.route53.model.ResourceRecord;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 
 import java.util.List;
@@ -29,46 +28,39 @@ public class Route53RecordMapper {
 
     public List<ARecord> getRoute53Records() {
         ListResourceRecordSetsResponse response = getListResourceRecordSetsResponse();
-        return getANameRecords(response).stream().flatMap(
+
+        return getAResourceRecordSets(response).stream().flatMap(
             resourceRecordSet -> resourceRecordSet.resourceRecords().stream().map(
-                    resourceRecord -> createARecord(
-                            resourceRecordSet,
-                            resourceRecord,
-                            response
+                    resourceRecord -> new ARecord(
+                            resourceRecordSet.name(),
+                            getCountryDomain(resourceRecordSet,response),
+                            resourceRecord.value()
                     )
             )
         ).toList();
-    }
-
-    private static ARecord createARecord(
-            ResourceRecordSet resourceRecordSet,
-            ResourceRecord resourceRecord,
-            ListResourceRecordSetsResponse response
-    ) {
-        return new ARecord(
-                resourceRecordSet.name(),
-                getCountryDomain(resourceRecordSet,response),
-                resourceRecord.value()
-        );
     }
 
     private static String getCountryDomain(
             ResourceRecordSet resourceRecordSet,
             ListResourceRecordSetsResponse response
     ) {
-        String hostedZoneName = response.resourceRecordSets().stream().filter(
-                recordSet -> recordSet.type().equals(RRType.SOA)
-        ).map(ResourceRecordSet::name).findFirst().orElse(null);
-         //TODO handle exception
-        assert hostedZoneName != null;
+        String hostedZoneName = getHostedZoneName(response);
+
         return SupportedCountryCode
                 .valueOf(
                         resourceRecordSet.geoLocation().countryCode()
                 ).getSubdomain().concat(".").concat(hostedZoneName);
     }
 
+    private static String getHostedZoneName(ListResourceRecordSetsResponse response) {
+        //TODO handle exception
+        return response.resourceRecordSets().stream().filter(
+                recordSet -> recordSet.type().equals(RRType.SOA)
+        ).map(ResourceRecordSet::name).findFirst().orElse(null);
+    }
 
-    private List<ResourceRecordSet> getANameRecords(ListResourceRecordSetsResponse response){
+
+    private List<ResourceRecordSet> getAResourceRecordSets(ListResourceRecordSetsResponse response){
         return response
                 .resourceRecordSets().stream().filter(
                         recordSet -> recordSet.type().equals(RRType.A)
