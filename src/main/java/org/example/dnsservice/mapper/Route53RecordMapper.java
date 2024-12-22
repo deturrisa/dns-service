@@ -12,7 +12,6 @@ import software.amazon.awssdk.services.route53.model.RRType;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
@@ -35,28 +34,47 @@ public class Route53RecordMapper {
         Stream<ResourceRecordSet> cNameRecordSets = resourceRecordSets.stream().filter(Route53RecordMapper::isCName);
         Stream<ResourceRecordSet> aNameRecordSets = resourceRecordSets.stream().filter(Route53RecordMapper::isAName);
 
-        List<CNameRecord> cNameRecords = cNameRecordSets.flatMap(
-                resourceRecordSet -> resourceRecordSet.resourceRecords().stream().map(
-                        resourceRecord -> new CNameRecord(resourceRecordSet.name(), resourceRecord.value())
-                )
-        ).toList();
+        List<CNameRecord> cNameRecords = getCNameRecordStream(cNameRecordSets).toList();
 
-        List<ARecord> aRecords = aNameRecordSets.flatMap(
+        List<ARecord> aRecords = getARecordStream(aNameRecordSets, cNameRecords).toList();
+
+        return Stream.concat(cNameRecords.stream(), aRecords.stream()).toList();
+    }
+
+    private static Stream<ARecord> getARecordStream(Stream<ResourceRecordSet> aNameRecordSets, List<CNameRecord> cNameRecords) {
+        return aNameRecordSets.flatMap(
                 resourceRecordSet -> resourceRecordSet.resourceRecords().stream().map(
-                        resourceRecord ->{
+                        resourceRecord -> {
+
                             ARecord aRecord = new ARecord(resourceRecordSet.name(), resourceRecord.value());
-                            if(hasMatchingSubdomain(cNameRecords, aRecord)){
-                                return cNameRecords.stream().map( cNameRecord ->
-                                        new ARecord(resourceRecordSet.name(), resourceRecord.value(),cNameRecord)
-                                ).toList();
+
+                            List<CNameRecord> matchingCNameRecords = getMatchingCNameRecords(cNameRecords, aRecord).toList();
+
+                            if (!matchingCNameRecords.isEmpty()) {
+                                matchingCNameRecords.forEach(aRecord::setCNameRecord);
                             }
                             return List.of(aRecord);
                         }
                 )
-        ).flatMap(List::stream).toList();
+        ).flatMap(List::stream);
+    }
 
-        return Stream.concat(cNameRecords.stream(), aRecords.stream()).toList();
+    private static Stream<CNameRecord> getCNameRecordStream(Stream<ResourceRecordSet> cNameRecordSets) {
+        return cNameRecordSets.flatMap(
+                Route53RecordMapper::getCNameRecordStream
+        );
+    }
 
+    private static Stream<CNameRecord> getCNameRecordStream(ResourceRecordSet resourceRecordSet) {
+        return resourceRecordSet.resourceRecords().stream().map(
+                resourceRecord -> new CNameRecord(resourceRecordSet.name(), resourceRecord.value())
+        );
+    }
+
+    private static Stream<CNameRecord> getMatchingCNameRecords(List<CNameRecord> cNameRecords, ARecord aRecord){
+        return cNameRecords.stream().filter(
+                cNameRecord -> cNameRecord.getSubdomain().equals(aRecord.getSubdomain())
+        );
     }
 
     private static boolean hasMatchingSubdomain(List<CNameRecord> cNameRecords, ARecord aRecord){
