@@ -1,17 +1,19 @@
 package org.example.dnsservice.util;
 
-import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsResponse;
-import software.amazon.awssdk.services.route53.model.RRType;
-import software.amazon.awssdk.services.route53.model.ResourceRecord;
-import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
+import software.amazon.awssdk.services.route53.model.*;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import static org.example.dnsservice.model.SupportedCountryCode.*;
+
 public class TestUtil {
 
     public static class TestData{
+
+        public static final String DOMAIN_COM = "domain.com.";
 
         public static ListResourceRecordSetsResponse createListResourceRecordSetsResponse(List<ResourceRecordSet> resourceRecordSets){
             return ListResourceRecordSetsResponse.builder()
@@ -40,12 +42,12 @@ public class TestUtil {
 
         private static List<ResourceRecordSet> createDefaultResourceRecordSets() {
             return Arrays.asList(
-                    createResourceRecordSet("domain.com.", RRType.NS,
+                    createResourceRecordSet(DOMAIN_COM, RRType.NS,
                             Arrays.asList(
                                     createResourceRecord("ns-1173.awsdns-31.org."),
                                     createResourceRecord("ns-428.awsdns-11.com.")
                             )),
-                    createResourceRecordSet("domain.com.", RRType.SOA,
+                    createResourceRecordSet(DOMAIN_COM, RRType.SOA,
                             Collections.singletonList(
                                     createResourceRecord("ns-1243.awsdns-11.org. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400")
                             ))
@@ -54,42 +56,74 @@ public class TestUtil {
 
         public static List<ResourceRecordSet> getResourceRecordSets(){
             return Arrays.asList(
-                    createResourceRecordSet("domain.com.", RRType.NS,
+                    createResourceRecordSet(DOMAIN_COM, RRType.NS,
                             List.of(
                                     createResourceRecord("ns-1173.awsdns-31.org."),
                                     createResourceRecord("ns-428.awsdns-11.com.")
                             )),
-                    createResourceRecordSet("domain.com.", RRType.SOA,
+                    createResourceRecordSet(DOMAIN_COM, RRType.SOA,
                             List.of(
                                     createResourceRecord("ns-1243.awsdns-11.org. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400")
                             )),
-                    createResourceRecordSet("usa.domain.com.", RRType.CNAME,
-                            List.of(
-                                    createResourceRecord("la.domain.com")
-                            )),
-                    createResourceRecordSet("usa.domain.com.", RRType.CNAME,
-                            List.of(
-                                    createResourceRecord("nyc.domain.com")
-                            )),
-                    createResourceRecordSet("hongkong.domain.com.", RRType.A,
-                            List.of(
-                                    createResourceRecord("1.2.3.4.5"),
-                                    createResourceRecord("6.7.8.9.10")
-                            ))                  ,
-                    createResourceRecordSet("la.domain.com.", RRType.A,
-                            List.of(
-                                    createResourceRecord("123.123.123.123")
-                            )),
-                    createResourceRecordSet("la.domain.com.", RRType.A,
-                            List.of(
-                                    createResourceRecord("125.125.125.125")
-                            )),
-                    createResourceRecordSet("nyc.domain.com.", RRType.A,
-                            List.of(
-                                    createResourceRecord("111.111.111.111")
-                            ))
-
+                    createAResourceRecordSet(
+                            "fra." + DOMAIN_COM,
+                            createIpResourceRecords(
+                                    List.of("12.12.12.12")
+                            ),
+                            GeoLocation.builder().countryCode(DE.name()).build()
+                    ),
+                    createAResourceRecordSet(
+                            "ge." + DOMAIN_COM,
+                            createIpResourceRecords(
+                                    List.of("1.2.3.4")
+                            ),
+                            GeoLocation.builder().countryCode(CH.name()).build()
+                    ),
+                    createAResourceRecordSet(
+                            "hongkong." + DOMAIN_COM,
+                            createIpResourceRecords(
+                                    List.of("234.234.234.234","235.235.235.235")
+                            ),
+                            GeoLocation.builder().countryCode(HK.name()).build()
+                    ),
+                    createAResourceRecordSet(
+                            "la." + DOMAIN_COM,
+                            createIpResourceRecords(
+                                    List.of("123.123.123.123","125.125.125.125")
+                            ),
+                            GeoLocation.builder().countryCode(US.name()).build()
+                    ),
+                    createAResourceRecordSet(
+                            "nyc." + DOMAIN_COM,
+                            createIpResourceRecords(
+                                    List.of("13.13.13.13")
+                            ),
+                            GeoLocation.builder().countryCode(US.name()).build()
+                    ),
+                    createAResourceRecordSet(
+                            "xyz." + DOMAIN_COM,
+                            createIpResourceRecords(
+                                    List.of("5.5.5.5")
+                            ),
+                            GeoLocation.builder().countryCode(US.name()).build()
+                    )
             );
+        }
+
+        private static List<ResourceRecord> createIpResourceRecords(List<String> ipAddresses) {
+            return ipAddresses.stream().map(TestData::createResourceRecord).toList();
+        }
+
+        private static ResourceRecordSet createAResourceRecordSet(
+                String name,
+                List<ResourceRecord> ipResourceRecords,
+                GeoLocation geoLocation) {
+            return ResourceRecordSet.builder()
+                    .name(name)
+                    .type(RRType.A)
+                    .geoLocation(geoLocation)
+                    .resourceRecords(ipResourceRecords)
+                    .build();
         }
 
         private static ResourceRecordSet createResourceRecordSet(String name, RRType type, List<ResourceRecord> resourceRecords) {

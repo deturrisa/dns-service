@@ -2,8 +2,6 @@ package org.example.dnsservice.mapper;
 
 import org.example.dnsservice.configuration.R53Properties;
 import org.example.dnsservice.model.ARecord;
-import org.example.dnsservice.model.CNameRecord;
-import org.example.dnsservice.model.Route53Record;
 import org.example.dnsservice.service.AwsR53Service;
 import org.example.dnsservice.util.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,10 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsResponse;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
 import static org.example.dnsservice.util.TestUtil.TestData.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -52,45 +48,49 @@ public class Route53RecordMapperTest {
         );
 
         //when
-        List<Route53Record> result = mapper.getRoute53Records();
+        List<ARecord> result = mapper.getRoute53Records();
 
-        assertEquals(7, result.size());
+        assertEquals(8, result.size());
 
-        assertInstanceOf(CNameRecord.class, result.get(0));
-        CNameRecord usaLaCNameRecord = (CNameRecord) result.get(0);
-        assertEquals("usa.domain.com.", usaLaCNameRecord.getResourceRecordSetName());
-        assertEquals("la.domain.com", usaLaCNameRecord.getResourceRecordValue());
+        ARecord frankfurtRecord = result.get(0);
+        assertEquals("fra.domain.com.", frankfurtRecord.cityDomain());
+        assertEquals("germany.domain.com.", frankfurtRecord.countryDomain());
+        assertEquals("12.12.12.12", frankfurtRecord.ipAddress());
 
-        assertInstanceOf(CNameRecord.class, result.get(1));
-        CNameRecord usaNycCNameRecord = (CNameRecord) result.get(1);
-        assertEquals("usa.domain.com.", usaNycCNameRecord.getResourceRecordSetName());
-        assertEquals("nyc.domain.com", usaNycCNameRecord.getResourceRecordValue());
+        ARecord genevaRecord = result.get(1);
+        assertEquals("ge.domain.com.", genevaRecord.cityDomain());
+        assertEquals("switzerland.domain.com.", genevaRecord.countryDomain());
+        assertEquals("1.2.3.4", genevaRecord.ipAddress());
 
-        assertInstanceOf(ARecord.class, result.get(2));
-        assertEquals("hongkong.domain.com.", result.get(2).getResourceRecordSetName());
-        assertEquals("1.2.3.4.5", result.get(2).getResourceRecordValue());
+        ARecord hongKongRecord1 = result.get(2);
+        assertEquals("hongkong.domain.com.", hongKongRecord1.cityDomain());
+        assertEquals("hongkong.domain.com.", hongKongRecord1.countryDomain());
+        assertEquals("234.234.234.234", hongKongRecord1.ipAddress());
 
-        assertInstanceOf(ARecord.class, result.get(3));
-        assertEquals("hongkong.domain.com.", result.get(3).getResourceRecordSetName());
-        assertEquals("6.7.8.9.10", result.get(3).getResourceRecordValue());
+        ARecord hongKongRecord2 = result.get(3);
+        assertEquals("hongkong.domain.com.", hongKongRecord2.cityDomain());
+        assertEquals("hongkong.domain.com.", hongKongRecord2.countryDomain());
+        assertEquals("235.235.235.235", hongKongRecord2.ipAddress());
 
-        assertInstanceOf(ARecord.class, result.get(4));
-        ARecord laARecord1 = (ARecord) result.get(4);
-        assertEquals("la.domain.com.", laARecord1.getResourceRecordSetName());
-        assertEquals("123.123.123.123", laARecord1.getResourceRecordValue());
-        assertEquals(usaLaCNameRecord, laARecord1.getCNameRecord());
+        ARecord laRecord1 = result.get(4);
+        assertEquals("la.domain.com.", laRecord1.cityDomain());
+        assertEquals("usa.domain.com.", laRecord1.countryDomain());
+        assertEquals("123.123.123.123", laRecord1.ipAddress());
 
-        assertInstanceOf(ARecord.class, result.get(5));
-        ARecord laARecord2 = (ARecord) result.get(5);
-        assertEquals("la.domain.com.", laARecord2.getResourceRecordSetName());
-        assertEquals("125.125.125.125", laARecord2.getResourceRecordValue());
-        assertEquals(usaLaCNameRecord, laARecord2.getCNameRecord());
+        ARecord laRecord2 = result.get(5);
+        assertEquals("la.domain.com.", laRecord2.cityDomain());
+        assertEquals("usa.domain.com.", laRecord2.countryDomain());
+        assertEquals("125.125.125.125", laRecord2.ipAddress());
 
-        assertInstanceOf(ARecord.class, result.get(6));
-        ARecord nycRecord1 = (ARecord) result.get(6);
-        assertEquals("nyc.domain.com.", nycRecord1.getResourceRecordSetName());
-        assertEquals("111.111.111.111", nycRecord1.getResourceRecordValue());
-        assertEquals(usaNycCNameRecord, nycRecord1.getCNameRecord());
+        ARecord nycRecord = result.get(6);
+        assertEquals("nyc.domain.com.", nycRecord.cityDomain());
+        assertEquals("usa.domain.com.", nycRecord.countryDomain());
+        assertEquals("13.13.13.13", nycRecord.ipAddress());
+
+        ARecord unknownRecord = result.get(7);
+        assertEquals("xyz.domain.com.", unknownRecord.cityDomain());
+        assertEquals("usa.domain.com.", unknownRecord.countryDomain());
+        assertEquals("5.5.5.5", unknownRecord.ipAddress());
 
     }
 
