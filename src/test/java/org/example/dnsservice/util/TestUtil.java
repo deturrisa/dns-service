@@ -26,6 +26,12 @@ public class TestUtil {
             );
         }
 
+        public static List<ResourceRecordSet> createANameResourceRecordSets(String address, List<ResourceRecord> resourceRecords) {
+            return Collections.singletonList(
+                    createResourceRecordSet(address, RRType.A, resourceRecords)
+            );
+        }
+
         public static ListResourceRecordSetsResponse getDefaultResourceRecordSetsResponse() {
             return ListResourceRecordSetsResponse.builder()
                     .resourceRecordSets(createDefaultResourceRecordSets())
@@ -43,6 +49,34 @@ public class TestUtil {
                             Collections.singletonList(
                                     createResourceRecord("ns-1243.awsdns-11.org. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400")
                             ))
+            );
+        }
+
+        public static List<ResourceRecordSet> getResourceRecordSets(){
+            return Arrays.asList(
+                    createResourceRecordSet("domain.com.", RRType.NS,
+                            List.of(
+                                    createResourceRecord("ns-1173.awsdns-31.org."),
+                                    createResourceRecord("ns-428.awsdns-11.com.")
+                            )),
+                    createResourceRecordSet("domain.com.", RRType.SOA,
+                            List.of(
+                                    createResourceRecord("ns-1243.awsdns-11.org. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400")
+                            )),
+                    createResourceRecordSet("usa.domain.com.", RRType.CNAME,
+                            List.of(
+                                    createResourceRecord("la.domain.com")
+                            )),
+                    createResourceRecordSet("hongkong.domain.com.", RRType.A,
+                            List.of(
+                                    createResourceRecord("1.2.3.4.5"),
+                                    createResourceRecord("6.7.8.9.10")
+                            ))                  ,
+                    createResourceRecordSet("la.domain.com.", RRType.A,
+                            List.of(
+                                    createResourceRecord("123.123.123.123")
+                            ))
+
             );
         }
 
