@@ -4,3 +4,4 @@ supported-locations:
       domains: ${USA_SUPPORTED_DOMAINS:usa,nyc}
     - country: switzerland
       domains: ${SWITZERLAND_SUPPORTED_DOMAINS:ge}
+    - country: hongkong
