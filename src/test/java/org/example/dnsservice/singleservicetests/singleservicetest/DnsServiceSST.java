@@ -1,5 +1,6 @@
 package org.example.dnsservice.singleservicetests.singleservicetest;
 
+import org.example.dnsservice.configuration.ServerLocationProperties;
 import org.example.dnsservice.entity.ClusterEntity;
 import org.example.dnsservice.entity.ServerEntity;
 import org.example.dnsservice.model.Action;
