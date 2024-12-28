@@ -6,6 +6,11 @@ public class Location {
     private String cluster;
     private List<String> domains;
 
+    public Location(String cluster, List<String> domains) {
+        this.cluster = cluster;
+        this.domains = domains;
+    }
+
     public String getCluster() {
         return cluster;
     }

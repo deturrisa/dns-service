@@ -19,18 +19,6 @@ public class TestUtil {
                     .build();
         }
 
-        public static List<ResourceRecordSet> createCNameResourceRecordSets(String domainName, List<ResourceRecord> resourceRecords) {
-            return Collections.singletonList(
-                    createResourceRecordSet(domainName, RRType.CNAME, resourceRecords)
-            );
-        }
-
-        public static List<ResourceRecordSet> createANameResourceRecordSets(String address, List<ResourceRecord> resourceRecords) {
-            return Collections.singletonList(
-                    createResourceRecordSet(address, RRType.A, resourceRecords)
-            );
-        }
-
         public static ListResourceRecordSetsResponse getDefaultResourceRecordSetsResponse() {
             return ListResourceRecordSetsResponse.builder()
                     .resourceRecordSets(createDefaultResourceRecordSets())
@@ -88,76 +76,6 @@ public class TestUtil {
                     "germany." + DOMAIN_COM,
                     setIdentifier,
                     createIpResourceRecords(ips)
-            );
-        }
-
-        public static List<ResourceRecordSet> getDefaultResourceRecordSets() {
-            return Arrays.asList(
-                    createResourceRecordSet(DOMAIN_COM, RRType.NS,
-                            List.of(
-                                    createResourceRecord("ns-1173.awsdns-31.org."),
-                                    createResourceRecord("ns-428.awsdns-11.com.")
-                            )),
-                    createResourceRecordSet(DOMAIN_COM, RRType.SOA,
-                            List.of(
-                                    createResourceRecord("ns-1243.awsdns-11.org. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400")
-                            ))
-            );
-        }
-
-        public static List<ResourceRecordSet> getResourceRecordSets(){
-            return Arrays.asList(
-                    createResourceRecordSet(DOMAIN_COM, RRType.NS,
-                            List.of(
-                                    createResourceRecord("ns-1173.awsdns-31.org."),
-                                    createResourceRecord("ns-428.awsdns-11.com.")
-                            )),
-                    createResourceRecordSet(DOMAIN_COM, RRType.SOA,
-                            List.of(
-                                    createResourceRecord("ns-1243.awsdns-11.org. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400")
-                            )),
-                    createAResourceRecordSet(
-                            "fra." + DOMAIN_COM,
-                            "fra",
-                            createIpResourceRecords(
-                                    List.of("12.12.12.12")
-                            )
-                    ),
-                    createAResourceRecordSet(
-                            "ge." + DOMAIN_COM,
-                            "ge",
-                            createIpResourceRecords(
-                                    List.of("1.2.3.4")
-                            )
-                    ),
-                    createAResourceRecordSet(
-                            "hongkong." + DOMAIN_COM,
-                            "hongkong",
-                            createIpResourceRecords(
-                                    List.of("234.234.234.234","235.235.235.235")
-                            )
-                    ),
-                    createAResourceRecordSet(
-                            "la." + DOMAIN_COM,
-                            "la",
-                            createIpResourceRecords(
-                                    List.of("123.123.123.123","125.125.125.125")
-                            )
-                    ),
-                    createAResourceRecordSet(
-                            "nyc." + DOMAIN_COM,
-                            "nyc",
-                            createIpResourceRecords(
-                                    List.of("13.13.13.13")
-                            )
-                    ),
-                    createAResourceRecordSet(
-                            "xyz." + DOMAIN_COM,
-                            "xyz",
-                            createIpResourceRecords(
-                                    List.of("5.5.5.5")
-                            )
-                    )
             );
         }
 
