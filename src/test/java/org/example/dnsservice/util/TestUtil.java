@@ -1,13 +1,10 @@
 package org.example.dnsservice.util;
 
 import software.amazon.awssdk.services.route53.model.*;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-
-import static org.example.dnsservice.model.SupportedCountryCode.*;
 
 public class TestUtil {
 
@@ -42,13 +39,67 @@ public class TestUtil {
 
         private static List<ResourceRecordSet> createDefaultResourceRecordSets() {
             return Arrays.asList(
+                    getNsResourceRecordSet(),
+                    getSoaResourceRecordSet()
+            );
+        }
+
+        public static ResourceRecordSet getSoaResourceRecordSet() {
+            return createResourceRecordSet(DOMAIN_COM, RRType.SOA,
+                    Collections.singletonList(
+                            createResourceRecord("ns-1243.awsdns-11.org. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400")
+                    ));
+        }
+
+        public static ResourceRecordSet getNsResourceRecordSet() {
+            return createResourceRecordSet(DOMAIN_COM, RRType.NS,
+                    Arrays.asList(
+                            createResourceRecord("ns-1173.awsdns-31.org."),
+                            createResourceRecord("ns-428.awsdns-11.com.")
+                    ));
+        }
+
+        public static ResourceRecordSet getUsaAResourceRecordSet(String setIdentifier, List<String> ips){
+            return createAResourceRecordSet(
+                    "usa." + DOMAIN_COM,
+                    setIdentifier,
+                    createIpResourceRecords(ips)
+            );
+        }
+
+        public static ResourceRecordSet getSwitzerlandAResourceRecordSet(String setIdentifier, List<String> ips){
+            return createAResourceRecordSet(
+                    "switzerland." + DOMAIN_COM,
+                    setIdentifier,
+                    createIpResourceRecords(ips)
+            );
+        }
+
+        public static ResourceRecordSet getHongKongAResourceRecordSet(String setIdentifier, List<String> ips){
+            return createAResourceRecordSet(
+                    "hongkong." + DOMAIN_COM,
+                    setIdentifier,
+                    createIpResourceRecords(ips)
+            );
+        }
+
+        public static ResourceRecordSet getGermanyAResourceRecordSet(String setIdentifier, List<String> ips){
+            return createAResourceRecordSet(
+                    "germany." + DOMAIN_COM,
+                    setIdentifier,
+                    createIpResourceRecords(ips)
+            );
+        }
+
+        public static List<ResourceRecordSet> getDefaultResourceRecordSets() {
+            return Arrays.asList(
                     createResourceRecordSet(DOMAIN_COM, RRType.NS,
-                            Arrays.asList(
+                            List.of(
                                     createResourceRecord("ns-1173.awsdns-31.org."),
                                     createResourceRecord("ns-428.awsdns-11.com.")
                             )),
                     createResourceRecordSet(DOMAIN_COM, RRType.SOA,
-                            Collections.singletonList(
+                            List.of(
                                     createResourceRecord("ns-1243.awsdns-11.org. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400")
                             ))
             );
@@ -70,48 +121,42 @@ public class TestUtil {
                             "fra",
                             createIpResourceRecords(
                                     List.of("12.12.12.12")
-                            ),
-                            GeoLocation.builder().countryCode(DE.name()).build()
+                            )
                     ),
                     createAResourceRecordSet(
                             "ge." + DOMAIN_COM,
                             "ge",
                             createIpResourceRecords(
                                     List.of("1.2.3.4")
-                            ),
-                            GeoLocation.builder().countryCode(CH.name()).build()
+                            )
                     ),
                     createAResourceRecordSet(
                             "hongkong." + DOMAIN_COM,
                             "hongkong",
                             createIpResourceRecords(
                                     List.of("234.234.234.234","235.235.235.235")
-                            ),
-                            GeoLocation.builder().countryCode(HK.name()).build()
+                            )
                     ),
                     createAResourceRecordSet(
                             "la." + DOMAIN_COM,
                             "la",
                             createIpResourceRecords(
                                     List.of("123.123.123.123","125.125.125.125")
-                            ),
-                            GeoLocation.builder().countryCode(US.name()).build()
+                            )
                     ),
                     createAResourceRecordSet(
                             "nyc." + DOMAIN_COM,
                             "nyc",
                             createIpResourceRecords(
                                     List.of("13.13.13.13")
-                            ),
-                            GeoLocation.builder().countryCode(US.name()).build()
+                            )
                     ),
                     createAResourceRecordSet(
                             "xyz." + DOMAIN_COM,
                             "xyz",
                             createIpResourceRecords(
                                     List.of("5.5.5.5")
-                            ),
-                            GeoLocation.builder().countryCode(US.name()).build()
+                            )
                     )
             );
         }
@@ -123,13 +168,11 @@ public class TestUtil {
         private static ResourceRecordSet createAResourceRecordSet(
                 String name,
                 String setIdentifier,
-                List<ResourceRecord> ipResourceRecords,
-                GeoLocation geoLocation) {
+                List<ResourceRecord> ipResourceRecords) {
             return ResourceRecordSet.builder()
                     .name(name)
                     .setIdentifier(setIdentifier)
                     .type(RRType.A)
-                    .geoLocation(geoLocation)
                     .resourceRecords(ipResourceRecords)
                     .build();
         }
