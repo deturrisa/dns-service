@@ -1,9 +1,8 @@
 package org.example.dnsservice.service;
 
-import org.example.dnsservice.configuration.R53Properties;
+import org.example.dnsservice.configuration.Location;
 import org.example.dnsservice.configuration.ServerLocationProperties;
 import org.example.dnsservice.entity.ServerEntity;
-import org.example.dnsservice.exception.ServerEntryException;
 import org.example.dnsservice.mapper.Route53RecordMapper;
 import org.example.dnsservice.model.ServerEntry;
 import org.example.dnsservice.repository.ServerRepository;
@@ -12,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ServerService {
@@ -30,19 +30,38 @@ public class ServerService {
     }
 
     public List<ServerEntry> getServerEntries() {
-        return serverRepository.findAll().stream().map( entity ->
-                new ServerEntry(
+        return serverRepository.findAll().stream().peek(this::logWarningIfNoMatchingCluster)
+                .filter(this::hasConfiguredCluster)
+                .map(entity -> new ServerEntry(
                         entity.getId(),
-                        getClusterByDomain(entity.getClusterSubdomain())
-                )
-        ).toList();
+                        getCluster(entity)
+                ))
+                .toList();
+    }
+
+    private String getCluster(ServerEntity entity) {
+        return getLocationBySubdomain(entity.getClusterSubdomain()).get().getCluster();
+    }
+
+    private boolean hasConfiguredCluster(ServerEntity entity) {
+        return getLocationBySubdomain(entity.getClusterSubdomain()).isPresent();
+    }
+
+    private void logWarningIfNoMatchingCluster(ServerEntity entity) {
+        if (hasNoConfiguredCluster(entity)){
+                log.warn("Cluster domain not found for server: {}", entity);
+        }
+    }
+
+    private boolean hasNoConfiguredCluster(ServerEntity entity) {
+        return getLocationBySubdomain(entity.getClusterSubdomain()).isEmpty();
     }
 
     //TODO handle cluster not found
-    private String getClusterByDomain(String domain){
+    private Optional<Location> getLocationBySubdomain(String domain){
         return properties.getLocations().stream().filter(
                 location -> location.getDomains().contains(domain))
-                .findFirst().get().getCluster();
+                .findFirst();
     }
 
 }

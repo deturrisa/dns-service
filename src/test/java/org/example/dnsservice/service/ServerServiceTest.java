@@ -41,13 +41,13 @@ class ServerServiceTest {
                 List.of(
                     new Location("usa", List.of("usa","nyc")),
                     new Location("switzerland", List.of("ge")),
-                    new Location("hongkong", null)
+                    new Location("hongkong", List.of("hongkong"))
                 )
         );
     }
 
     @Nested
-    class AddToRotation{
+    class AddToRotation {
 
         @Test
         public void testWhenMapperReturnsNothingThenMapServersFromDb(){
@@ -62,6 +62,28 @@ class ServerServiceTest {
             List<ServerEntry> result = service.getServerEntries();
 
             //then
+            assertEquals(20, result.get(0).serverId());
+            assertEquals("switzerland", result.get(0).cluster());
+            assertEquals("NONE", result.get(0).dnsStatus());
+            assertEquals(Action.ADD, result.get(0).action());
+        }
+
+        @Test
+        public void testWhenMapperReturnsNothingThenMapServersFromDbAndIgnoreServerNotInProperties(){
+            //given
+            ClusterEntity genevaCluster = new ClusterEntity(5,"Geneva","ge");
+            ServerEntity genevaServer = new ServerEntity(20,"my-web-1","9.9.9.9", genevaCluster);
+
+            ClusterEntity londonCluster = new ClusterEntity(6,"London","lon");
+            ServerEntity londonServer = new ServerEntity(21,"foo-web","1.1.1.1", londonCluster);
+
+            when(serverRepository.findAll()).thenReturn(List.of(genevaServer, londonServer));
+
+            //when
+            List<ServerEntry> result = service.getServerEntries();
+
+            //then
+            assertEquals(1, result.size());
             assertEquals(20, result.get(0).serverId());
             assertEquals("switzerland", result.get(0).cluster());
             assertEquals("NONE", result.get(0).dnsStatus());

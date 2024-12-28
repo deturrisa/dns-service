@@ -5,3 +5,4 @@ supported-locations:
     - cluster: switzerland
       domains: ${SWITZERLAND_SUPPORTED_DOMAINS:ge}
     - cluster: hongkong
+      domains: ${HONG_KONG_SUPPORTED_DOMAINS:ge}
