@@ -1,7 +1,7 @@
 supported-locations:
   locations:
-    - country: usa
+    - cluster: usa
       domains: ${USA_SUPPORTED_DOMAINS:usa,nyc}
-    - country: switzerland
+    - cluster: switzerland
       domains: ${SWITZERLAND_SUPPORTED_DOMAINS:ge}
-    - country: hongkong
+    - cluster: hongkong

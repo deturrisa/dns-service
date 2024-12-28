@@ -3,15 +3,15 @@ package org.example.dnsservice.configuration;
 import java.util.List;
 
 public class Location {
-    private String country;
+    private String cluster;
     private List<String> domains;
 
-    public String getCountry() {
-        return country;
+    public String getCluster() {
+        return cluster;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setCluster(String cluster) {
+        this.cluster = cluster;
     }
 
     public List<String> getDomains() {
@@ -22,6 +22,6 @@ public class Location {
         this.domains = domains;
     }
     @Override public String toString() {
-        return "Location{" + "country='" + country + '\'' + ", domains=" + domains + '}';
+        return "Location{" + "cluster='" + cluster + '\'' + ", domains=" + domains + '}';
     }
 }

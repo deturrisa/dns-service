@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsResponse;
 import software.amazon.awssdk.services.route53.model.RRType;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
