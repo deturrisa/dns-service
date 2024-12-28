@@ -4,6 +4,7 @@ import org.example.dnsservice.configuration.Location;
 import org.example.dnsservice.configuration.ServerLocationProperties;
 import org.example.dnsservice.entity.ServerEntity;
 import org.example.dnsservice.mapper.Route53RecordMapper;
+import org.example.dnsservice.model.ARecord;
 import org.example.dnsservice.model.ServerEntry;
 import org.example.dnsservice.repository.ServerRepository;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -30,13 +32,43 @@ public class ServerService {
     }
 
     public List<ServerEntry> getServerEntries() {
-        return serverRepository.findAll().stream().peek(this::logWarningIfNoMatchingCluster)
+        return serverRepository.findAll().stream()
+                .peek(this::logWarningIfNoMatchingCluster)
                 .filter(this::hasConfiguredCluster)
-                .map(entity -> new ServerEntry(
-                        entity.getId(),
-                        getCluster(entity)
-                ))
+                .map(this::toServerEntry)
                 .toList();
+    }
+
+    private ServerEntry toServerEntry(ServerEntity entity) {
+        return getARecords().stream()
+                .filter(aRecord -> hasMatchingIpAddress(entity, aRecord))
+                .findFirst()
+                .map(aRecord -> toMatching53ServerEntry(entity, aRecord))
+                .orElseGet(() -> toNonMatchingR53ServerEntry(entity));
+    }
+
+    private ServerEntry toNonMatchingR53ServerEntry(ServerEntity entity) {
+        return new ServerEntry(
+                entity.getId(),
+                getCluster(entity)
+        );
+    }
+
+    private ServerEntry toMatching53ServerEntry(ServerEntity entity, ARecord aRecord) {
+        return new ServerEntry(
+                entity.getId(),
+                getCluster(entity),
+                aRecord.name()
+        );
+    }
+
+    private static boolean hasMatchingIpAddress(ServerEntity entity, ARecord aRecord) {
+        return Objects.equals(entity.getClusterSubdomain(), aRecord.setIdentifier())
+                && Objects.equals(entity.getIpString(), aRecord.ipAddress());
+    }
+
+    private List<ARecord> getARecords(){
+        return mapper.getRoute53Records();
     }
 
     private String getCluster(ServerEntity entity) {
@@ -57,11 +89,9 @@ public class ServerService {
         return getLocationBySubdomain(entity.getClusterSubdomain()).isEmpty();
     }
 
-    //TODO handle cluster not found
     private Optional<Location> getLocationBySubdomain(String domain){
         return properties.getLocations().stream().filter(
                 location -> location.getDomains().contains(domain))
                 .findFirst();
     }
-
 }
