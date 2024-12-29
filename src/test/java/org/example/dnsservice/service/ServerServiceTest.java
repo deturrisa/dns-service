@@ -100,12 +100,11 @@ class ServerServiceTest {
         public void testMapServersFromDbAndR53(){
             //given
             String ipAddress = "127.0.0.1";
-            String switzerlandDotCom = SWITZERLAND + ".com.";
 
             ClusterEntity clusterEntity = new ClusterEntity(5,"Geneva", GENEVA);
             ServerEntity serverEntity = new ServerEntity(20,"my-web-1", ipAddress, clusterEntity);
 
-            ARecord genevaARecord = new ARecord(switzerlandDotCom, ipAddress, GENEVA);
+            ARecord genevaARecord = new ARecord(SWITZERLAND + DOT_DOMAIN_COM, ipAddress, GENEVA);
 
             when(serverRepository.findAll()).thenReturn(List.of(serverEntity));
             when(mapper.getRoute53Records()).thenReturn(List.of(genevaARecord));
@@ -116,7 +115,7 @@ class ServerServiceTest {
             //then
             assertEquals(20, result.get(0).serverId());
             assertEquals(SWITZERLAND, result.get(0).cluster());
-            assertEquals(switzerlandDotCom, result.get(0).dnsStatus());
+            assertEquals(SWITZERLAND + DOT_DOMAIN_COM, result.get(0).dnsStatus());
             assertEquals(Action.REMOVE, result.get(0).action());
         }
 

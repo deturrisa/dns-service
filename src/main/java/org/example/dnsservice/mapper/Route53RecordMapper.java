@@ -64,7 +64,7 @@ public class Route53RecordMapper {
                         .anyMatch(domain -> domain.equals(resourceRecordSet.setIdentifier())))
                 .orElseGet(() -> {
                     log.warn("Resource record is not supported within the context of this application" +
-                            "cluster:[{}] , subdomain: [{}] ", resourceRecordSet.name(), resourceRecordSet.setIdentifier());
+                            "cluster: [{}] , subdomain: [{}] ", resourceRecordSet.name(), resourceRecordSet.setIdentifier());
                     return false;
                 });
     }

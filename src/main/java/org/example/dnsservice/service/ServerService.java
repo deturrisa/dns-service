@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -63,16 +64,18 @@ public class ServerService {
     }
 
     private static boolean hasMatchingIpAddress(ServerEntity entity, ARecord aRecord) {
-        return Objects.equals(entity.getClusterSubdomain(), aRecord.setIdentifier())
-                && Objects.equals(entity.getIpString(), aRecord.ipAddress());
+        return Objects.equals(entity.getClusterSubdomain(), aRecord.setIdentifier()) &&
+                Objects.equals(entity.getIpString(), aRecord.ipAddress());
     }
 
-    private List<ARecord> getARecords(){
+    private List<ARecord> getARecords() {
         return mapper.getRoute53Records();
     }
 
     private String getCluster(ServerEntity entity) {
-        return getLocationBySubdomain(entity.getClusterSubdomain()).get().getCluster();
+        return getLocationBySubdomain(entity.getClusterSubdomain())
+                .map(Location::getCluster)
+                .orElseThrow(() -> new IllegalStateException("Cluster not found for subdomain: " + entity.getClusterSubdomain()));
     }
 
     private boolean hasConfiguredCluster(ServerEntity entity) {
@@ -80,8 +83,8 @@ public class ServerService {
     }
 
     private void logWarningIfNoMatchingCluster(ServerEntity entity) {
-        if (hasNoConfiguredCluster(entity)){
-                log.warn("Cluster domain not found for server: {}", entity);
+        if (hasNoConfiguredCluster(entity)) {
+            log.warn("Cluster domain not found for server: {}", entity);
         }
     }
 
@@ -89,9 +92,9 @@ public class ServerService {
         return getLocationBySubdomain(entity.getClusterSubdomain()).isEmpty();
     }
 
-    private Optional<Location> getLocationBySubdomain(String domain){
-        return properties.getLocations().stream().filter(
-                location -> location.getDomains().contains(domain))
+    private Optional<Location> getLocationBySubdomain(String domain) {
+        return properties.getLocations().stream()
+                .filter(location -> location.getDomains().contains(domain))
                 .findFirst();
     }
 }
