@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import java.util.List;
+import static org.example.dnsservice.util.TestUtil.TestData.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -33,12 +34,6 @@ class ServerServiceTest {
 
     @InjectMocks
     private ServerService service;
-
-    private static final String USA = "usa";
-    private static final String NYC = "nyc";
-    private static final String SWITZERLAND = "switzerland";
-    private static final String GENEVA = "ge";
-    private static final String HONG_KONG = "hongkong";
 
     @BeforeEach
     public void setUp() {

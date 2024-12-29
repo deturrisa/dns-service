@@ -1,6 +1,8 @@
 package org.example.dnsservice.mapper;
 
+import org.example.dnsservice.configuration.Location;
 import org.example.dnsservice.configuration.R53Properties;
+import org.example.dnsservice.configuration.ServerLocationProperties;
 import org.example.dnsservice.model.ARecord;
 import org.example.dnsservice.service.AwsR53Service;
 import org.example.dnsservice.util.UnitTest;
@@ -25,35 +27,58 @@ public class Route53RecordMapperTest {
     @Mock
     private R53Properties r53Properties;
 
+    @Mock
+    private ServerLocationProperties serverLocationProperties;
+
     @InjectMocks
     private Route53RecordMapper mapper;
 
     @BeforeEach
     public void setUp() {
         when(r53Properties.hostedZoneId()).thenReturn("hosted-zone-id");
+        when(serverLocationProperties.getLocations()).thenReturn(
+                List.of(
+                        new Location(USA, List.of(LA, NYC)),
+                        new Location(SWITZERLAND, List.of(GENEVA)),
+                        new Location(HONG_KONG, List.of(HONG_KONG)),
+                        new Location(GERMANY, List.of(FRANKFURT))
+                )
+        );
     }
 
     @Test
     public void testShouldMapListRecordResponseToRoute53Records(){
         //given
+        ResourceRecordSet ignoredNameResourceRecordSet = createAResourceRecordSet(
+                "uk." + DOT_DOMAIN_COM,
+                "ma",
+                createIpResourceRecords(List.of("1.1.1.1"))
+        );
+        ResourceRecordSet ignoredSetIdentifierResourceRecordSet = getGermanyAResourceRecordSet(
+                "ber",
+                List.of("12.12.12.12")
+        );
+
         List<ResourceRecordSet> resourceRecordSets = List.of(
                 getNsResourceRecordSet(),
                 getSoaResourceRecordSet(),
-                getGermanyAResourceRecordSet("fra",
+                getGermanyAResourceRecordSet(FRANKFURT,
                         List.of("12.12.12.12")
                 ),
-                getSwitzerlandAResourceRecordSet("ge",
+                getSwitzerlandAResourceRecordSet(GENEVA,
                         List.of("1.2.3.4")
                 ),
-                getHongKongAResourceRecordSet(null,
+                getHongKongAResourceRecordSet(HONG_KONG,
                         List.of("234.234.234.234", "235.235.235.235")
                 ),
-                getUsaAResourceRecordSet("la",
+                getUsaAResourceRecordSet(LA,
                         List.of("123.123.123.123", "125.125.125.125")
                 ),
-                getUsaAResourceRecordSet("nyc",
+                getUsaAResourceRecordSet(NYC,
                         List.of("13.13.13.13")
-                )
+                ),
+                ignoredNameResourceRecordSet,
+                ignoredSetIdentifierResourceRecordSet
         );
 
         ListResourceRecordSetsResponse response =
@@ -71,38 +96,38 @@ public class Route53RecordMapperTest {
         assertEquals(7, result.size());
 
         ARecord frankfurtRecord = result.get(0);
-        assertEquals("fra", frankfurtRecord.setIdentifier());
-        assertEquals("germany.domain.com.", frankfurtRecord.name());
+        assertEquals(FRANKFURT, frankfurtRecord.setIdentifier());
+        assertEquals(GERMANY + DOT_DOMAIN_COM, frankfurtRecord.name());
         assertEquals("12.12.12.12", frankfurtRecord.ipAddress());
 
         ARecord genevaRecord = result.get(1);
-        assertEquals("ge", genevaRecord.setIdentifier());
-        assertEquals("switzerland.domain.com.", genevaRecord.name());
+        assertEquals(GENEVA, genevaRecord.setIdentifier());
+        assertEquals(SWITZERLAND + DOT_DOMAIN_COM, genevaRecord.name());
         assertEquals("1.2.3.4", genevaRecord.ipAddress());
 
         ARecord hongKongRecord1 = result.get(2);
-        assertEquals(null, hongKongRecord1.setIdentifier());
-        assertEquals("hongkong.domain.com.", hongKongRecord1.name());
+        assertEquals(HONG_KONG, hongKongRecord1.setIdentifier());
+        assertEquals(HONG_KONG + DOT_DOMAIN_COM, hongKongRecord1.name());
         assertEquals("234.234.234.234", hongKongRecord1.ipAddress());
 
         ARecord hongKongRecord2 = result.get(3);
-        assertEquals(null, hongKongRecord2.setIdentifier());
-        assertEquals("hongkong.domain.com.", hongKongRecord2.name());
+        assertEquals(HONG_KONG, hongKongRecord2.setIdentifier());
+        assertEquals(HONG_KONG + DOT_DOMAIN_COM, hongKongRecord2.name());
         assertEquals("235.235.235.235", hongKongRecord2.ipAddress());
 
         ARecord laRecord1 = result.get(4);
-        assertEquals("la", laRecord1.setIdentifier());
-        assertEquals("usa.domain.com.", laRecord1.name());
+        assertEquals(LA, laRecord1.setIdentifier());
+        assertEquals(USA + DOT_DOMAIN_COM, laRecord1.name());
         assertEquals("123.123.123.123", laRecord1.ipAddress());
 
         ARecord laRecord2 = result.get(5);
-        assertEquals("la", laRecord2.setIdentifier());
-        assertEquals("usa.domain.com.", laRecord2.name());
+        assertEquals(LA, laRecord2.setIdentifier());
+        assertEquals(USA + DOT_DOMAIN_COM, laRecord2.name());
         assertEquals("125.125.125.125", laRecord2.ipAddress());
 
         ARecord nycRecord = result.get(6);
-        assertEquals("nyc", nycRecord.setIdentifier());
-        assertEquals("usa.domain.com.", nycRecord.name());
+        assertEquals(NYC, nycRecord.setIdentifier());
+        assertEquals(USA + DOT_DOMAIN_COM, nycRecord.name());
         assertEquals("13.13.13.13", nycRecord.ipAddress());
 
     }

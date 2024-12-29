@@ -1,6 +1,8 @@
 package org.example.dnsservice.mapper;
 
+import org.example.dnsservice.configuration.Location;
 import org.example.dnsservice.configuration.R53Properties;
+import org.example.dnsservice.configuration.ServerLocationProperties;
 import org.example.dnsservice.model.ARecord;
 import org.example.dnsservice.service.AwsR53Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,8 @@ import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsRespo
 import software.amazon.awssdk.services.route53.model.RRType;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 import java.util.List;
+import java.util.Optional;
+
 import static java.util.stream.Collectors.toList;
 
 @Component
@@ -18,10 +22,16 @@ public class Route53RecordMapper {
 
     private final R53Properties r53Properties;
 
+    private final ServerLocationProperties serverLocationProperties;
+
     @Autowired
-    public Route53RecordMapper(AwsR53Service awsR53Service, R53Properties r53Properties) {
+    public Route53RecordMapper(AwsR53Service awsR53Service,
+                               R53Properties r53Properties,
+                               ServerLocationProperties serverLocationProperties
+    ) {
         this.awsR53Service = awsR53Service;
         this.r53Properties = r53Properties;
+        this.serverLocationProperties = serverLocationProperties;
     }
 
     public List<ARecord> getRoute53Records() {
@@ -34,10 +44,28 @@ public class Route53RecordMapper {
 
     private List<ResourceRecordSet> getAResourceRecordSets(){
         return getListResourceRecordSetsResponse()
-                .resourceRecordSets().stream().filter(
-                        recordSet -> recordSet.type().equals(RRType.A)
-                )
+                .resourceRecordSets().stream()
+                .filter(this::isServerLocationSupportedARecord)
                 .collect(toList());
+    }
+
+    private boolean isServerLocationSupportedARecord(ResourceRecordSet resourceRecordSet) {
+        return resourceRecordSet.type().equals(RRType.A) && isServerLocationSupported(resourceRecordSet);
+    }
+
+    private boolean isServerLocationSupported(ResourceRecordSet resourceRecordSet) {
+        return serverLocationProperties.getLocations()
+                .stream()
+                .filter(location -> location.getCluster().equals(getSubdomain(resourceRecordSet)))
+                .findFirst()
+                .map(location -> location.getDomains().stream()
+                        .anyMatch(domain -> domain.equals(resourceRecordSet.setIdentifier()))
+                )
+                .orElse(false);
+    }
+
+    private String getSubdomain(ResourceRecordSet recordSet) {
+        return recordSet.name().split("\\.")[0];
     }
 
     private ListResourceRecordSetsResponse getListResourceRecordSetsResponse() {

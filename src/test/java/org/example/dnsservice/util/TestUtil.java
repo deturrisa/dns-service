@@ -10,7 +10,15 @@ public class TestUtil {
 
     public static class TestData{
 
-        public static final String DOMAIN_COM = "domain.com.";
+        public static final String DOT_DOMAIN_COM = ".domain.com.";
+        public static final String USA = "usa";
+        public static final String NYC = "nyc";
+        public static final String LA = "la";
+        public static final String SWITZERLAND = "switzerland";
+        public static final String GENEVA = "ge";
+        public static final String FRANKFURT = "fra";
+        public static final String HONG_KONG = "hongkong";
+        public static final String GERMANY = "germany";
 
         public static ListResourceRecordSetsResponse createListResourceRecordSetsResponse(List<ResourceRecordSet> resourceRecordSets){
             return ListResourceRecordSetsResponse.builder()
@@ -33,14 +41,14 @@ public class TestUtil {
         }
 
         public static ResourceRecordSet getSoaResourceRecordSet() {
-            return createResourceRecordSet(DOMAIN_COM, RRType.SOA,
+            return createResourceRecordSet(DOT_DOMAIN_COM, RRType.SOA,
                     Collections.singletonList(
                             createResourceRecord("ns-1243.awsdns-11.org. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400")
                     ));
         }
 
         public static ResourceRecordSet getNsResourceRecordSet() {
-            return createResourceRecordSet(DOMAIN_COM, RRType.NS,
+            return createResourceRecordSet(DOT_DOMAIN_COM, RRType.NS,
                     Arrays.asList(
                             createResourceRecord("ns-1173.awsdns-31.org."),
                             createResourceRecord("ns-428.awsdns-11.com.")
@@ -49,7 +57,7 @@ public class TestUtil {
 
         public static ResourceRecordSet getUsaAResourceRecordSet(String setIdentifier, List<String> ips){
             return createAResourceRecordSet(
-                    "usa." + DOMAIN_COM,
+                    USA + DOT_DOMAIN_COM,
                     setIdentifier,
                     createIpResourceRecords(ips)
             );
@@ -57,7 +65,7 @@ public class TestUtil {
 
         public static ResourceRecordSet getSwitzerlandAResourceRecordSet(String setIdentifier, List<String> ips){
             return createAResourceRecordSet(
-                    "switzerland." + DOMAIN_COM,
+                    SWITZERLAND + DOT_DOMAIN_COM,
                     setIdentifier,
                     createIpResourceRecords(ips)
             );
@@ -65,7 +73,7 @@ public class TestUtil {
 
         public static ResourceRecordSet getHongKongAResourceRecordSet(String setIdentifier, List<String> ips){
             return createAResourceRecordSet(
-                    "hongkong." + DOMAIN_COM,
+                    HONG_KONG + DOT_DOMAIN_COM,
                     setIdentifier,
                     createIpResourceRecords(ips)
             );
@@ -73,17 +81,17 @@ public class TestUtil {
 
         public static ResourceRecordSet getGermanyAResourceRecordSet(String setIdentifier, List<String> ips){
             return createAResourceRecordSet(
-                    "germany." + DOMAIN_COM,
+                    GERMANY + DOT_DOMAIN_COM,
                     setIdentifier,
                     createIpResourceRecords(ips)
             );
         }
 
-        private static List<ResourceRecord> createIpResourceRecords(List<String> ipAddresses) {
+        public static List<ResourceRecord> createIpResourceRecords(List<String> ipAddresses) {
             return ipAddresses.stream().map(TestData::createResourceRecord).toList();
         }
 
-        private static ResourceRecordSet createAResourceRecordSet(
+        public static ResourceRecordSet createAResourceRecordSet(
                 String name,
                 String setIdentifier,
                 List<ResourceRecord> ipResourceRecords) {
