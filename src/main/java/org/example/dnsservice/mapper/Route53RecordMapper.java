@@ -1,17 +1,17 @@
 package org.example.dnsservice.mapper;
 
-import org.example.dnsservice.configuration.Location;
 import org.example.dnsservice.configuration.R53Properties;
 import org.example.dnsservice.configuration.ServerLocationProperties;
 import org.example.dnsservice.model.ARecord;
 import org.example.dnsservice.service.AwsR53Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsResponse;
 import software.amazon.awssdk.services.route53.model.RRType;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 import java.util.List;
-import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -23,6 +23,8 @@ public class Route53RecordMapper {
     private final R53Properties r53Properties;
 
     private final ServerLocationProperties serverLocationProperties;
+
+    private final Logger log = LoggerFactory.getLogger(Route53RecordMapper.class);
 
     @Autowired
     public Route53RecordMapper(AwsR53Service awsR53Service,
@@ -59,9 +61,12 @@ public class Route53RecordMapper {
                 .filter(location -> location.getCluster().equals(getSubdomain(resourceRecordSet)))
                 .findFirst()
                 .map(location -> location.getDomains().stream()
-                        .anyMatch(domain -> domain.equals(resourceRecordSet.setIdentifier()))
-                )
-                .orElse(false);
+                        .anyMatch(domain -> domain.equals(resourceRecordSet.setIdentifier())))
+                .orElseGet(() -> {
+                    log.warn("Resource record is not supported within the context of this application" +
+                            "cluster:[{}] , subdomain: [{}] ", resourceRecordSet.name(), resourceRecordSet.setIdentifier());
+                    return false;
+                });
     }
 
     private String getSubdomain(ResourceRecordSet recordSet) {
