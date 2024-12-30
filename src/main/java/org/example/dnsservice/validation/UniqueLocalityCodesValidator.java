@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.example.dnsservice.util.ErrorCodes.Errors.*;
+import static org.example.dnsservice.util.ErrorCodes.ServerErrors.*;
 
 public class UniqueLocalityCodesValidator
     extends AbstractUniqueValidator

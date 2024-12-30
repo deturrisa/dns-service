@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.example.dnsservice.util.ErrorCodes.Errors.ERROR_EMPTY_DOMAIN_REGIONS;
+import static org.example.dnsservice.util.ErrorCodes.ServerErrors.ERROR_EMPTY_DOMAIN_REGIONS;
 
 public class UniqueDomainRegionValidator
     extends AbstractUniqueValidator

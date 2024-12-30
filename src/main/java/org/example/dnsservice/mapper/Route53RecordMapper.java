@@ -2,6 +2,7 @@ package org.example.dnsservice.mapper;
 
 import org.example.dnsservice.configuration.R53Properties;
 import org.example.dnsservice.configuration.DomainRegionProperties;
+import org.example.dnsservice.exception.ARecordValidationException;
 import org.example.dnsservice.model.ARecord;
 import org.example.dnsservice.service.AwsR53Service;
 import org.slf4j.Logger;
@@ -12,8 +13,8 @@ import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsRespo
 import software.amazon.awssdk.services.route53.model.RRType;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 import java.util.List;
-
 import static java.util.stream.Collectors.toList;
+import static org.example.dnsservice.util.ErrorCodes.ServerErrors.ERROR_DUPLICATE_IP_ADDRESSES;
 
 @Component
 public class Route53RecordMapper {
@@ -36,12 +37,41 @@ public class Route53RecordMapper {
         this.domainRegionProperties = domainRegionProperties;
     }
 
-    public List<ARecord> getRoute53Records() {
-        return getAResourceRecordSets().stream().flatMap(
-            resourceRecordSet -> resourceRecordSet.resourceRecords().stream().map(
-                    resourceRecord -> ARecord.of(resourceRecordSet,resourceRecord)
-            )
-        ).toList();
+    public List<ARecord> getARecords() {
+        List<ARecord> aRecords = getAResourceRecordSets().stream()
+                .filter(this::isValidDomain).flatMap(
+                    resourceRecordSet -> resourceRecordSet.resourceRecords()
+                                .stream().map(
+                                     resourceRecord -> ARecord.of(resourceRecordSet, resourceRecord)
+                    )
+                ).toList();
+
+        validateUniqueIpAddresses(aRecords);
+
+        return aRecords;
+    }
+
+    private boolean isValidDomain(ResourceRecordSet resourceRecordSet) {
+        boolean isValidDomain = resourceRecordSet.name().matches(
+                "^(?!-)[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})\\.?$"
+        );
+
+        if(!isValidDomain){
+            log.warn("Domain is not in format {subdomain_1}.{subdomain_2}.{domain}.com." +
+                    "Skipping mapping for resource record set {}", resourceRecordSet.setIdentifier());
+        }
+
+        return isValidDomain;
+    }
+
+    private static void validateUniqueIpAddresses(List<ARecord> records){
+        if(getDistinctIpAddresses(records) != records.size()){
+            throw new ARecordValidationException(ERROR_DUPLICATE_IP_ADDRESSES);
+        }
+    }
+
+    private static long getDistinctIpAddresses(List<ARecord> records) {
+        return records.stream().map(ARecord::ipAddress).distinct().count();
     }
 
     private List<ResourceRecordSet> getAResourceRecordSets(){

@@ -109,7 +109,7 @@ class ServerEntryServiceTest {
             ARecord genevaARecord = new ARecord(SWITZERLAND + DOT_DOMAIN_COM, ipAddress, GENEVA);
 
             when(serverRepository.findAll()).thenReturn(List.of(serverEntity));
-            when(mapper.getRoute53Records()).thenReturn(List.of(genevaARecord));
+            when(mapper.getARecords()).thenReturn(List.of(genevaARecord));
 
             //when
             List<ServerEntry> result = service.getServerEntries();

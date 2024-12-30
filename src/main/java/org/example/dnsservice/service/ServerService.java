@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
-import static org.example.dnsservice.util.ErrorCodes.Errors.ERROR_DUPLICATE_IP_ADDRESSES;
-import static org.example.dnsservice.util.ErrorCodes.Errors.ERROR_INVALID_SUBDOMAIN;
+import static org.example.dnsservice.util.ErrorCodes.ServerErrors.ERROR_DUPLICATE_IP_ADDRESSES;
+import static org.example.dnsservice.util.ErrorCodes.ServerErrors.ERROR_INVALID_SUBDOMAIN;
 import static org.example.dnsservice.util.IPAddressUtil.IPAddressRegexPattern.IPV4_PATTERN;
 import static org.example.dnsservice.util.IPAddressUtil.IPAddressRegexPattern.IPV6_PATTERN;
 

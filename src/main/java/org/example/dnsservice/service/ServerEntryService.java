@@ -69,7 +69,7 @@ public class ServerEntryService {
     }
 
     private List<ARecord> getARecords() {
-        return mapper.getRoute53Records();
+        return mapper.getARecords();
     }
 
     private String getCluster(ServerEntity entity) {

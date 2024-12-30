@@ -3,6 +3,7 @@ package org.example.dnsservice.mapper;
 import org.example.dnsservice.configuration.DomainRegion;
 import org.example.dnsservice.configuration.R53Properties;
 import org.example.dnsservice.configuration.DomainRegionProperties;
+import org.example.dnsservice.exception.ARecordValidationException;
 import org.example.dnsservice.model.ARecord;
 import org.example.dnsservice.service.AwsR53Service;
 import org.example.dnsservice.util.UnitTest;
@@ -15,6 +16,8 @@ import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+
+import static org.example.dnsservice.util.ErrorCodes.ARecordErrors.ERROR_DUPLICATE_IP_ADDRESSES;
 import static org.example.dnsservice.util.TestUtil.TestData.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -59,6 +62,11 @@ public class Route53RecordMapperTest {
                 "ber",
                 List.of("12.12.12.12")
         );
+        ResourceRecordSet invalidDomainNameResourceRecordSet = createAResourceRecordSet(
+                "abc.xyz" + DOT_DOMAIN_COM,
+                "ma",
+                createIpResourceRecords(List.of("1.1.1.1"))
+        );
 
         List<ResourceRecordSet> resourceRecordSets = List.of(
                 getNsResourceRecordSet(),
@@ -79,7 +87,8 @@ public class Route53RecordMapperTest {
                         List.of("13.13.13.13")
                 ),
                 ignoredNameResourceRecordSet,
-                ignoredSetIdentifierResourceRecordSet
+                ignoredSetIdentifierResourceRecordSet,
+                invalidDomainNameResourceRecordSet
         );
 
         ListResourceRecordSetsResponse response =
@@ -92,7 +101,7 @@ public class Route53RecordMapperTest {
         );
 
         //when
-        List<ARecord> result = mapper.getRoute53Records();
+        List<ARecord> result = mapper.getARecords();
 
         assertEquals(7, result.size());
 
@@ -132,5 +141,4 @@ public class Route53RecordMapperTest {
         assertEquals("13.13.13.13", nycRecord.ipAddress());
 
     }
-
 }
