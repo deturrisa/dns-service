@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.Set;
 
 public class UniqueLocalityCodesValidator
-        implements ConstraintValidator<UniqueLocalityCodesCheck, DomainRegionProperties> {
+    extends AbstractUniqueValidator
+        implements ConstraintValidator<UniqueLocalityCodesCheck, DomainRegionProperties>{
 
     private static final Logger log = LoggerFactory.getLogger(UniqueLocalityCodesValidator.class) ;
 
-    private static final String ERROR_EMPTY_DOMAIN_REGIONS = "Domain regions are empty or could not be retrieved";
     private static final String ERROR_DUPLICATE_LOCALITY_CODE = "Duplicate locality code: {}";
     private static final String ERROR_INVALID_REGION = "Locality codes are empty or could not be retrieved for region: {}";
 
@@ -52,9 +52,5 @@ public class UniqueLocalityCodesValidator
 
     private static boolean isNotNullOrEmpty(DomainRegion region) {
         return region.getLocalityCodes() != null && !region.getLocalityCodes().isEmpty();
-    }
-
-    private static boolean isNullOrEmpty(List<DomainRegion> domainRegions) {
-        return domainRegions == null || domainRegions.isEmpty();
     }
 }
