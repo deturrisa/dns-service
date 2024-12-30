@@ -1,8 +1,7 @@
-package org.example.dnsservice.configuration;
+package org.example.dnsservice.validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-import org.example.dnsservice.validation.UniqueDomainRegionValidator;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

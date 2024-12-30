@@ -4,7 +4,6 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.example.dnsservice.configuration.DomainRegion;
 import org.example.dnsservice.configuration.DomainRegionProperties;
-import org.example.dnsservice.configuration.UniqueDomainRegionCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Set;

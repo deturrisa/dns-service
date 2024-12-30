@@ -2,6 +2,7 @@ package org.example.dnsservice.validation;
 
 import org.example.dnsservice.configuration.DomainRegion;
 import org.example.dnsservice.configuration.DomainRegionProperties;
+import org.example.dnsservice.util.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -14,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
+@UnitTest
 class UniqueDomainRegionValidatorTest {
 
     private UniqueDomainRegionValidator validator;
@@ -28,7 +30,7 @@ class UniqueDomainRegionValidatorTest {
     }
 
     @Test
-    void testValidDomainRegionProperties_NoDuplicates() {
+    public void testValidDomainRegionProperties_NoDuplicates() {
         // given
         DomainRegion usa = new DomainRegion(USA, Set.of(LA,NYC));
         DomainRegion germany = new DomainRegion(GERMANY, Set.of(FRANKFURT));
@@ -40,11 +42,11 @@ class UniqueDomainRegionValidatorTest {
         boolean result = validator.isValid(properties, context);
 
         // then
-        assertTrue(result, "Expected validation to pass when region codes are unique.");
+        assertTrue(result);
     }
 
     @Test
-    void testInvalidDomainRegionProperties_WithDuplicates() {
+    public void testInvalidDomainRegionProperties_WithDuplicates() {
         // given
         ConstraintValidatorContext.ConstraintViolationBuilder builder = mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
         DomainRegion usa1 = new DomainRegion(USA, Set.of(LA,NYC));
