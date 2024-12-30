@@ -93,7 +93,7 @@ public class ServerService {
     }
 
     private Optional<DomainRegion> getLocationBySubdomain(String domain) {
-        return properties.getLocations().stream()
+        return properties.getDomainRegions().stream()
                 .filter(domainRegion -> domainRegion.getLocalityCodes().contains(domain))
                 .findFirst();
     }

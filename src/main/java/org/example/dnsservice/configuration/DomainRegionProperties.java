@@ -15,11 +15,11 @@ public class DomainRegionProperties {
     private List<DomainRegion> domainRegions;
     private final Logger log = LoggerFactory.getLogger(DomainRegionProperties.class);
 
-    public List<DomainRegion> getLocations() {
+    public List<DomainRegion> getDomainRegions() {
         return domainRegions;
     }
 
-    public void setLocations(List<DomainRegion> domainRegions) {
+    public void setDomainRegions(List<DomainRegion> domainRegions) {
         this.domainRegions = domainRegions;
     }
 

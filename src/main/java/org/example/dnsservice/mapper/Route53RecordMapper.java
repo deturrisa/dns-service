@@ -56,7 +56,7 @@ public class Route53RecordMapper {
     }
 
     private boolean isServerLocationSupported(ResourceRecordSet resourceRecordSet) {
-        return domainRegionProperties.getLocations()
+        return domainRegionProperties.getDomainRegions()
                 .stream()
                 .filter(location -> location.getRegionCode().equals(getSubdomain(resourceRecordSet)))
                 .findFirst()

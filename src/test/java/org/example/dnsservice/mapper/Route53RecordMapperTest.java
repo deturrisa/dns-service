@@ -36,7 +36,7 @@ public class Route53RecordMapperTest {
     @BeforeEach
     public void setUp() {
         when(r53Properties.hostedZoneId()).thenReturn("hosted-zone-id");
-        when(domainRegionProperties.getLocations()).thenReturn(
+        when(domainRegionProperties.getDomainRegions()).thenReturn(
                 List.of(
                         new DomainRegion(USA, List.of(LA, NYC)),
                         new DomainRegion(SWITZERLAND, List.of(GENEVA)),

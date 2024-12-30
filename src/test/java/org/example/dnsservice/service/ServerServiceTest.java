@@ -37,7 +37,7 @@ class ServerServiceTest {
 
     @BeforeEach
     public void setUp() {
-        when(properties.getLocations()).thenReturn(
+        when(properties.getDomainRegions()).thenReturn(
                 List.of(
                     new DomainRegion(USA, List.of(LA, NYC)),
                     new DomainRegion(SWITZERLAND, List.of(GENEVA)),
