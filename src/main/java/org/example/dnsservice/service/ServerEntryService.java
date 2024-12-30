@@ -17,16 +17,16 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
-public class ServerService {
+public class ServerEntryService {
 
     private final ServerRepository serverRepository;
     private final Route53RecordMapper mapper;
     private final DomainRegionProperties properties;
 
-    private final Logger log = LoggerFactory.getLogger(ServerService.class);
+    private final Logger log = LoggerFactory.getLogger(ServerEntryService.class);
 
     @Autowired
-    public ServerService(ServerRepository serverRepository, Route53RecordMapper mapper, DomainRegionProperties properties) {
+    public ServerEntryService(ServerRepository serverRepository, Route53RecordMapper mapper, DomainRegionProperties properties) {
         this.serverRepository = serverRepository;
         this.mapper = mapper;
         this.properties = properties;

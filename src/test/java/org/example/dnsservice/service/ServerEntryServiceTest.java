@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-class ServerServiceTest {
+class ServerEntryServiceTest {
 
     @Mock
     private DomainRegionProperties properties;
@@ -35,7 +35,7 @@ class ServerServiceTest {
     private Route53RecordMapper mapper;
 
     @InjectMocks
-    private ServerService service;
+    private ServerEntryService service;
 
     @BeforeEach
     public void setUp() {
