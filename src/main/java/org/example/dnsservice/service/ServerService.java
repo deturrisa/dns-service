@@ -1,7 +1,7 @@
 package org.example.dnsservice.service;
 
-import org.example.dnsservice.configuration.Location;
-import org.example.dnsservice.configuration.ServerLocationProperties;
+import org.example.dnsservice.configuration.DomainRegion;
+import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.entity.ServerEntity;
 import org.example.dnsservice.mapper.Route53RecordMapper;
 import org.example.dnsservice.model.ARecord;
@@ -21,12 +21,12 @@ public class ServerService {
 
     private final ServerRepository serverRepository;
     private final Route53RecordMapper mapper;
-    private final ServerLocationProperties properties;
+    private final DomainRegionProperties properties;
 
     private final Logger log = LoggerFactory.getLogger(ServerService.class);
 
     @Autowired
-    public ServerService(ServerRepository serverRepository, Route53RecordMapper mapper, ServerLocationProperties properties) {
+    public ServerService(ServerRepository serverRepository, Route53RecordMapper mapper, DomainRegionProperties properties) {
         this.serverRepository = serverRepository;
         this.mapper = mapper;
         this.properties = properties;
@@ -74,7 +74,7 @@ public class ServerService {
 
     private String getCluster(ServerEntity entity) {
         return getLocationBySubdomain(entity.getClusterSubdomain())
-                .map(Location::getCluster)
+                .map(DomainRegion::getRegionCode)
                 .orElseThrow(() -> new IllegalStateException("Cluster not found for subdomain: " + entity.getClusterSubdomain()));
     }
 
@@ -92,9 +92,9 @@ public class ServerService {
         return getLocationBySubdomain(entity.getClusterSubdomain()).isEmpty();
     }
 
-    private Optional<Location> getLocationBySubdomain(String domain) {
+    private Optional<DomainRegion> getLocationBySubdomain(String domain) {
         return properties.getLocations().stream()
-                .filter(location -> location.getDomains().contains(domain))
+                .filter(domainRegion -> domainRegion.getLocalityCodes().contains(domain))
                 .findFirst();
     }
 }

@@ -1,8 +1,8 @@
 package org.example.dnsservice.mapper;
 
-import org.example.dnsservice.configuration.Location;
+import org.example.dnsservice.configuration.DomainRegion;
 import org.example.dnsservice.configuration.R53Properties;
-import org.example.dnsservice.configuration.ServerLocationProperties;
+import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.model.ARecord;
 import org.example.dnsservice.service.AwsR53Service;
 import org.example.dnsservice.util.UnitTest;
@@ -28,7 +28,7 @@ public class Route53RecordMapperTest {
     private R53Properties r53Properties;
 
     @Mock
-    private ServerLocationProperties serverLocationProperties;
+    private DomainRegionProperties domainRegionProperties;
 
     @InjectMocks
     private Route53RecordMapper mapper;
@@ -36,12 +36,12 @@ public class Route53RecordMapperTest {
     @BeforeEach
     public void setUp() {
         when(r53Properties.hostedZoneId()).thenReturn("hosted-zone-id");
-        when(serverLocationProperties.getLocations()).thenReturn(
+        when(domainRegionProperties.getLocations()).thenReturn(
                 List.of(
-                        new Location(USA, List.of(LA, NYC)),
-                        new Location(SWITZERLAND, List.of(GENEVA)),
-                        new Location(HONG_KONG, List.of(HONG_KONG)),
-                        new Location(GERMANY, List.of(FRANKFURT))
+                        new DomainRegion(USA, List.of(LA, NYC)),
+                        new DomainRegion(SWITZERLAND, List.of(GENEVA)),
+                        new DomainRegion(HONG_KONG, List.of(HONG_KONG)),
+                        new DomainRegion(GERMANY, List.of(FRANKFURT))
                 )
         );
     }

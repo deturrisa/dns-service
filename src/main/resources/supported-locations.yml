@@ -1,8 +1,0 @@
-supported-locations:
-  locations:
-    - cluster: usa
-      domains: ${USA_SUPPORTED_DOMAINS:usa,nyc}
-    - cluster: switzerland
-      domains: ${SWITZERLAND_SUPPORTED_DOMAINS:ge}
-    - cluster: hongkong
-      domains: ${HONG_KONG_SUPPORTED_DOMAINS:ge}

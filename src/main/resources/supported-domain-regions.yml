@@ -1,0 +1,8 @@
+supported-domain-regions:
+  domainRegions:
+    - regionCode: usa
+      localityCodes: ${USA_SUPPORTED_DOMAINS:usa,nyc}
+    - regionCode: switzerland
+      localityCodes: ${SWITZERLAND_SUPPORTED_DOMAINS:ge}
+    - regionCode: hongkong
+      localityCodes: ${HONG_KONG_SUPPORTED_DOMAINS:hongkong}

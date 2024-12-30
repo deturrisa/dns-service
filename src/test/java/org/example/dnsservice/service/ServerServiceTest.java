@@ -1,7 +1,7 @@
 package org.example.dnsservice.service;
 
-import org.example.dnsservice.configuration.Location;
-import org.example.dnsservice.configuration.ServerLocationProperties;
+import org.example.dnsservice.configuration.DomainRegion;
+import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.entity.ClusterEntity;
 import org.example.dnsservice.entity.ServerEntity;
 import org.example.dnsservice.mapper.Route53RecordMapper;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 class ServerServiceTest {
 
     @Mock
-    private ServerLocationProperties properties;
+    private DomainRegionProperties properties;
 
     @Mock
     private ServerRepository serverRepository;
@@ -39,9 +39,9 @@ class ServerServiceTest {
     public void setUp() {
         when(properties.getLocations()).thenReturn(
                 List.of(
-                    new Location(USA, List.of(USA, NYC)),
-                    new Location(SWITZERLAND, List.of(GENEVA)),
-                    new Location(HONG_KONG, List.of(HONG_KONG))
+                    new DomainRegion(USA, List.of(LA, NYC)),
+                    new DomainRegion(SWITZERLAND, List.of(GENEVA)),
+                    new DomainRegion(HONG_KONG, List.of(HONG_KONG))
                 )
         );
     }

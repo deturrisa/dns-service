@@ -1,7 +1,7 @@
 package org.example.dnsservice.mapper;
 
 import org.example.dnsservice.configuration.R53Properties;
-import org.example.dnsservice.configuration.ServerLocationProperties;
+import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.model.ARecord;
 import org.example.dnsservice.service.AwsR53Service;
 import org.slf4j.Logger;
@@ -22,18 +22,18 @@ public class Route53RecordMapper {
 
     private final R53Properties r53Properties;
 
-    private final ServerLocationProperties serverLocationProperties;
+    private final DomainRegionProperties domainRegionProperties;
 
     private final Logger log = LoggerFactory.getLogger(Route53RecordMapper.class);
 
     @Autowired
     public Route53RecordMapper(AwsR53Service awsR53Service,
                                R53Properties r53Properties,
-                               ServerLocationProperties serverLocationProperties
+                               DomainRegionProperties domainRegionProperties
     ) {
         this.awsR53Service = awsR53Service;
         this.r53Properties = r53Properties;
-        this.serverLocationProperties = serverLocationProperties;
+        this.domainRegionProperties = domainRegionProperties;
     }
 
     public List<ARecord> getRoute53Records() {
@@ -56,11 +56,11 @@ public class Route53RecordMapper {
     }
 
     private boolean isServerLocationSupported(ResourceRecordSet resourceRecordSet) {
-        return serverLocationProperties.getLocations()
+        return domainRegionProperties.getLocations()
                 .stream()
-                .filter(location -> location.getCluster().equals(getSubdomain(resourceRecordSet)))
+                .filter(location -> location.getRegionCode().equals(getSubdomain(resourceRecordSet)))
                 .findFirst()
-                .map(location -> location.getDomains().stream()
+                .map(location -> location.getLocalityCodes().stream()
                         .anyMatch(domain -> domain.equals(resourceRecordSet.setIdentifier())))
                 .orElseGet(() -> {
                     log.warn("Resource record is not supported within the context of this application" +
