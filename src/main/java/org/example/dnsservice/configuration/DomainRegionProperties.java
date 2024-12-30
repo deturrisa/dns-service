@@ -25,6 +25,7 @@ public class DomainRegionProperties {
         return domainRegions;
     }
 
+    //TODO remove
     public void setDomainRegions(List<DomainRegion> domainRegions) {
         this.domainRegions = domainRegions;
     }
