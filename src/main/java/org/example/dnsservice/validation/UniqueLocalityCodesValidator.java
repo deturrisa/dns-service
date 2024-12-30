@@ -10,14 +10,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.example.dnsservice.util.ErrorCodes.Errors.*;
+
 public class UniqueLocalityCodesValidator
     extends AbstractUniqueValidator
         implements ConstraintValidator<UniqueLocalityCodesCheck, DomainRegionProperties>{
 
     private static final Logger log = LoggerFactory.getLogger(UniqueLocalityCodesValidator.class) ;
 
-    private static final String ERROR_DUPLICATE_LOCALITY_CODE = "Duplicate locality code: {}";
-    private static final String ERROR_INVALID_REGION = "Locality codes are empty or could not be retrieved for region: {}";
 
     @Override
     public boolean isValid(DomainRegionProperties domainRegionProperties, ConstraintValidatorContext context) {

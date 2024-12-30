@@ -15,6 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import java.util.List;
 import java.util.Set;
+
+import static org.example.dnsservice.util.ErrorCodes.Errors.ERROR_DUPLICATE_IP_ADDRESSES;
+import static org.example.dnsservice.util.ErrorCodes.Errors.ERROR_INVALID_SUBDOMAIN;
 import static org.example.dnsservice.util.TestUtil.TestData.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -83,7 +86,7 @@ class ServerServiceTest {
         public void testShouldFilterSubdomainNotMatchingLocalityCodes(){
             //given
             ClusterEntity nonMatchingLocalityCodeClusterEntity =
-                    new ClusterEntity(2,"no_match", "no_match");
+                    new ClusterEntity(2,"abc", "xyz");
 
             ServerEntity nonMatchingLocalityCodeServerEntity = new ServerEntity(
                     3,
@@ -125,7 +128,30 @@ class ServerServiceTest {
 
             //when
             //then
-            assertThrows(ServerValidationException.class, () -> service.getServers());
+            assertThrows(ServerValidationException.class, () -> service.getServers(),
+                    ERROR_DUPLICATE_IP_ADDRESSES
+            );
+        }
+
+        @Test
+        public void testShouldThrowServerValidationExceptionIfSpecialCharactersInSubdomain(){
+            //given
+            ClusterEntity clusterEntity = new ClusterEntity(5,"Geneva", "ge.");
+
+            ServerEntity serverEntity = new ServerEntity(
+                    3,
+                    "my-web-1",
+                    ServerServiceTest.this.serverEntity.getIpString(),
+                    clusterEntity
+            );
+
+            when(serverRepository.findAll()).thenReturn(List.of(serverEntity));
+
+            //when
+            //then
+            assertThrows(ServerValidationException.class, () -> service.getServers(),
+                    ERROR_INVALID_SUBDOMAIN
+            );
         }
     }
 }

@@ -10,6 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+
+import static org.example.dnsservice.util.ErrorCodes.Errors.ERROR_DUPLICATE_IP_ADDRESSES;
+import static org.example.dnsservice.util.ErrorCodes.Errors.ERROR_INVALID_SUBDOMAIN;
 import static org.example.dnsservice.util.IPAddressUtil.IPAddressRegexPattern.IPV4_PATTERN;
 import static org.example.dnsservice.util.IPAddressUtil.IPAddressRegexPattern.IPV6_PATTERN;
 
@@ -29,6 +32,7 @@ public class ServerService {
     public List<Server> getServers() {
         List<ServerEntity> entities = repository.findAll();
 
+        validateSubdomains(entities);
         validateUniqueIpAddresses(entities);
 
         return entities.stream()
@@ -37,9 +41,21 @@ public class ServerService {
                 .map(Server::of).toList();
     }
 
+    private static void validateSubdomains(List<ServerEntity> entities){
+        for(ServerEntity entity : entities){
+            if(!hasValidSubdomain(entity)){
+                throw new ServerValidationException(ERROR_INVALID_SUBDOMAIN);
+            }
+        }
+    }
+
+    private static boolean hasValidSubdomain(ServerEntity entity) {
+        return entity.getCluster().getSubdomain().matches("[a-z]+");
+    }
+
     private static void validateUniqueIpAddresses(List<ServerEntity> entities){
         if(getDistinctIpAddresses(entities) != entities.size()){
-            throw new ServerValidationException("IP Addresses are not unique across servers");
+            throw new ServerValidationException(ERROR_DUPLICATE_IP_ADDRESSES);
         }
     }
 
