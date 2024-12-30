@@ -63,6 +63,25 @@ class UniqueDomainRegionValidatorTest {
         verify(context, times(1)).disableDefaultConstraintViolation();
         assertFalse(result);
         verify(context, times(1)).buildConstraintViolationWithTemplate("Duplicate region codes found");
+    }
 
+    @Test
+    public void testInvalidDomainRegions() {
+        // given
+        ConstraintValidatorContext.ConstraintViolationBuilder builder = mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
+        DomainRegion usa1 = new DomainRegion(USA + ".abc", Set.of(LA,NYC));
+        DomainRegion usa2 = new DomainRegion(USA, Set.of(LA,NYC));
+        DomainRegionProperties properties = new DomainRegionProperties();
+        properties.setDomainRegions(Arrays.asList(usa1, usa2));
+
+        when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(builder);
+
+        // when
+        boolean result = validator.isValid(properties, context);
+
+        // then
+        verify(context, times(1)).disableDefaultConstraintViolation();
+        assertFalse(result);
+        verify(context, times(1)).buildConstraintViolationWithTemplate("Invalid character found in region codes");
     }
 }

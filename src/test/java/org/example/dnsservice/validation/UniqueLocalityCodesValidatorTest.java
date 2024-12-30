@@ -85,4 +85,19 @@ public class UniqueLocalityCodesValidatorTest {
         //then
         Assertions.assertFalse(validator.isValid(domainRegionProperties, context));
     }
+
+    @Test
+    public void shouldReturnFalseIfInvalidLocalityCode() {
+        //given
+        UniqueLocalityCodesValidator validator = new UniqueLocalityCodesValidator();
+
+        DomainRegion emptyLocalityCodes = new DomainRegion(USA, Set.of());
+        DomainRegion germany = new DomainRegion(GERMANY, Set.of(FRANKFURT + "something.else"));
+
+        Mockito.when(domainRegionProperties.getDomainRegions()).thenReturn(Arrays.asList(emptyLocalityCodes, germany));
+
+        //when
+        //then
+        Assertions.assertFalse(validator.isValid(domainRegionProperties, context));
+    }
 }

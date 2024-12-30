@@ -32,14 +32,22 @@ public class UniqueDomainRegionValidator
                         stream().map(DomainRegion::getRegionCode)
                         .collect(Collectors.toSet());
 
-        boolean isValid = regionCodes.size() == domainRegionProperties.getDomainRegions().size();
+        boolean containsUniqueRegions = regionCodes.size() == domainRegionProperties.getDomainRegions().size();
+        boolean containsOnlyLowerCaseAtoZ = regionCodes.stream().allMatch(AbstractUniqueValidator::containsOnlyLowerCaseAtoZ);
 
-        if (!isValid) {
+        if (!containsUniqueRegions) {
             String message = "Duplicate region codes found";
             context.disableDefaultConstraintViolation();
             log.error(message);
             context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
         }
-        return isValid;
+
+        if (!containsOnlyLowerCaseAtoZ) {
+            String message = "Invalid character found in region codes";
+            context.disableDefaultConstraintViolation();
+            log.error(message);
+            context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
+        }
+        return containsUniqueRegions && containsOnlyLowerCaseAtoZ;
     }
 }

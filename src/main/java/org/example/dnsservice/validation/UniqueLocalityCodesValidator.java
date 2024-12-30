@@ -33,7 +33,10 @@ public class UniqueLocalityCodesValidator
 
     private boolean validateRegion(DomainRegion region, Set<String> allLocalityCodes) {
         if (isNotNullOrEmpty(region)) {
-            return region.getLocalityCodes().stream().allMatch(localityCode -> isUniqueLocalityCode(localityCode, allLocalityCodes));
+            return region.getLocalityCodes().stream().allMatch(
+                    localityCode -> isUniqueLocalityCode(localityCode, allLocalityCodes)
+                            && containsOnlyLowerCaseAtoZ(localityCode)
+            );
         } else {
             log.error(ERROR_INVALID_REGION, region.getRegionCode());
             return false;

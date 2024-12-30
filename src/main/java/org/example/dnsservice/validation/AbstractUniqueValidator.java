@@ -10,4 +10,7 @@ public abstract class AbstractUniqueValidator {
         return domainRegions == null || domainRegions.isEmpty();
     }
 
+    protected static boolean containsOnlyLowerCaseAtoZ(String value) {
+        return value.matches("[a-z]+");
+    }
 }
