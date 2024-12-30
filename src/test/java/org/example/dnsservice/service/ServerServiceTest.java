@@ -29,6 +29,15 @@ class ServerServiceTest {
     @InjectMocks
     private ServerService service;
 
+    private ClusterEntity clusterEntity = new ClusterEntity(5,"Geneva", GENEVA);
+
+    private ServerEntity serverEntity = new ServerEntity(
+            2,
+            "my-web-2",
+            "9.9.9.9",
+            clusterEntity
+    );
+
     @BeforeEach
     public void setUp() {
         when(properties.getDomainRegions()).thenReturn(
@@ -43,21 +52,14 @@ class ServerServiceTest {
     @Test
     public void testShouldFilterInvalidIpAddresses(){
         //given
-        ClusterEntity clusterEntity = new ClusterEntity(5,"Geneva", GENEVA);
         ServerEntity invalidIpAddressEntity = new ServerEntity(
                 1,
                 "my-web-1",
                 "invalid_ip_address",
                 clusterEntity
         );
-        ServerEntity entity = new ServerEntity(
-                2,
-                "my-web-2",
-                "9.9.9.9",
-                clusterEntity
-        );
 
-        when(serverRepository.findAll()).thenReturn(List.of(entity, invalidIpAddressEntity));
+        when(serverRepository.findAll()).thenReturn(List.of(serverEntity, invalidIpAddressEntity));
 
         //when
         List<Server> result = service.getServers();
@@ -75,7 +77,6 @@ class ServerServiceTest {
     @Test
     public void testShouldFilterSubdomainNotMatchingLocalityCodes(){
         //given
-        ClusterEntity clusterEntity = new ClusterEntity(5,"Geneva", GENEVA);
         ClusterEntity nonMatchingLocalityCodeClusterEntity =
                 new ClusterEntity(2,"no_match", "no_match");
 
@@ -84,13 +85,6 @@ class ServerServiceTest {
                 "my-web-1",
                 "1.1.1.1",
                 nonMatchingLocalityCodeClusterEntity
-        );
-
-        ServerEntity serverEntity = new ServerEntity(
-                2,
-                "my-web-2",
-                "9.9.9.9",
-                clusterEntity
         );
 
         when(serverRepository.findAll()).thenReturn(List.of(serverEntity, nonMatchingLocalityCodeServerEntity));
