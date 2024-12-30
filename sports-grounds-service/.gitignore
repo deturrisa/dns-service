@@ -1,0 +1,57 @@
+.gradle
+/build/
+/bin/
+/jmx_exporter/
+*.DS_Store
+.vscode
+datadog
+
+
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# Package Files
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Backup File
+*.bk
+*.bak
+
+### CIRCLE CI ###
+/test-results
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea/*
+!runConfigurations
+*.iws
+*.iml
+*.ipr
+/out/
+
+### NetBeans ###
+/nbproject/private/
+/build/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### local files for local dev
+*-local.*
