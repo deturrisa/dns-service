@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsResponse;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import static org.example.dnsservice.util.TestUtil.TestData.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,10 +39,10 @@ public class Route53RecordMapperTest {
         when(r53Properties.hostedZoneId()).thenReturn("hosted-zone-id");
         when(domainRegionProperties.getDomainRegions()).thenReturn(
                 List.of(
-                        new DomainRegion(USA, List.of(LA, NYC)),
-                        new DomainRegion(SWITZERLAND, List.of(GENEVA)),
-                        new DomainRegion(HONG_KONG, List.of(HONG_KONG)),
-                        new DomainRegion(GERMANY, List.of(FRANKFURT))
+                        new DomainRegion(USA, Set.of(LA, NYC)),
+                        new DomainRegion(SWITZERLAND, Set.of(GENEVA)),
+                        new DomainRegion(HONG_KONG, Set.of(HONG_KONG)),
+                        new DomainRegion(GERMANY, Set.of(FRANKFURT))
                 )
         );
     }

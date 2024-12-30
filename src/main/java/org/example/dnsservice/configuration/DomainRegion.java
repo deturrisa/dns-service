@@ -1,12 +1,12 @@
 package org.example.dnsservice.configuration;
 
-import java.util.List;
+import java.util.Set;
 
 public class DomainRegion {
     private String regionCode;
-    private List<String> localityCodes;
+    private Set<String> localityCodes;
 
-    public DomainRegion(String regionCode, List<String> domains) {
+    public DomainRegion(String regionCode, Set<String> domains) {
         this.regionCode = regionCode;
         this.localityCodes = domains;
     }
@@ -19,11 +19,11 @@ public class DomainRegion {
         this.regionCode = regionCode;
     }
 
-    public List<String> getLocalityCodes() {
+    public Set<String> getLocalityCodes() {
         return localityCodes;
     }
 
-    public void setLocalityCodes(List<String> localityCodes) {
+    public void setLocalityCodes(Set<String> localityCodes) {
         this.localityCodes = localityCodes;
     }
 }

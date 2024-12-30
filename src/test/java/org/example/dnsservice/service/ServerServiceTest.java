@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import java.util.List;
+import java.util.Set;
+
 import static org.example.dnsservice.util.TestUtil.TestData.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -39,9 +41,9 @@ class ServerServiceTest {
     public void setUp() {
         when(properties.getDomainRegions()).thenReturn(
                 List.of(
-                    new DomainRegion(USA, List.of(LA, NYC)),
-                    new DomainRegion(SWITZERLAND, List.of(GENEVA)),
-                    new DomainRegion(HONG_KONG, List.of(HONG_KONG))
+                    new DomainRegion(USA, Set.of(LA, NYC)),
+                    new DomainRegion(SWITZERLAND, Set.of(GENEVA)),
+                    new DomainRegion(HONG_KONG, Set.of(HONG_KONG))
                 )
         );
     }
