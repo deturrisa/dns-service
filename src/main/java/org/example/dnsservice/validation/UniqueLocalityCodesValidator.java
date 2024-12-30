@@ -6,8 +6,6 @@ import org.example.dnsservice.configuration.DomainRegion;
 import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

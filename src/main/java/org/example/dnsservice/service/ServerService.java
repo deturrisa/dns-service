@@ -2,6 +2,7 @@ package org.example.dnsservice.service;
 
 import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.entity.ServerEntity;
+import org.example.dnsservice.exception.ServerValidationException;
 import org.example.dnsservice.model.Server;
 import org.example.dnsservice.repository.ServerRepository;
 import org.slf4j.Logger;
@@ -26,10 +27,24 @@ public class ServerService {
     }
 
     public List<Server> getServers() {
-        return repository.findAll().stream()
+        List<ServerEntity> entities = repository.findAll();
+
+        validateUniqueIpAddresses(entities);
+
+        return entities.stream()
                 .filter(this::isValidIPAddress)
                 .filter(this::isSupportedClusterSubdomain)
                 .map(Server::of).toList();
+    }
+
+    private static void validateUniqueIpAddresses(List<ServerEntity> entities){
+        if(getDistinctIpAddresses(entities) != entities.size()){
+            throw new ServerValidationException("IP Addresses are not unique across servers");
+        }
+    }
+
+    private static long getDistinctIpAddresses(List<ServerEntity> entities) {
+        return entities.stream().map(ServerEntity::getIpString).distinct().count();
     }
 
     private boolean isSupportedClusterSubdomain(ServerEntity entity){
