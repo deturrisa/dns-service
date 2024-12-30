@@ -15,7 +15,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import java.util.List;
 import java.util.Set;
-
 import static org.example.dnsservice.util.ErrorCodes.ServerErrors.ERROR_DUPLICATE_IP_ADDRESSES;
 import static org.example.dnsservice.util.ErrorCodes.ServerErrors.ERROR_INVALID_SUBDOMAIN;
 import static org.example.dnsservice.util.TestUtil.TestData.*;
@@ -35,9 +34,9 @@ class ServerServiceTest {
     @InjectMocks
     private ServerService service;
 
-    private ClusterEntity clusterEntity = new ClusterEntity(5,"Geneva", GENEVA);
+    private final ClusterEntity clusterEntity = new ClusterEntity(5,"Geneva", GENEVA);
 
-    private ServerEntity serverEntity = new ServerEntity(
+    private final ServerEntity serverEntity = new ServerEntity(
             2,
             "my-web-2",
             "9.9.9.9",
@@ -46,6 +45,7 @@ class ServerServiceTest {
 
     @Nested
     public class Filtering{
+
         @BeforeEach
         public void setUp() {
             when(properties.getDomainRegions()).thenReturn(
@@ -76,6 +76,7 @@ class ServerServiceTest {
             assertEquals(1, result.size());
             assertEquals(5, result.get(0).clusterId());
             assertEquals("Geneva", result.get(0).clusterName());
+            assertEquals(SWITZERLAND, result.get(0).clusterRegion());
             assertEquals(GENEVA, result.get(0).clusterSubdomain());
             assertEquals(2, result.get(0).id());
             assertEquals("my-web-2", result.get(0).friendlyName());
@@ -104,6 +105,7 @@ class ServerServiceTest {
             assertEquals(1, result.size());
             assertEquals(5, result.get(0).clusterId());
             assertEquals("Geneva", result.get(0).clusterName());
+            assertEquals(SWITZERLAND, result.get(0).clusterRegion());
             assertEquals(GENEVA, result.get(0).clusterSubdomain());
             assertEquals(2, result.get(0).id());
             assertEquals("my-web-2", result.get(0).friendlyName());

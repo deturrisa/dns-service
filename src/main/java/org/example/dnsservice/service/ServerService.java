@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
-
 import static org.example.dnsservice.util.ErrorCodes.ServerErrors.ERROR_DUPLICATE_IP_ADDRESSES;
 import static org.example.dnsservice.util.ErrorCodes.ServerErrors.ERROR_INVALID_SUBDOMAIN;
 import static org.example.dnsservice.util.IPAddressUtil.IPAddressRegexPattern.IPV4_PATTERN;
@@ -38,7 +37,20 @@ public class ServerService {
         return entities.stream()
                 .filter(this::isValidIPAddress)
                 .filter(this::isSupportedClusterSubdomain)
-                .map(Server::of).toList();
+                .map(entity -> Server.of(entity, getRegionCode(entity)))
+                .toList();
+    }
+
+    private String getRegionCode(ServerEntity entity) {
+        return properties.getDomainRegions().stream()
+                .filter(domainRegion ->
+                        domainRegion.getLocalityCodes()
+                                .contains(entity.getCluster().getSubdomain())
+                )
+                .findFirst()
+                .orElseThrow(() ->
+                        new IllegalStateException("Expected domain region to be present but was not found"))
+                .getRegionCode();
     }
 
     private static void validateSubdomains(List<ServerEntity> entities){
