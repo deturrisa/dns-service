@@ -16,9 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @UnitTest
-class UniqueDomainRegionValidatorTest {
+class DomainRegionValidatorTest {
 
-    private UniqueDomainRegionValidator validator;
+    private DomainRegionValidator validator;
 
     @Mock
     private ConstraintValidatorContext context;
@@ -26,7 +26,7 @@ class UniqueDomainRegionValidatorTest {
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
-        validator = new UniqueDomainRegionValidator();
+        validator = new DomainRegionValidator();
     }
 
     @Test

@@ -8,10 +8,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = UniqueLocalityCodesValidator.class)
+@Constraint(validatedBy = LocalityCodesValidator.class)
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface UniqueLocalityCodesCheck {
+public @interface LocalityCodesCheck {
     String message() default "Locality codes must be unique across all domain regions.";
 
     Class<?>[] groups() default {};

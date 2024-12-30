@@ -4,7 +4,7 @@ import org.example.dnsservice.configuration.DomainRegion;
 
 import java.util.List;
 
-public abstract class AbstractUniqueValidator {
+public abstract class AbstractValidator {
 
     protected static boolean isNullOrEmpty(List<DomainRegion> domainRegions) {
         return domainRegions == null || domainRegions.isEmpty();

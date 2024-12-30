@@ -12,11 +12,11 @@ import java.util.Set;
 
 import static org.example.dnsservice.util.ErrorCodes.ServerErrors.*;
 
-public class UniqueLocalityCodesValidator
-    extends AbstractUniqueValidator
-        implements ConstraintValidator<UniqueLocalityCodesCheck, DomainRegionProperties>{
+public class LocalityCodesValidator
+    extends AbstractValidator
+        implements ConstraintValidator<LocalityCodesCheck, DomainRegionProperties>{
 
-    private static final Logger log = LoggerFactory.getLogger(UniqueLocalityCodesValidator.class) ;
+    private static final Logger log = LoggerFactory.getLogger(LocalityCodesValidator.class) ;
 
 
     @Override

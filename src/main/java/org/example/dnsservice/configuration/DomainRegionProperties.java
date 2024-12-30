@@ -1,6 +1,6 @@
 package org.example.dnsservice.configuration;
 
-import org.example.dnsservice.validation.UniqueDomainRegionCheck;
+import org.example.dnsservice.validation.DomainRegionCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -14,7 +14,7 @@ import java.util.List;
 @PropertySource(value = "classpath:supported-domain-regions.yml", factory = YamlPropertySourceFactory.class)
 @ConfigurationProperties(prefix = "supported-domain-regions")
 @Configuration
-@UniqueDomainRegionCheck
+@DomainRegionCheck
 @Validated
 public class DomainRegionProperties {
     private List<DomainRegion> domainRegions;

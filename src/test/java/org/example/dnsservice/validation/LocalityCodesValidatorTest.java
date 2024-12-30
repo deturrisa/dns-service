@@ -13,13 +13,12 @@ import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 import static org.example.dnsservice.util.TestUtil.TestData.*;
 
 @UnitTest
-public class UniqueLocalityCodesValidatorTest {
+public class LocalityCodesValidatorTest {
 
     @Mock
     private DomainRegionProperties domainRegionProperties;
@@ -28,7 +27,7 @@ public class UniqueLocalityCodesValidatorTest {
     private ConstraintValidatorContext context;
 
     @InjectMocks
-    private UniqueLocalityCodesValidator validator;
+    private LocalityCodesValidator validator;
 
     @Test
     public void shouldReturnFalseIfDomainRegionsListIsEmpty() {
@@ -57,7 +56,7 @@ public class UniqueLocalityCodesValidatorTest {
     @Test
     public void shouldReturnFalseIfLocalityCodesAreNotUnique() {
         //given
-        UniqueLocalityCodesValidator validator = new UniqueLocalityCodesValidator();
+        LocalityCodesValidator validator = new LocalityCodesValidator();
 
         String duplicateLocalityCode = "duplicated_locality_code";
 
@@ -74,7 +73,7 @@ public class UniqueLocalityCodesValidatorTest {
     @Test
     public void shouldReturnFalseIfLocalityCodesAreNullOrEmpty() {
         //given
-        UniqueLocalityCodesValidator validator = new UniqueLocalityCodesValidator();
+        LocalityCodesValidator validator = new LocalityCodesValidator();
 
         DomainRegion emptyLocalityCodes = new DomainRegion(USA, Set.of());
         DomainRegion germany = new DomainRegion(GERMANY, Set.of(FRANKFURT));
@@ -89,7 +88,7 @@ public class UniqueLocalityCodesValidatorTest {
     @Test
     public void shouldReturnFalseIfInvalidLocalityCode() {
         //given
-        UniqueLocalityCodesValidator validator = new UniqueLocalityCodesValidator();
+        LocalityCodesValidator validator = new LocalityCodesValidator();
 
         DomainRegion emptyLocalityCodes = new DomainRegion(USA, Set.of());
         DomainRegion germany = new DomainRegion(GERMANY, Set.of(FRANKFURT + "something.else"));
