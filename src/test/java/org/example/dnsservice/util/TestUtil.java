@@ -1,5 +1,7 @@
 package org.example.dnsservice.util;
 
+import org.example.dnsservice.model.ARecord;
+import org.example.dnsservice.model.Server;
 import software.amazon.awssdk.services.route53.model.*;
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,7 +10,7 @@ import java.util.Random;
 
 public class TestUtil {
 
-    public static class TestData{
+    public static class ResourceRecordSetTestData {
 
         public static final String DOT_DOMAIN_COM = ".domain.com.";
         public static final String USA = "usa";
@@ -88,7 +90,7 @@ public class TestUtil {
         }
 
         public static List<ResourceRecord> createIpResourceRecords(List<String> ipAddresses) {
-            return ipAddresses.stream().map(TestData::createResourceRecord).toList();
+            return ipAddresses.stream().map(ResourceRecordSetTestData::createResourceRecord).toList();
         }
 
         public static ResourceRecordSet createAResourceRecordSet(
@@ -125,4 +127,83 @@ public class TestUtil {
 
     }
 
+    public static class ServerBuilder {
+
+        private Integer id = 12;
+        private Integer clusterId = 25;
+        private String clusterName = "Some Cluster Name";
+        private String clusterRegion = "Some Cluster Region";
+        private String clusterSubdomain = "Some Cluster Subdomain";
+        private String friendlyName = "Some Friendly Name";
+        private String ipAddress = getRandomIp();
+
+        public ServerBuilder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public ServerBuilder clusterId(Integer clusterId) {
+            this.clusterId = clusterId;
+            return this;
+        }
+
+        public ServerBuilder clusterName(String clusterName) {
+            this.clusterName = clusterName;
+            return this;
+        }
+
+        public ServerBuilder clusterRegion(String clusterRegion) {
+            this.clusterRegion = clusterRegion;
+            return this;
+        }
+
+        public ServerBuilder clusterSubdomain(String clusterSubdomain) {
+            this.clusterSubdomain = clusterSubdomain;
+            return this;
+        }
+
+        public ServerBuilder friendlyName(String friendlyName) {
+            this.friendlyName = friendlyName;
+            return this;
+        }
+
+        public ServerBuilder ipAddress(String ipAddress) {
+            this.ipAddress = ipAddress;
+            return this;
+        }
+
+        public Server build(){
+            return new Server(id, clusterId, clusterName, clusterRegion, clusterSubdomain, friendlyName, ipAddress);
+        }
+    }
+
+    public static class ARecordBuilder {
+        private String setIdentifier = "si";
+        private String name = "region.domain.com.";
+        private String ipAddress = getRandomIp();
+
+        public ARecordBuilder setIdentifier(String setIdentifier) {
+            this.setIdentifier = setIdentifier;
+            return this;
+        }
+
+        public ARecordBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public ARecordBuilder ipAddress(String ipAddress) {
+            this.ipAddress = ipAddress;
+            return this;
+        }
+
+        public ARecord build(){
+            return new ARecord(name, ipAddress, setIdentifier);
+        }
+    }
+
+    private static String getRandomIp(){
+        Random r = new Random();
+        return r.nextInt(256) + "." + r.nextInt(256) + "." + r.nextInt(256) + "." + r.nextInt(256);
+    }
 }

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 
-import static org.example.dnsservice.util.TestUtil.TestData.*;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
 
 @UnitTest
 public class LocalityCodesValidatorTest {

@@ -10,7 +10,7 @@ import org.mockito.MockitoAnnotations;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.Set;
-import static org.example.dnsservice.util.TestUtil.TestData.*;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;

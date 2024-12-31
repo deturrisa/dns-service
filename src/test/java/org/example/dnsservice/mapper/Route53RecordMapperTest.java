@@ -3,7 +3,6 @@ package org.example.dnsservice.mapper;
 import org.example.dnsservice.configuration.DomainRegion;
 import org.example.dnsservice.configuration.R53Properties;
 import org.example.dnsservice.configuration.DomainRegionProperties;
-import org.example.dnsservice.exception.ARecordValidationException;
 import org.example.dnsservice.model.ARecord;
 import org.example.dnsservice.service.AwsR53Service;
 import org.example.dnsservice.util.UnitTest;
@@ -17,8 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-import static org.example.dnsservice.util.ErrorCodes.ARecordErrors.ERROR_DUPLICATE_IP_ADDRESSES;
-import static org.example.dnsservice.util.TestUtil.TestData.*;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 

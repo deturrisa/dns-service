@@ -6,7 +6,7 @@ import org.example.dnsservice.model.Action;
 import org.example.dnsservice.singleservicetests.BaseSST;
 import org.example.dnsservice.singleservicetests.ExternalPlatform;
 import org.example.dnsservice.singleservicetests.SingleServiceTest;
-import org.example.dnsservice.util.TestUtil.TestData;
+import org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class DnsServiceSST extends BaseSST {
         serverRepository.saveAll(List.of(hkServer1,hkServer2));
 
         when(awsR53Service.getResourceRecordSets(r53Properties.hostedZoneId())).thenReturn(
-                CompletableFuture.completedFuture(TestData.getDefaultResourceRecordSetsResponse())
+                CompletableFuture.completedFuture(ResourceRecordSetTestData.getDefaultResourceRecordSetsResponse())
         );
 
         //when

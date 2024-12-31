@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 import static org.example.dnsservice.util.ErrorCodes.ServerErrors.ERROR_DUPLICATE_IP_ADDRESSES;
 import static org.example.dnsservice.util.ErrorCodes.ServerErrors.ERROR_INVALID_SUBDOMAIN;
-import static org.example.dnsservice.util.TestUtil.TestData.*;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
