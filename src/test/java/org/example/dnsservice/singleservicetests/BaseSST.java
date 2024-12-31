@@ -1,6 +1,7 @@
 package org.example.dnsservice.singleservicetests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.configuration.R53Properties;
 import org.example.dnsservice.repository.ClusterRepository;
 import org.example.dnsservice.repository.ServerRepository;

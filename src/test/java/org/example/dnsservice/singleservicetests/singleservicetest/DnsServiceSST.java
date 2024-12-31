@@ -1,5 +1,7 @@
 package org.example.dnsservice.singleservicetests.singleservicetest;
 
+import org.example.dnsservice.configuration.DomainRegion;
+import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.entity.ClusterEntity;
 import org.example.dnsservice.entity.ServerEntity;
 import org.example.dnsservice.model.Action;
@@ -7,16 +9,38 @@ import org.example.dnsservice.singleservicetests.BaseSST;
 import org.example.dnsservice.singleservicetests.ExternalPlatform;
 import org.example.dnsservice.singleservicetests.SingleServiceTest;
 import org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.FRANKFURT;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.xpath;
 
 @SingleServiceTest({ExternalPlatform.POSTGRES, ExternalPlatform.REST_SERVER})
 public class DnsServiceSST extends BaseSST {
+
+    @MockBean
+    protected DomainRegionProperties domainRegionProperties;
+
+    @BeforeEach
+    public void setup() {
+        when(domainRegionProperties.getDomainRegions()).thenReturn(
+                List.of(
+                        new DomainRegion(USA, Set.of(LA, NYC)),
+                        new DomainRegion(SWITZERLAND, Set.of(GENEVA)),
+                        new DomainRegion(HONG_KONG, Set.of(HONG_KONG)),
+                        new DomainRegion(GERMANY, Set.of(FRANKFURT))
+                )
+        );
+    }
 
     @Test
     public void testShouldRenderServerTableWithTwoRecordsToAddToRotation() throws Exception {
