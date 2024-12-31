@@ -6,7 +6,7 @@ public record Server (
     Integer id,
     Integer clusterId,
     String clusterName,
-    String clusterRegion,
+    String regionSubdomain,
     String clusterSubdomain,
     String friendlyName,
     String ipAddress

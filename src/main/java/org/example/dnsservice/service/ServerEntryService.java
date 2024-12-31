@@ -1,22 +1,16 @@
 package org.example.dnsservice.service;
 
-import org.example.dnsservice.configuration.DomainRegion;
-import org.example.dnsservice.configuration.DomainRegionProperties;
-import org.example.dnsservice.entity.ServerEntity;
 import org.example.dnsservice.mapper.Route53RecordMapper;
 import org.example.dnsservice.model.ARecord;
 import org.example.dnsservice.model.Server;
 import org.example.dnsservice.model.ServerEntry;
-import org.example.dnsservice.repository.ServerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class ServerEntryService {
@@ -39,7 +33,7 @@ public class ServerEntryService {
             ARecord matchingRecord = null;
 
             for (ARecord aRecord : mapper.getARecords()) {
-                 if (aRecord.setIdentifier().equals(server.clusterSubdomain())) {
+                 if (hasMatchingIpAddress(server, aRecord)) {
                     matchingRecord = aRecord;
                     break;
                 }
@@ -49,16 +43,19 @@ public class ServerEntryService {
                 serverEntries.add(
                         new ServerEntry(
                                 server.id(),
-                                server.clusterRegion(),
+                                server.regionSubdomain(),
                                 matchingRecord.name()
                         )
                 );
             } else {
-                serverEntries.add(new ServerEntry(server.id(), server.clusterRegion()));
+                serverEntries.add(new ServerEntry(server.id(), server.regionSubdomain()));
             }
         }
-
+        serverEntries.sort(Comparator.comparing(ServerEntry::serverId));
         return serverEntries;
     }
 
+    private static boolean hasMatchingIpAddress(Server server, ARecord aRecord) {
+        return aRecord.ipAddress().equals(server.ipAddress());
+    }
 }

@@ -76,7 +76,7 @@ class ServerServiceTest {
             assertEquals(1, result.size());
             assertEquals(5, result.get(0).clusterId());
             assertEquals("Geneva", result.get(0).clusterName());
-            assertEquals(SWITZERLAND, result.get(0).clusterRegion());
+            assertEquals(SWITZERLAND, result.get(0).regionSubdomain());
             assertEquals(GENEVA, result.get(0).clusterSubdomain());
             assertEquals(2, result.get(0).id());
             assertEquals("my-web-2", result.get(0).friendlyName());
@@ -105,7 +105,7 @@ class ServerServiceTest {
             assertEquals(1, result.size());
             assertEquals(5, result.get(0).clusterId());
             assertEquals("Geneva", result.get(0).clusterName());
-            assertEquals(SWITZERLAND, result.get(0).clusterRegion());
+            assertEquals(SWITZERLAND, result.get(0).regionSubdomain());
             assertEquals(GENEVA, result.get(0).clusterSubdomain());
             assertEquals(2, result.get(0).id());
             assertEquals("my-web-2", result.get(0).friendlyName());
