@@ -1,10 +1,7 @@
 package org.example.dnsservice.service;
 
 import org.example.dnsservice.mapper.Route53RecordMapper;
-import org.example.dnsservice.model.ARecord;
-import org.example.dnsservice.model.Action;
-import org.example.dnsservice.model.Server;
-import org.example.dnsservice.model.ServerEntry;
+import org.example.dnsservice.model.*;
 import org.example.dnsservice.util.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -31,10 +28,14 @@ class ServerEntryServiceTest {
     @InjectMocks
     private ServerEntryService service;
 
-    private static final ServerBuilder swissServerBuilder = new ServerBuilder().id(1).clusterRegion(SWITZERLAND);
-    public static final ServerBuilder usaServerBuilder = new ServerBuilder().id(2).clusterRegion(USA);
-    public static final ServerBuilder germanyServerBuilder = new ServerBuilder().id(3).clusterRegion(GERMANY);
-    public static final ServerBuilder hongKongServerBuilder = new ServerBuilder().id(4).clusterRegion(HONG_KONG);
+    private static final ServerBuilder swissServerBuilder =
+            new ServerBuilder().id(1).regionSubdomain(SWITZERLAND);
+    public static final ServerBuilder usaServerBuilder =
+            new ServerBuilder().id(2).regionSubdomain(USA);
+    public static final ServerBuilder germanyServerBuilder =
+            new ServerBuilder().id(3).regionSubdomain(GERMANY);
+    public static final ServerBuilder hongKongServerBuilder =
+            new ServerBuilder().id(4).regionSubdomain(HONG_KONG);
 
     private final Server swissServer = swissServerBuilder.build();
     private final Server usaServer = usaServerBuilder.build();
@@ -212,20 +213,20 @@ class ServerEntryServiceTest {
 
             Server swissServer = new ServerBuilder()
                     .id(20)
-                    .clusterRegion(SWITZERLAND)
+                    .regionSubdomain(SWITZERLAND)
                     .clusterSubdomain(GENEVA)
                     .build();
 
             Server usaServer1 = new ServerBuilder()
                     .id(1)
-                    .clusterRegion(USA)
+                    .regionSubdomain(USA)
                     .clusterSubdomain(LA)
                     .ipAddress(ipAddress1)
                     .build();
 
             Server usaServer2 = new ServerBuilder()
                     .id(2)
-                    .clusterRegion(USA)
+                    .regionSubdomain(USA)
                     .clusterSubdomain(LA)
                     .ipAddress(ipAddress2)
                     .build();
@@ -277,5 +278,66 @@ class ServerEntryServiceTest {
             assertEquals("NONE", result.get(2).dnsStatus());
             assertEquals(Action.ADD, result.get(2).action());
         }
+    }
+
+    @Nested
+    class PublishedDnsEntries{
+
+        @Test
+        public void testMapPublishedDnsEntries(){
+            //given
+            String losAngeles = "Los Angeles";
+            String laIpAddress1 = "123.123.123.123";
+            String laIpAddress2 = "125.125.125.125";
+            String laFriendlyName1 = "ubiq-1";
+            String laFriendlyName2 = "ubiq-2";
+
+            Server laServer1  =
+                    new ServerBuilder()
+                            .id(1)
+                            .clusterSubdomain(LA)
+                            .regionSubdomain(USA)
+                            .ipAddress(laIpAddress1)
+                            .friendlyName(laFriendlyName1)
+                            .clusterName(losAngeles)
+                            .build();
+            Server laServer2  =
+                    new ServerBuilder()
+                            .id(2)
+                            .clusterSubdomain(LA)
+                            .regionSubdomain(USA)
+                            .ipAddress(laIpAddress2)
+                            .friendlyName(laFriendlyName2)
+                            .clusterName(losAngeles)
+                            .build();
+
+            ARecord laARecord1 = new ARecord(USA + DOT_DOMAIN_COM, laIpAddress1, laFriendlyName1);
+            ARecord laARecord2 = new ARecord(USA + DOT_DOMAIN_COM, laIpAddress2, laFriendlyName2);
+
+            when(serverService.getServers()).thenReturn(
+                    List.of(laServer1, laServer2)
+            );
+
+            when(mapper.getARecords()).thenReturn(
+                    List.of(laARecord1, laARecord2)
+            );
+
+            //when
+            List<DnsEntry> result = service.getDnsEntries();
+
+            //then
+            assertEquals(2, result.size());
+
+            assertEquals(LA + DOT_DOMAIN_COM, result.get(0).domainString());
+            assertEquals(laIpAddress1, result.get(0).ip());
+            assertEquals(laFriendlyName1, result.get(0).serverFriendlyName());
+            assertEquals(losAngeles, result.get(0).clusterName());
+
+            assertEquals(LA + DOT_DOMAIN_COM, result.get(1).domainString());
+            assertEquals(laIpAddress2, result.get(1).ip());
+            assertEquals(laFriendlyName2, result.get(1).serverFriendlyName());
+            assertEquals(losAngeles, result.get(1).clusterName());
+        }
+
     }
 }

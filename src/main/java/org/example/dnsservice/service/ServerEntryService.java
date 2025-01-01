@@ -1,9 +1,7 @@
 package org.example.dnsservice.service;
 
 import org.example.dnsservice.mapper.Route53RecordMapper;
-import org.example.dnsservice.model.ARecord;
-import org.example.dnsservice.model.Server;
-import org.example.dnsservice.model.ServerEntry;
+import org.example.dnsservice.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +24,27 @@ public class ServerEntryService {
         this.mapper = mapper;
     }
 
-    public List<ServerEntry> getServerEntries() {
+    public EntryStore getEntryStore(){
+        return new EntryStore(getServerEntries());
+    }
 
+    public List<DnsEntry> getDnsEntries() {
+        return service.getServers().stream()
+                .flatMap(server -> mapper.getARecords().stream()
+                        .filter(aRecord -> hasMatchingIpAddress(server, aRecord))
+                        .findFirst()
+                        .map(aRecord -> new DnsEntry(
+                                server.clusterSubdomain() + ".domain.com.", // hardcoded value for now
+                                server.ipAddress(),
+                                server.friendlyName(),
+                                server.clusterName()
+                        ))
+                        .stream()
+                )
+                .toList();
+    }
+
+    public List<ServerEntry> getServerEntries() {
         List<ServerEntry> serverEntries = new ArrayList<>(service.getServers().stream().map(server ->
                 mapper.getARecords().stream()
                         .filter(aRecord -> hasMatchingIpAddress(server, aRecord))

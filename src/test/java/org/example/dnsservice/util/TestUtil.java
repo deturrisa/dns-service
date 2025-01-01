@@ -132,7 +132,7 @@ public class TestUtil {
         private Integer id = 12;
         private Integer clusterId = 25;
         private String clusterName = "Some Cluster Name";
-        private String clusterRegion = "Some Cluster Region";
+        private String regionSubdomain = "Some Cluster Region";
         private String clusterSubdomain = "Some Cluster Subdomain";
         private String friendlyName = "Some Friendly Name";
         private String ipAddress = getRandomIp();
@@ -152,8 +152,8 @@ public class TestUtil {
             return this;
         }
 
-        public ServerBuilder clusterRegion(String clusterRegion) {
-            this.clusterRegion = clusterRegion;
+        public ServerBuilder regionSubdomain(String regionSubdomain) {
+            this.regionSubdomain = regionSubdomain;
             return this;
         }
 
@@ -173,7 +173,7 @@ public class TestUtil {
         }
 
         public Server build(){
-            return new Server(id, clusterId, clusterName, clusterRegion, clusterSubdomain, friendlyName, ipAddress);
+            return new Server(id, clusterId, clusterName, regionSubdomain, clusterSubdomain, friendlyName, ipAddress);
         }
     }
 
