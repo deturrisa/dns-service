@@ -20,4 +20,13 @@ public record ARecord(
     public String getDomainString(){
         return setIdentifier + name.substring(name.indexOf('.'));
     }
+
+    @Override
+    public String toString() {
+        return "ARecord{" +
+                "name='" + name + '\'' +
+                ", ipAddress='" + ipAddress + '\'' +
+                ", setIdentifier='" + setIdentifier + '\'' +
+                '}';
+    }
 }

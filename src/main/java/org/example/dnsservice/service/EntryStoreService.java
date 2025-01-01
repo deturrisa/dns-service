@@ -16,7 +16,7 @@ public class EntryStoreService {
     private final ServerService service;
     private final Route53RecordMapper mapper;
 
-    private final Logger log = LoggerFactory.getLogger(EntryStoreService.class);
+    private static final Logger log = LoggerFactory.getLogger(EntryStoreService.class);
 
     @Autowired
     public EntryStoreService(ServerService service, Route53RecordMapper mapper) {
@@ -35,13 +35,17 @@ public class EntryStoreService {
     }
 
     private List<DnsEntry> getDnsEntries(List<ARecord> aRecords, List<Server> servers) {
-        return aRecords.stream().map(aRecord ->
+        List<DnsEntry> dnsEntries = aRecords.stream().map(aRecord ->
                 servers.stream()
-                        .filter(server ->  hasMatchingIpAddress(server, aRecord))
+                        .filter(server -> hasMatchingIpAddress(server, aRecord))
                         .findFirst()
                         .map(server -> toDnsEntry(aRecord, server))
                         .orElseGet(() -> toNotFoundDnsEntry(aRecord))
         ).toList();
+
+        log.info("Loaded {} DNS entries", dnsEntries.size());
+
+        return dnsEntries;
     }
 
     private List<ServerEntry> getServerEntries(List<ARecord> aRecords, List<Server> servers) {
@@ -55,12 +59,15 @@ public class EntryStoreService {
             ).toList()
         );
 
+        log.info("Loaded {} servers", serverEntries.size());
+
         serverEntries.sort(Comparator.comparing(ServerEntry::serverId));
 
         return serverEntries;
     }
 
     private static DnsEntry toDnsEntry(ARecord aRecord, Server server) {
+        log.info("Loaded: {} {}", aRecord.toString(), server.toString());
         return new DnsEntry(
                 aRecord.getDomainString(),
                 server.ipAddress(),
@@ -70,6 +77,7 @@ public class EntryStoreService {
     }
 
     private static DnsEntry toNotFoundDnsEntry(ARecord aRecord) {
+        log.info("Loaded ARecord without known server in db: {}", aRecord.toString());
         return new DnsEntry(
                 aRecord.getDomainString(),
                 aRecord.ipAddress()
@@ -77,10 +85,12 @@ public class EntryStoreService {
     }
 
     private static ServerEntry toRemoveFromRotationServerEntry(Server server, ARecord aRecord) {
+        log.info("Loaded server to remove from rotation: {}", server.toString());
         return new ServerEntry(server.id(), server.regionSubdomain(), aRecord.name());
     }
 
     private static ServerEntry toAddToRotationServerEntry(Server server) {
+        log.info("Loaded server to add to rotation: {}", server.toString());
         return new ServerEntry(server.id(), server.regionSubdomain());
     }
 

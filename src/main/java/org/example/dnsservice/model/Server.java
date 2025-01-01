@@ -23,4 +23,17 @@ public record Server (
                 entity.getIpString()
         );
     }
+
+    @Override
+    public String toString() {
+        return "Server{" +
+                "id=" + id +
+                ", clusterId=" + clusterId +
+                ", clusterName='" + clusterName + '\'' +
+                ", regionSubdomain='" + regionSubdomain + '\'' +
+                ", clusterSubdomain='" + clusterSubdomain + '\'' +
+                ", friendlyName='" + friendlyName + '\'' +
+                ", ipAddress='" + ipAddress + '\'' +
+                '}';
+    }
 }
