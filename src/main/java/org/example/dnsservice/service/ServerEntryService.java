@@ -27,32 +27,26 @@ public class ServerEntryService {
     }
 
     public List<ServerEntry> getServerEntries() {
-        List<ServerEntry> serverEntries = new ArrayList<>();
 
-        for (Server server : service.getServers()) {
-            ARecord matchingRecord = null;
+        List<ServerEntry> serverEntries = new ArrayList<>(service.getServers().stream().map(server ->
+                mapper.getARecords().stream()
+                        .filter(aRecord -> hasMatchingIpAddress(server, aRecord))
+                        .findFirst()
+                        .map(aRecord -> toRemoveFromRotationServerEntry(server, aRecord))
+                        .orElseGet(() -> toAddToRotationServerEntry(server))
+        ).toList());
 
-            for (ARecord aRecord : mapper.getARecords()) {
-                 if (hasMatchingIpAddress(server, aRecord)) {
-                    matchingRecord = aRecord;
-                    break;
-                }
-            }
-
-            if (matchingRecord != null) {
-                serverEntries.add(
-                        new ServerEntry(
-                                server.id(),
-                                server.regionSubdomain(),
-                                matchingRecord.name()
-                        )
-                );
-            } else {
-                serverEntries.add(new ServerEntry(server.id(), server.regionSubdomain()));
-            }
-        }
         serverEntries.sort(Comparator.comparing(ServerEntry::serverId));
+
         return serverEntries;
+    }
+
+    private static ServerEntry toRemoveFromRotationServerEntry(Server server, ARecord aRecord) {
+        return new ServerEntry(server.id(), server.regionSubdomain(), aRecord.name());
+    }
+
+    private static ServerEntry toAddToRotationServerEntry(Server server) {
+        return new ServerEntry(server.id(), server.regionSubdomain());
     }
 
     private static boolean hasMatchingIpAddress(Server server, ARecord aRecord) {
