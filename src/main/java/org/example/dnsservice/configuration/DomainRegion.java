@@ -6,6 +6,8 @@ public class DomainRegion {
     private String regionCode;
     private Set<String> localityCodes;
 
+    public DomainRegion() {}
+
     public DomainRegion(String regionCode, Set<String> domains) {
         this.regionCode = regionCode;
         this.localityCodes = domains;

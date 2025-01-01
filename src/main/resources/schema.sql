@@ -13,8 +13,10 @@ CREATE TABLE IF NOT EXISTS server (
 );
 
 INSERT INTO cluster (id, name, subdomain) VALUES
-(4,'Hong Kong','hongkong');
+(1,'Los Angeles','la'),
+(5,'Geneva','ge');
 
 INSERT INTO server (id, friendly_name, cluster_id, ip_string) VALUES
-(4, 'rackspace-1', 4, '234.234.234.234'),
-(5, 'rackspace-2', 4, '235.235.235.235');
+(1, 'ubiq-1', 1, '123.123.123.123'),
+(2, 'ubiq-2', 1, '125.125.125.125'),
+(20, 'something', 5, '192.1.1.1');

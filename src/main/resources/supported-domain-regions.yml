@@ -1,8 +1,8 @@
 supported-domain-regions:
   domainRegions:
     - regionCode: usa
-      localityCodes: ${USA_SUPPORTED_DOMAINS:usa,nyc}
+      localityCodes: ${USA_SUPPORTED_DOMAINS:la}
     - regionCode: switzerland
       localityCodes: ${SWITZERLAND_SUPPORTED_DOMAINS:ge}
-    - regionCode: hongkong
-      localityCodes: ${HONG_KONG_SUPPORTED_DOMAINS:hongkong}
+    - regionCode: abc
+      localityCodes: ${ABC_SUPPORTED_DOMAINS:xyz}
