@@ -6,4 +6,7 @@ public record DnsEntry(
         String serverFriendlyName,
         String clusterName
 ) {
+    public DnsEntry(String domainString, String ip){
+        this(domainString, ip, "not found", "N/A");
+    }
 }

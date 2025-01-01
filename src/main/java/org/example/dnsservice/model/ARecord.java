@@ -17,4 +17,7 @@ public record ARecord(
         );
     }
 
+    public String getDomainString(){
+        return setIdentifier + name.substring(name.indexOf('.'));
+    }
 }

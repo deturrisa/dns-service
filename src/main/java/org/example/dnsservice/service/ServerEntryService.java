@@ -29,33 +29,45 @@ public class ServerEntryService {
     }
 
     public List<DnsEntry> getDnsEntries() {
-        return service.getServers().stream()
-                .flatMap(server -> mapper.getARecords().stream()
-                        .filter(aRecord -> hasMatchingIpAddress(server, aRecord))
+        return mapper.getARecords().stream().map(aRecord ->
+                service.getServers().stream()
+                        .filter(server ->  hasMatchingIpAddress(server, aRecord))
                         .findFirst()
-                        .map(aRecord -> new DnsEntry(
-                                server.clusterSubdomain() + ".domain.com.", // hardcoded value for now
-                                server.ipAddress(),
-                                server.friendlyName(),
-                                server.clusterName()
-                        ))
-                        .stream()
-                )
-                .toList();
+                        .map(server -> toDnsEntry(aRecord, server))
+                        .orElseGet(() -> toNotFoundDnsEntry(aRecord))
+        ).toList();
     }
 
     public List<ServerEntry> getServerEntries() {
-        List<ServerEntry> serverEntries = new ArrayList<>(service.getServers().stream().map(server ->
-                mapper.getARecords().stream()
-                        .filter(aRecord -> hasMatchingIpAddress(server, aRecord))
-                        .findFirst()
-                        .map(aRecord -> toRemoveFromRotationServerEntry(server, aRecord))
-                        .orElseGet(() -> toAddToRotationServerEntry(server))
-        ).toList());
+        List<ServerEntry> serverEntries = new ArrayList<>(
+                service.getServers().stream().map(server ->
+                    mapper.getARecords().stream()
+                            .filter(aRecord -> hasMatchingIpAddress(server, aRecord))
+                            .findFirst()
+                            .map(aRecord -> toRemoveFromRotationServerEntry(server, aRecord))
+                            .orElseGet(() -> toAddToRotationServerEntry(server))
+            ).toList()
+        );
 
         serverEntries.sort(Comparator.comparing(ServerEntry::serverId));
 
         return serverEntries;
+    }
+
+    private static DnsEntry toDnsEntry(ARecord aRecord, Server server) {
+        return new DnsEntry(
+                aRecord.getDomainString(),
+                server.ipAddress(),
+                server.friendlyName(),
+                server.clusterName()
+        );
+    }
+
+    private static DnsEntry toNotFoundDnsEntry(ARecord aRecord) {
+        return new DnsEntry(
+                aRecord.getDomainString(),
+                aRecord.ipAddress()
+        );
     }
 
     private static ServerEntry toRemoveFromRotationServerEntry(Server server, ARecord aRecord) {
