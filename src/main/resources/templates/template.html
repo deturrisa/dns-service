@@ -31,11 +31,15 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="entry : ${dnsEntries}">
-      <td th:text="${entry.domainString}"></td>
-      <td th:text="${entry.ip}"></td>
-      <td th:text="${entry.serverFriendlyName}"></td>
-      <td th:text="${entry.clusterName}"></td>
+    <tr th:each="dns : ${dnsEntries}">
+      <td th:text="${dns.domainString}"
+          th:style="'background-color: ' + (${dns.statusColour()})"></td>
+      <td th:text="${dns.ip}"
+          th:style="'background-color: ' + (${dns.statusColour()})"></td>
+      <td th:text="${dns.serverFriendlyName}"
+          th:style="'background-color: ' + (${dns.statusColour()})"></td>
+      <td th:text="${dns.clusterName}"
+          th:style="'background-color: ' + (${dns.statusColour()})"></td>
     </tr>
     </tbody>
   </table>

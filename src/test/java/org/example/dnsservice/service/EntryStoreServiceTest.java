@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import java.util.List;
+
+import static java.awt.Color.RED;
 import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
 import static org.example.dnsservice.util.TestUtil.ARecordBuilder;
 import static org.example.dnsservice.util.TestUtil.ServerBuilder;
@@ -346,6 +348,7 @@ class EntryStoreServiceTest {
             assertEquals("5.5.5.5", result.get(2).ip());
             assertEquals("not found", result.get(2).serverFriendlyName());
             assertEquals("N/A", result.get(2).clusterName());
+            assertEquals("#ffcccc", result.get(2).statusColour());
         }
     }
 
@@ -433,6 +436,7 @@ class EntryStoreServiceTest {
             assertEquals("5.5.5.5", dnsEntriesResult.get(2).ip());
             assertEquals("not found", dnsEntriesResult.get(2).serverFriendlyName());
             assertEquals("N/A", dnsEntriesResult.get(2).clusterName());
+            assertEquals("#ffcccc", dnsEntriesResult.get(2).statusColour());
         }
 
         private static void assertUsa1(List<ServerEntry> result) {
