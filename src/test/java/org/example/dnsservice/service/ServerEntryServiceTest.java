@@ -284,7 +284,7 @@ class ServerEntryServiceTest {
     class PublishedDnsEntries{
 
         @Test
-        public void testMapPublishedKnownDnsEntries(){
+        public void testMapPublishedDnsEntries(){
             //given
             String losAngeles = "Los Angeles";
             String laIpAddress1 = "123.123.123.123";
@@ -313,20 +313,22 @@ class ServerEntryServiceTest {
 
             ARecord laARecord1 = new ARecord(USA + DOT_DOMAIN_COM, laIpAddress1, LA);
             ARecord laARecord2 = new ARecord(USA + DOT_DOMAIN_COM, laIpAddress2, LA);
+            ARecord xyzARecord = new ARecord("abc" + DOT_DOMAIN_COM, "5.5.5.5", "xyz");
+
 
             when(serverService.getServers()).thenReturn(
                     List.of(laServer1, laServer2)
             );
 
             when(mapper.getARecords()).thenReturn(
-                    List.of(laARecord1, laARecord2)
+                    List.of(laARecord1, laARecord2, xyzARecord)
             );
 
             //when
             List<DnsEntry> result = service.getDnsEntries();
 
             //then
-            assertEquals(2, result.size());
+            assertEquals(3, result.size());
 
             assertEquals(LA + DOT_DOMAIN_COM, result.get(0).domainString());
             assertEquals(laIpAddress1, result.get(0).ip());
@@ -337,27 +339,11 @@ class ServerEntryServiceTest {
             assertEquals(laIpAddress2, result.get(1).ip());
             assertEquals(laFriendlyName2, result.get(1).serverFriendlyName());
             assertEquals(losAngeles, result.get(1).clusterName());
+
+            assertEquals("xyz" + DOT_DOMAIN_COM, result.get(2).domainString());
+            assertEquals("5.5.5.5", result.get(2).ip());
+            assertEquals("not found", result.get(2).serverFriendlyName());
+            assertEquals("N/A", result.get(2).clusterName());
         }
-
-        @Test
-        public void testMapPublishedUnknownDnsEntries(){
-            //given
-            ARecord xyzARecord = new ARecord("abc" + DOT_DOMAIN_COM, "5.5.5.5", "xyz");
-
-            when(serverService.getServers()).thenReturn(List.of());
-            when(mapper.getARecords()).thenReturn(List.of(xyzARecord));
-
-            //when
-            List<DnsEntry> result = service.getDnsEntries();
-
-            //then
-            assertEquals(1, result.size());
-
-            assertEquals("xyz" + DOT_DOMAIN_COM, result.get(0).domainString());
-            assertEquals(xyzARecord.ipAddress(), result.get(0).ip());
-            assertEquals("not found", result.get(0).serverFriendlyName());
-            assertEquals("N/A", result.get(0).clusterName());
-        }
-
     }
 }
