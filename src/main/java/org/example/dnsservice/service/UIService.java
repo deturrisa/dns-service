@@ -18,7 +18,7 @@ public class UIService {
 
     public String renderHtml(){
         return htmlTemplateGenerator.generate(
-                serverEntryService.getServerEntries()
+                serverEntryService.getEntryStore().serverEntries()
         );
     }
 

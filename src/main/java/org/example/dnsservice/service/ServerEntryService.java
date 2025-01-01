@@ -25,12 +25,18 @@ public class ServerEntryService {
     }
 
     public EntryStore getEntryStore(){
-        return new EntryStore(getServerEntries());
+        List<Server> servers = service.getServers();
+        List<ARecord> aRecords = mapper.getARecords();
+
+        return new EntryStore(
+                getServerEntries(aRecords,servers),
+                getDnsEntries(aRecords,servers)
+        );
     }
 
-    public List<DnsEntry> getDnsEntries() {
-        return mapper.getARecords().stream().map(aRecord ->
-                service.getServers().stream()
+    private List<DnsEntry> getDnsEntries(List<ARecord> aRecords, List<Server> servers) {
+        return aRecords.stream().map(aRecord ->
+                servers.stream()
                         .filter(server ->  hasMatchingIpAddress(server, aRecord))
                         .findFirst()
                         .map(server -> toDnsEntry(aRecord, server))
@@ -38,10 +44,10 @@ public class ServerEntryService {
         ).toList();
     }
 
-    public List<ServerEntry> getServerEntries() {
+    private List<ServerEntry> getServerEntries(List<ARecord> aRecords, List<Server> servers) {
         List<ServerEntry> serverEntries = new ArrayList<>(
-                service.getServers().stream().map(server ->
-                    mapper.getARecords().stream()
+                servers.stream().map(server ->
+                    aRecords.stream()
                             .filter(aRecord -> hasMatchingIpAddress(server, aRecord))
                             .findFirst()
                             .map(aRecord -> toRemoveFromRotationServerEntry(server, aRecord))

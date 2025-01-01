@@ -56,7 +56,7 @@ class ServerEntryServiceTest {
         public void testMapServersFromDb(){
             //given
             //when
-            List<ServerEntry> result = service.getServerEntries();
+            List<ServerEntry> result = service.getEntryStore().serverEntries();
             //then
             assertEquals(4, result.size());
             assertSwitzerland(result);
@@ -76,7 +76,7 @@ class ServerEntryServiceTest {
             when(mapper.getARecords()).thenReturn(List.of(singaporeARecord));
 
             //when
-            List<ServerEntry> result = service.getServerEntries();
+            List<ServerEntry> result = service.getEntryStore().serverEntries();
 
             //then
             assertEquals(4, result.size());
@@ -162,7 +162,7 @@ class ServerEntryServiceTest {
         public void testMapServersFromDbAndR53(){
             //given
             //when
-            List<ServerEntry> result = service.getServerEntries();
+            List<ServerEntry> result = service.getEntryStore().serverEntries();
 
             //then
             assertEquals(4, result.size());
@@ -249,7 +249,7 @@ class ServerEntryServiceTest {
             );
 
             //when
-            List<ServerEntry> result = service.getServerEntries();
+            List<ServerEntry> result = service.getEntryStore().serverEntries();
 
             //then
             assertEquals(3, result.size());
@@ -325,7 +325,7 @@ class ServerEntryServiceTest {
             );
 
             //when
-            List<DnsEntry> result = service.getDnsEntries();
+            List<DnsEntry> result = service.getEntryStore().dnsEntries();
 
             //then
             assertEquals(3, result.size());
