@@ -19,25 +19,46 @@
     </style>
   </head>
   <body>
-    <h1>UI: Currently published DNS entries</h1>
-    <h2><i>"Showing all A entries on #{domain} and matching them to our server records if available.”</i></h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Friendly Name (sort ascending)</th>
-          <th>Cluster</th>
-          <th>DNS status (A records pointing to this server’s IP)</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr th:each="server : ${serverEntries}">
-            <td th:text="'server' + ${server.serverId()}"></td>
-            <td th:text="${server.cluster()}"></td>
-            <td th:text="${server.dnsStatus()}"></td>
-            <td th:text="${server.action().getDescription()}"></td>
-        </tr>
-      </tbody>
-    </table>
+  <h1>UI: Currently published DNS entries</h1>
+  <h2><i>Showing all A entries on #{domain} and matching them to our server records if available.</i></h2>
+  <table id ="dnsEntries">
+    <thead>
+    <tr>
+      <th>Domain String</th>
+      <th>IP</th>
+      <th>Server Friendly Name</th>
+      <th>Cluster Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="entry : ${dnsEntries}">
+      <td th:text="${entry.domainString}"></td>
+      <td th:text="${entry.ip}"></td>
+      <td th:text="${entry.serverFriendlyName}"></td>
+      <td th:text="${entry.clusterName}"></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h1>UI: Servers</h1>
+  <h2><i>"Showing all servers in our database.”</i></h2>
+  <table id ="serverEntries">
+    <thead>
+    <tr>
+      <th>Friendly Name (sort ascending)</th>
+      <th>Cluster</th>
+      <th>DNS status (A records pointing to this server’s IP)</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="server : ${serverEntries}">
+      <td th:text="'server' + ${server.serverId()}"></td>
+      <td th:text="${server.cluster()}"></td>
+      <td th:text="${server.dnsStatus()}"></td>
+      <td th:text="${server.action().getDescription()}"></td>
+    </tr>
+    </tbody>
+  </table>
   </body>
 </html>
