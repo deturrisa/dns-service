@@ -1,15 +1,14 @@
 package org.example.dnsservice.context;
 
-import org.example.dnsservice.model.ServerEntry;
+import org.example.dnsservice.model.EntryStore;
 import org.thymeleaf.context.Context;
-import java.util.List;
 
 public record ServerContext() {
 
-    public static Context create(List<ServerEntry> serverEntries) {
+    public static Context create(EntryStore entryStore) {
         Context context = new Context();
-        context.setVariable("serverEntries",serverEntries);
+        context.setVariable("serverEntries",entryStore.serverEntries());
+        context.setVariable("dnsEntries", entryStore.dnsEntries());
         return context;
     }
-
 }

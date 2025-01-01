@@ -41,7 +41,7 @@ public class DnsServiceSST extends BaseSST {
     }
 
     @Test
-    public void testShouldRenderServerTableWithTwoRecordsToAddToRotation() throws Exception {
+    public void testShouldRenderServerEntries() throws Exception {
         //given
         ClusterEntity laClusterEntity = new ClusterEntity(1,"Los Angeles",LA);
         ServerEntity laServer1 = new ServerEntity(1,"ubiq-1","123.123.123.123", laClusterEntity);
