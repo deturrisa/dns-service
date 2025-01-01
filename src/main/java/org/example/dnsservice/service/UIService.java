@@ -7,18 +7,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class UIService {
 
-    private final ServerEntryService serverEntryService;
+    private final EntryStoreService entryStoreService;
     private final HtmlTemplateGenerator htmlTemplateGenerator;
 
     @Autowired
-    public UIService(HtmlTemplateGenerator htmlTemplateGenerator, ServerEntryService serverEntryService) {
-        this.serverEntryService = serverEntryService;
+    public UIService(HtmlTemplateGenerator htmlTemplateGenerator, EntryStoreService entryStoreService) {
+        this.entryStoreService = entryStoreService;
         this.htmlTemplateGenerator = htmlTemplateGenerator;
     }
 
     public String renderHtml(){
         return htmlTemplateGenerator.generate(
-                serverEntryService.getEntryStore()
+                entryStoreService.getEntryStore()
         );
     }
 

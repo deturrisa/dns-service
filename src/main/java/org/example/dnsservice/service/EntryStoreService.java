@@ -11,15 +11,15 @@ import java.util.Comparator;
 import java.util.List;
 
 @Service
-public class ServerEntryService {
+public class EntryStoreService {
 
     private final ServerService service;
     private final Route53RecordMapper mapper;
 
-    private final Logger log = LoggerFactory.getLogger(ServerEntryService.class);
+    private final Logger log = LoggerFactory.getLogger(EntryStoreService.class);
 
     @Autowired
-    public ServerEntryService(ServerService service, Route53RecordMapper mapper) {
+    public EntryStoreService(ServerService service, Route53RecordMapper mapper) {
         this.service = service;
         this.mapper = mapper;
     }
