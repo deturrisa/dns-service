@@ -6,14 +6,16 @@ import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 public record ARecord(
         String name,
         String ipAddress,
-        String setIdentifier
+        String setIdentifier,
+        Long weight
 ){
 
     public static ARecord of(ResourceRecordSet resourceRecordSet, ResourceRecord resourceRecord) {
         return new ARecord(
                 resourceRecordSet.name(),
                 resourceRecord.value(),
-                resourceRecordSet.setIdentifier()
+                resourceRecordSet.setIdentifier(),
+                resourceRecordSet.weight()
         );
     }
 

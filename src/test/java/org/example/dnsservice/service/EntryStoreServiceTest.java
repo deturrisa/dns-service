@@ -305,6 +305,7 @@ class EntryStoreServiceTest {
                             .friendlyName(laFriendlyName1)
                             .clusterName(losAngeles)
                             .build();
+
             Server laServer2  =
                     new ServerBuilder()
                             .id(2)
@@ -315,10 +316,23 @@ class EntryStoreServiceTest {
                             .clusterName(losAngeles)
                             .build();
 
-            ARecord laARecord1 = new ARecord(USA + DOT_DOMAIN_COM, laIpAddress1, LA);
-            ARecord laARecord2 = new ARecord(USA + DOT_DOMAIN_COM, laIpAddress2, LA);
-            ARecord xyzARecord = new ARecord("abc" + DOT_DOMAIN_COM, "5.5.5.5", "xyz");
+            ARecord laARecord1 = new ARecordBuilder()
+                    .name(USA + DOT_DOMAIN_COM)
+                    .ipAddress(laIpAddress1)
+                    .setIdentifier(LA)
+                    .build();
 
+            ARecord laARecord2 = new ARecordBuilder()
+                    .name(USA + DOT_DOMAIN_COM)
+                    .ipAddress(laIpAddress2)
+                    .setIdentifier(LA)
+                    .build();
+
+            ARecord xyzARecord = new ARecordBuilder()
+                    .name("abc" + DOT_DOMAIN_COM)
+                    .ipAddress("5.5.5.5")
+                    .setIdentifier("xyz")
+                    .build();
 
             when(serverService.getServers()).thenReturn(
                     List.of(laServer1, laServer2)
@@ -398,7 +412,11 @@ class EntryStoreServiceTest {
                     .ipAddress(laIpAddress2)
                     .setIdentifier(LA).build();
 
-            ARecord xyzARecord = new ARecord("abc" + DOT_DOMAIN_COM, "5.5.5.5", "xyz");
+            ARecord xyzARecord = new ARecordBuilder()
+                    .name("abc" + DOT_DOMAIN_COM)
+                    .ipAddress("5.5.5.5")
+                    .setIdentifier("xyz")
+                    .build();
 
             when(serverService.getServers()).thenReturn(
                     List.of(swissServer, usaServer1, usaServer2));

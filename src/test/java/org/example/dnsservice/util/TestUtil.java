@@ -181,6 +181,7 @@ public class TestUtil {
         private String setIdentifier = "si";
         private String name = "region.domain.com.";
         private String ipAddress = getRandomIp();
+        private Long weight = 50L;
 
         public ARecordBuilder setIdentifier(String setIdentifier) {
             this.setIdentifier = setIdentifier;
@@ -197,8 +198,13 @@ public class TestUtil {
             return this;
         }
 
+        public ARecordBuilder weight(Long weight) {
+            this.weight = weight;
+            return this;
+        }
+
         public ARecord build(){
-            return new ARecord(name, ipAddress, setIdentifier);
+            return new ARecord(name, ipAddress, setIdentifier, weight);
         }
     }
 
