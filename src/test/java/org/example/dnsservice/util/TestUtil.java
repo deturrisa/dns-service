@@ -182,6 +182,7 @@ public class TestUtil {
         private String name = "region.domain.com.";
         private String ipAddress = getRandomIp();
         private Long weight = 50L;
+        private Long ttl = 300L;
 
         public ARecordBuilder setIdentifier(String setIdentifier) {
             this.setIdentifier = setIdentifier;
@@ -203,8 +204,13 @@ public class TestUtil {
             return this;
         }
 
+        public ARecordBuilder ttl(Long ttl) {
+            this.ttl = ttl;
+            return this;
+        }
+
         public ARecord build(){
-            return new ARecord(name, ipAddress, setIdentifier, weight);
+            return new ARecord(name, ipAddress, setIdentifier, weight, ttl);
         }
     }
 

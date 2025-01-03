@@ -7,7 +7,8 @@ public record ARecord(
         String name,
         String ipAddress,
         String setIdentifier,
-        Long weight
+        Long weight,
+        Long ttl
 ){
 
     public static ARecord of(ResourceRecordSet resourceRecordSet, ResourceRecord resourceRecord) {
@@ -15,7 +16,8 @@ public record ARecord(
                 resourceRecordSet.name(),
                 resourceRecord.value(),
                 resourceRecordSet.setIdentifier(),
-                resourceRecordSet.weight()
+                resourceRecordSet.weight(),
+                resourceRecordSet.ttl()
         );
     }
 
@@ -25,10 +27,12 @@ public record ARecord(
 
     @Override
     public String toString() {
-        return "ARecord{" +
-                "name='" + name + '\'' +
-                ", ipAddress='" + ipAddress + '\'' +
-                ", setIdentifier='" + setIdentifier + '\'' +
-                '}';
+        return "{" +
+                "\"name\":\"" + name + "\"," +
+                "\"ipAddress\":\"" + ipAddress + "\"," +
+                "\"setIdentifier\":\"" + setIdentifier + "\"," +
+                "\"weight\":" + weight + "," +
+                "\"ttl\":" + ttl +
+                "}";
     }
 }
