@@ -1,10 +1,9 @@
-package org.example.dnsservice.mapper;
+package org.example.dnsservice.service;
 
 import org.example.dnsservice.configuration.R53Properties;
 import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.exception.ARecordValidationException;
 import org.example.dnsservice.model.ARecord;
-import org.example.dnsservice.service.AwsR53Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,7 @@ import static java.util.stream.Collectors.toList;
 import static org.example.dnsservice.util.ErrorCodes.ServerErrors.ERROR_DUPLICATE_IP_ADDRESSES;
 
 @Component
-public class Route53RecordMapper {
+public class ARecordService {
 
     private final AwsR53Service awsR53Service;
 
@@ -25,12 +24,12 @@ public class Route53RecordMapper {
 
     private final DomainRegionProperties domainRegionProperties;
 
-    private final Logger log = LoggerFactory.getLogger(Route53RecordMapper.class);
+    private final Logger log = LoggerFactory.getLogger(ARecordService.class);
 
     @Autowired
-    public Route53RecordMapper(AwsR53Service awsR53Service,
-                               R53Properties r53Properties,
-                               DomainRegionProperties domainRegionProperties
+    public ARecordService(AwsR53Service awsR53Service,
+                          R53Properties r53Properties,
+                          DomainRegionProperties domainRegionProperties
     ) {
         this.awsR53Service = awsR53Service;
         this.r53Properties = r53Properties;

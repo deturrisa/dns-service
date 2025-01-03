@@ -1,6 +1,5 @@
 package org.example.dnsservice.service;
 
-import org.example.dnsservice.mapper.Route53RecordMapper;
 import org.example.dnsservice.model.*;
 import org.example.dnsservice.util.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,7 +9,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import java.util.List;
 
-import static java.awt.Color.RED;
 import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
 import static org.example.dnsservice.util.TestUtil.ARecordBuilder;
 import static org.example.dnsservice.util.TestUtil.ServerBuilder;
@@ -21,13 +19,13 @@ import static org.mockito.Mockito.when;
 class EntryStoreServiceTest {
 
     @Mock
-    private Route53RecordMapper mapper;
+    private ARecordService service;
 
     @Mock
     private ServerService serverService;
 
     @InjectMocks
-    private EntryStoreService service;
+    private EntryStoreService entryStoreService;
 
     private static final ServerBuilder swissServerBuilder =
             new ServerBuilder().id(1).regionSubdomain(SWITZERLAND);
@@ -59,7 +57,7 @@ class EntryStoreServiceTest {
             public void testMapServersFromDb(){
                 //given
                 //when
-                List<ServerEntry> result = service.getEntryStore().serverEntries();
+                List<ServerEntry> result = entryStoreService.getEntryStore().serverEntries();
                 //then
                 assertEquals(4, result.size());
                 assertSwitzerland(result);
@@ -76,10 +74,10 @@ class EntryStoreServiceTest {
                         .setIdentifier("sg")
                         .build();
 
-                when(mapper.getARecords()).thenReturn(List.of(singaporeARecord));
+                when(service.getARecords()).thenReturn(List.of(singaporeARecord));
 
                 //when
-                List<ServerEntry> result = service.getEntryStore().serverEntries();
+                List<ServerEntry> result = entryStoreService.getEntryStore().serverEntries();
 
                 //then
                 assertEquals(4, result.size());
@@ -156,7 +154,7 @@ class EntryStoreServiceTest {
             public void setUp() {
                 when(serverService.getServers()).thenReturn(
                         List.of(swissServer, usaServer, germanyServer, hongKongServer));
-                when(mapper.getARecords()).thenReturn(
+                when(service.getARecords()).thenReturn(
                         List.of(swissARecord, usaARecord, germanyARecord, hongKongARecord)
                 );
             }
@@ -165,7 +163,7 @@ class EntryStoreServiceTest {
             public void testMapServersFromDbAndR53(){
                 //given
                 //when
-                List<ServerEntry> result = service.getEntryStore().serverEntries();
+                List<ServerEntry> result = entryStoreService.getEntryStore().serverEntries();
 
                 //then
                 assertEquals(4, result.size());
@@ -247,12 +245,12 @@ class EntryStoreServiceTest {
                 when(serverService.getServers()).thenReturn(
                         List.of(swissServer, usaServer1, usaServer2));
 
-                when(mapper.getARecords()).thenReturn(
+                when(service.getARecords()).thenReturn(
                         List.of(usaARecord1, usaARecord2)
                 );
 
                 //when
-                List<ServerEntry> result = service.getEntryStore().serverEntries();
+                List<ServerEntry> result = entryStoreService.getEntryStore().serverEntries();
 
                 //then
                 assertEquals(3, result.size());
@@ -338,12 +336,12 @@ class EntryStoreServiceTest {
                     List.of(laServer1, laServer2)
             );
 
-            when(mapper.getARecords()).thenReturn(
+            when(service.getARecords()).thenReturn(
                     List.of(laARecord1, laARecord2, xyzARecord)
             );
 
             //when
-            List<DnsEntry> result = service.getEntryStore().dnsEntries();
+            List<DnsEntry> result = entryStoreService.getEntryStore().dnsEntries();
 
             //then
             assertEquals(3, result.size());
@@ -421,12 +419,12 @@ class EntryStoreServiceTest {
             when(serverService.getServers()).thenReturn(
                     List.of(swissServer, usaServer1, usaServer2));
 
-            when(mapper.getARecords()).thenReturn(
+            when(service.getARecords()).thenReturn(
                     List.of(usaARecord1, usaARecord2, xyzARecord)
             );
 
             //when
-            EntryStore entryStore = service.getEntryStore();
+            EntryStore entryStore = entryStoreService.getEntryStore();
             List<ServerEntry> serverEntriesResult = entryStore.serverEntries();
             List<DnsEntry> dnsEntriesResult = entryStore.dnsEntries();
 

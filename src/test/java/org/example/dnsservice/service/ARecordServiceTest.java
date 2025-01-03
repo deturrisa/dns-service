@@ -1,10 +1,9 @@
-package org.example.dnsservice.mapper;
+package org.example.dnsservice.service;
 
 import org.example.dnsservice.configuration.DomainRegion;
 import org.example.dnsservice.configuration.R53Properties;
 import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.model.ARecord;
-import org.example.dnsservice.service.AwsR53Service;
 import org.example.dnsservice.util.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-public class Route53RecordMapperTest {
+public class ARecordServiceTest {
 
     @Mock
     private AwsR53Service awsR53Service;
@@ -33,7 +32,7 @@ public class Route53RecordMapperTest {
     private DomainRegionProperties domainRegionProperties;
 
     @InjectMocks
-    private Route53RecordMapper mapper;
+    private ARecordService service;
 
     @BeforeEach
     public void setUp() {
@@ -99,7 +98,7 @@ public class Route53RecordMapperTest {
         );
 
         //when
-        List<ARecord> result = mapper.getARecords();
+        List<ARecord> result = service.getARecords();
 
         assertEquals(7, result.size());
 

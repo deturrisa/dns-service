@@ -1,6 +1,5 @@
 package org.example.dnsservice.service;
 
-import org.example.dnsservice.mapper.Route53RecordMapper;
 import org.example.dnsservice.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,20 +12,20 @@ import java.util.List;
 @Service
 public class EntryStoreService {
 
-    private final ServerService service;
-    private final Route53RecordMapper mapper;
+    private final ServerService serverService;
+    private final ARecordService aRecordService;
 
     private static final Logger log = LoggerFactory.getLogger(EntryStoreService.class);
 
     @Autowired
-    public EntryStoreService(ServerService service, Route53RecordMapper mapper) {
-        this.service = service;
-        this.mapper = mapper;
+    public EntryStoreService(ServerService serverService, ARecordService aRecordService) {
+        this.serverService = serverService;
+        this.aRecordService = aRecordService;
     }
 
     public EntryStore getEntryStore(){
-        List<Server> servers = service.getServers();
-        List<ARecord> aRecords = mapper.getARecords();
+        List<Server> servers = serverService.getServers();
+        List<ARecord> aRecords = aRecordService.getARecords();
 
         return new EntryStore(
                 getServerEntries(aRecords,servers),
