@@ -96,4 +96,10 @@ public class EntryStoreService {
     private static boolean hasMatchingIpAddress(Server server, ARecord aRecord) {
         return aRecord.ipAddress().equals(server.ipAddress());
     }
+
+    public List<ARecord> removeFromRotation(Integer serverId) {
+        String ipAddress = serverService.getServerById(serverId).ipAddress();
+
+        return aRecordService.deleteByIpAddress(ipAddress);
+    }
 }

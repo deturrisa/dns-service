@@ -2,6 +2,7 @@ package org.example.dnsservice.service;
 
 import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.entity.ServerEntity;
+import org.example.dnsservice.exception.ARecordValidationException;
 import org.example.dnsservice.exception.ServerValidationException;
 import org.example.dnsservice.model.Server;
 import org.example.dnsservice.repository.ServerRepository;
@@ -39,6 +40,15 @@ public class ServerService {
                 .filter(this::isSupportedClusterSubdomain)
                 .map(entity -> Server.of(entity, getRegionCode(entity)))
                 .toList();
+    }
+
+    public Server getServerById(Integer id){
+       return repository.findById(id)
+                       .map(entity -> Server.of(entity, getRegionCode(entity)))
+               .orElseThrow(() -> new ARecordValidationException(
+                       //TODO unit test this
+                       "Server not found with id: " + id
+               ));
     }
 
     private String getRegionCode(ServerEntity entity) {

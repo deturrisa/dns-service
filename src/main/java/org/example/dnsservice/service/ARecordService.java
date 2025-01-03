@@ -36,6 +36,23 @@ public class ARecordService {
         this.domainRegionProperties = domainRegionProperties;
     }
 
+
+    public List<ARecord> deleteByIpAddress(String ipAddress) {
+        //TODO implement deletion
+        getARecordByIpAddress(ipAddress);
+        return List.of();
+    }
+
+    private ARecord getARecordByIpAddress(String ipAddress) {
+        return getARecords().stream()
+                .filter(record -> record.ipAddress().equals(ipAddress))
+                .findFirst()
+                .orElseThrow(() -> new ARecordValidationException(
+                        //TODO unit test this
+                        "ARecord not found with ip: " + ipAddress
+                ));
+    }
+
     public List<ARecord> getARecords() {
         List<ARecord> aRecords = getAResourceRecordSets().stream()
                 .filter(this::isValidDomain).flatMap(
