@@ -138,4 +138,63 @@ public class ARecordServiceTest {
         assertEquals("13.13.13.13", nycRecord.ipAddress());
 
     }
+
+    @Test
+    public void testShouldDeleteARecordFromR53(){
+        //given
+        String ipAddressToRemove = "123.123.123.123";
+        Long ttl = 300L;
+        Long weight = 50L;
+
+        ResourceRecordSet hongKongAResourceRecordSet = createAResourceRecordSet(
+                HONG_KONG + DOT_DOMAIN_COM,
+                HONG_KONG,
+                List.of(createResourceRecord("234.234.234.234"),createResourceRecord("234.234.234.234")),
+                ttl,
+                weight
+        );
+
+        ResourceRecordSet usaAResourceRecordSet = createAResourceRecordSet(
+                USA + DOT_DOMAIN_COM,
+                USA,
+                List.of(createResourceRecord(ipAddressToRemove),createResourceRecord("125.125.125.125")),
+                ttl,
+                weight
+        );
+
+        ListResourceRecordSetsResponse response =
+                createListResourceRecordSetsResponse(
+                        List.of(
+                                getNsResourceRecordSet(),
+                                getSoaResourceRecordSet(),
+                                hongKongAResourceRecordSet,
+                                usaAResourceRecordSet
+                        )
+                );
+
+
+        when(awsR53Service.getResourceRecordSets(r53Properties.hostedZoneId()))
+                .thenReturn(CompletableFuture.completedFuture(response));
+
+        //when
+        List<ARecord> result = service.deleteByIpAddress(ipAddressToRemove);
+
+        //then
+        assertEquals(3, result.size());
+
+        ARecord hongKongARecord1 = result.get(0);
+        assertEquals(HONG_KONG, hongKongARecord1.setIdentifier());
+        assertEquals(HONG_KONG + DOT_DOMAIN_COM, hongKongARecord1.name());
+        assertEquals("234.234.234.234", hongKongARecord1.ipAddress());
+
+        ARecord hongKongARecord2 = result.get(1);
+        assertEquals(HONG_KONG, hongKongARecord2.setIdentifier());
+        assertEquals(HONG_KONG + DOT_DOMAIN_COM, hongKongARecord2.name());
+        assertEquals("235.235.235.235", hongKongARecord2.ipAddress());
+
+        ARecord usaARecord = result.get(2);
+        assertEquals(USA, usaARecord.setIdentifier());
+        assertEquals(USA + DOT_DOMAIN_COM, usaARecord.name());
+        assertEquals("125.125.125.125", usaARecord.ipAddress());
+    }
 }
