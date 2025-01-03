@@ -7,11 +7,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class TestUtil {
 
     public static class ResourceRecordSetTestData {
 
+        public static final String HOSTED_ZONE_ID = "someHostedZoneId";
         public static final String DOT_DOMAIN_COM = ".domain.com.";
         public static final String USA = "usa";
         public static final String NYC = "nyc";
@@ -26,12 +28,6 @@ public class TestUtil {
             return ListResourceRecordSetsResponse.builder()
                     .resourceRecordSets(createDefaultResourceRecordSets())
                     .resourceRecordSets(resourceRecordSets)
-                    .build();
-        }
-
-        public static ListResourceRecordSetsResponse getDefaultResourceRecordSetsResponse() {
-            return ListResourceRecordSetsResponse.builder()
-                    .resourceRecordSets(createDefaultResourceRecordSets())
                     .build();
         }
 
@@ -102,6 +98,40 @@ public class TestUtil {
                     .setIdentifier(setIdentifier)
                     .type(RRType.A)
                     .resourceRecords(ipResourceRecords)
+                    .build();
+        }
+
+        public static ResourceRecordSet createAResourceRecordSet(
+                String name,
+                String setIdentifier,
+                List<ResourceRecord> resourceRecords,
+                Long ttl,
+                Long weight
+        ) {
+            return ResourceRecordSet.builder()
+                    .name(name)
+                    .setIdentifier(setIdentifier)
+                    .type(RRType.A)
+                    .resourceRecords(resourceRecords)
+                    .build();
+        }
+
+        public static ChangeResourceRecordSetsRequest getChangeResourceRecordSetsRequest(List<ResourceRecordSet> resourceRecordSets) {
+            return ChangeResourceRecordSetsRequest.builder()
+                    .hostedZoneId(HOSTED_ZONE_ID)
+                    .changeBatch(
+                            ChangeBatch.builder()
+                                    .changes(resourceRecordSets.stream()
+                                            .map(ResourceRecordSetTestData::getChange)
+                                            .collect(Collectors.toList()))
+                                    .build())
+                    .build();
+        }
+
+        public static Change getChange(ResourceRecordSet resourceRecordSet) {
+            return Change.builder()
+                    .action(ChangeAction.UPSERT)
+                    .resourceRecordSet(resourceRecordSet)
                     .build();
         }
 
