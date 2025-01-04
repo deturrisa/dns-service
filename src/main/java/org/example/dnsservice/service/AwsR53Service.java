@@ -32,29 +32,53 @@ public class AwsR53Service {
     }
 
     public ListResourceRecordSetsResponse upsertResourceRecordSet(
-            String hostedZoneId, String ipAddress) {
-        CompletableFuture<ListResourceRecordSetsResponse> listResourceRecordSetsResponse =
-                getListResourceRecordSetsResponse(hostedZoneId);
+            String hostedZoneId,
+            String ipAddress
+    ) {
         List<ResourceRecordSet> resourceRecordSets =
-                listResourceRecordSetsResponse
-                        .thenApply(
-                                response ->
-                                        response.resourceRecordSets().stream()
-                                                .filter(this::isARecord)
-                                                .map(
-                                                        resourceRecordSet ->
-                                                                toResourceRecordSetWithFilteredIp(ipAddress, resourceRecordSet))
-                                                .toList())
-                        .join();
+                getListResourceRecordSetsResponse(hostedZoneId).thenApply(
+                        response -> response.resourceRecordSets().stream()
+                                .filter(AwsR53Service::isARecord)
+                                .map(
+                                    resourceRecordSet ->
+                                            applyIpToRemoveFromResourceRecordSet(resourceRecordSet,ipAddress)
+                        ).toList()
+                ).join();
 
-        deleteARecord(hostedZoneId, resourceRecordSets);
+        upsertARecord(hostedZoneId, resourceRecordSets);
 
         return ListResourceRecordSetsResponse.builder()
                 .resourceRecordSets(resourceRecordSets)
                 .build();
     }
 
-    private void deleteARecord(String hostedZoneId, List<ResourceRecordSet> resourceRecordSets) {
+    private static ResourceRecordSet applyIpToRemoveFromResourceRecordSet(ResourceRecordSet resourceRecordSet, String ipAddress) {
+        List<ResourceRecord> updatedRecords =
+                resourceRecordSet.resourceRecords().stream()
+                        .filter(resourceRecord -> !matchIPAddressWithResourceRecord(ipAddress, resourceRecord))
+                        .toList();
+
+        return applyResourceRecordsToResourceRecordSet(resourceRecordSet, updatedRecords);
+    }
+
+    private static ResourceRecordSet applyResourceRecordsToResourceRecordSet(
+            ResourceRecordSet resourceRecordSet,
+            List<ResourceRecord> resourceRecords
+    ) {
+        return ResourceRecordSet.builder()
+                .name(resourceRecordSet.name())
+                .type(resourceRecordSet.type())
+                .setIdentifier(resourceRecordSet.setIdentifier())
+                .ttl(resourceRecordSet.ttl())
+                .weight(resourceRecordSet.weight())
+                .resourceRecords(resourceRecords).build();
+    }
+
+    private static boolean matchIPAddressWithResourceRecord(String ipAddress, ResourceRecord resourceRecord) {
+        return resourceRecord.value().equals(ipAddress);
+    }
+
+    private void upsertARecord(String hostedZoneId, List<ResourceRecordSet> resourceRecordSets) {
         route53AsyncClient.changeResourceRecordSets(
                 toChangeResourceRecordSetsRequest(hostedZoneId, resourceRecordSets)
         );
@@ -75,26 +99,7 @@ public class AwsR53Service {
                 .build();
     }
 
-    private static ResourceRecordSet toResourceRecordSetWithFilteredIp(String ipAddress, ResourceRecordSet resourceRecordSet) {
-        List<ResourceRecord> filtered =
-                resourceRecordSet.resourceRecords().stream().filter(
-                        resourceRecord -> !matchesIpAddress(ipAddress, resourceRecord)
-                ).toList();
-
-        return ResourceRecordSet.builder()
-                .name(resourceRecordSet.name())
-                .type(resourceRecordSet.type())
-                .setIdentifier(resourceRecordSet.setIdentifier())
-                .ttl(resourceRecordSet.ttl())
-                .weight(resourceRecordSet.weight())
-                .resourceRecords(filtered).build();
-    }
-
-    private static boolean matchesIpAddress(String ipAddress, ResourceRecord resourceRecord) {
-        return resourceRecord.value().equals(ipAddress);
-    }
-
-    private boolean isARecord(ResourceRecordSet resourceRecordSet) {
+    private static boolean isARecord(ResourceRecordSet resourceRecordSet){
         return resourceRecordSet.type().equals(RRType.A);
     }
 }

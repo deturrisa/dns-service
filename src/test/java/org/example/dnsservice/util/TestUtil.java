@@ -61,6 +61,21 @@ public class TestUtil {
             );
         }
 
+        public static ResourceRecordSet getUsaAResourceRecordSet(
+                String setIdentifier,
+                List<String> ips,
+                Long ttl,
+                Long weight
+        ){
+            return createAResourceRecordSet(
+                    USA + DOT_DOMAIN_COM,
+                    setIdentifier,
+                    createIpResourceRecords(ips),
+                    ttl,
+                    weight
+            );
+        }
+
         public static ResourceRecordSet getSwitzerlandAResourceRecordSet(String setIdentifier, List<String> ips){
             return createAResourceRecordSet(
                     SWITZERLAND + DOT_DOMAIN_COM,
@@ -74,6 +89,21 @@ public class TestUtil {
                     HONG_KONG + DOT_DOMAIN_COM,
                     setIdentifier,
                     createIpResourceRecords(ips)
+            );
+        }
+
+        public static ResourceRecordSet getHongKongAResourceRecordSet(
+                String setIdentifier,
+                List<String> ips,
+                Long ttl,
+                Long weight
+        ){
+            return createAResourceRecordSet(
+                    HONG_KONG + DOT_DOMAIN_COM,
+                    setIdentifier,
+                    createIpResourceRecords(ips),
+                    ttl,
+                    weight
             );
         }
 
@@ -113,6 +143,8 @@ public class TestUtil {
                     .setIdentifier(setIdentifier)
                     .type(RRType.A)
                     .resourceRecords(resourceRecords)
+                    .ttl(ttl)
+                    .weight(weight)
                     .build();
         }
 
