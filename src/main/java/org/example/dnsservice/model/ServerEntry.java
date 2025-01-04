@@ -4,8 +4,8 @@ public record ServerEntry(Integer serverId, String cluster, String dnsStatus) {
 
     private final static String DEFAULT_DNS_STATUS = "NONE";
 
-    public static String getEndpoint(Integer serverId){
-        return "/remove/" + serverId;
+    public String getEndpoint(){
+        return "/remove/" + this.serverId;
     }
 
     public ServerEntry(Integer serverId, String cluster){

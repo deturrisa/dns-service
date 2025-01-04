@@ -62,7 +62,7 @@
       <td th:text="${server.dnsStatus()}"></td>
       <td th:text="${server.action().getDescription()}"></td>
       <td>
-        <form th:action="${server.getEndpoint(server.serverId())}" method="post" style="display:inline;">
+        <form th:action="'/dns-service' + ${server.endpoint}" method="post" style="display:inline;">
           <button type="submit" th:text="${server.action().getDescription()}"></button>
         </form>
       </td>
