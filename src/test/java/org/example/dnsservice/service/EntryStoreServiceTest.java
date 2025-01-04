@@ -481,4 +481,109 @@ class EntryStoreServiceTest {
 
         }
     }
+
+    @Nested
+    class PostTest{
+
+        @Test
+        public void testShouldRemoveFromRotation(){
+            //given
+            String losAngeles = "Los Angeles";
+            String ipAddressToRemove = "123.123.123.123";
+            String laFriendlyName1 = "ubiq-1";
+            String laFriendlyName2 = "ubiq-2";
+
+            String laIpAddress = "125.125.125.125";
+            Integer idToRemove = 1;
+
+            Server swissServer = new ServerBuilder()
+                    .id(20)
+                    .regionSubdomain(SWITZERLAND)
+                    .clusterSubdomain(GENEVA)
+                    .build();
+
+            Server usaServer1 = new ServerBuilder()
+                    .id(idToRemove)
+                    .regionSubdomain(USA)
+                    .clusterSubdomain(LA)
+                    .clusterName(losAngeles)
+                    .ipAddress(ipAddressToRemove)
+                    .friendlyName(laFriendlyName1)
+                    .build();
+
+            Server usaServer2 = new ServerBuilder()
+                    .id(2)
+                    .regionSubdomain(USA)
+                    .clusterSubdomain(LA)
+                    .clusterName(losAngeles)
+                    .ipAddress(laIpAddress)
+                    .friendlyName(laFriendlyName2)
+                    .build();
+
+            ARecord usaARecord = new ARecordBuilder()
+                    .name(USA + DOT_DOMAIN_COM)
+                    .ipAddress(laIpAddress)
+                    .setIdentifier(LA).build();
+
+            ARecord xyzARecord = new ARecordBuilder()
+                    .name("abc" + DOT_DOMAIN_COM)
+                    .ipAddress("5.5.5.5")
+                    .setIdentifier("xyz")
+                    .build();
+
+            when(serverService.getServers()).thenReturn(
+                    List.of(swissServer, usaServer1, usaServer2));
+
+            when(aRecordService.deleteByIpAddress(ipAddressToRemove)).thenReturn(
+                    List.of(usaARecord, xyzARecord)
+            );
+
+            //when
+            EntryStore entryStore = service.removeFromRotation(idToRemove);
+            List<ServerEntry> serverEntriesResult = entryStore.serverEntries();
+            List<DnsEntry> dnsEntriesResult = entryStore.dnsEntries();
+
+            //then
+
+            //Server Page
+            assertEquals(3, serverEntriesResult.size());
+            assertUsa1(serverEntriesResult);
+            assertUsa2(serverEntriesResult);
+            assertSwitzerland(serverEntriesResult);
+
+            //Dns Page
+            assertEquals(LA + DOT_DOMAIN_COM, dnsEntriesResult.get(0).domainString());
+            assertEquals(laIpAddress, dnsEntriesResult.get(0).ip());
+            assertEquals(laFriendlyName2, dnsEntriesResult.get(0).serverFriendlyName());
+            assertEquals(losAngeles, dnsEntriesResult.get(0).clusterName());
+
+            assertEquals("xyz" + DOT_DOMAIN_COM, dnsEntriesResult.get(1).domainString());
+            assertEquals("5.5.5.5", dnsEntriesResult.get(1).ip());
+            assertEquals("not found", dnsEntriesResult.get(1).serverFriendlyName());
+            assertEquals("N/A", dnsEntriesResult.get(1).clusterName());
+            assertEquals("#ffcccc", dnsEntriesResult.get(1).statusColour());
+        }
+
+        private static void assertUsa1(List<ServerEntry> result) {
+            assertEquals(1, result.get(0).serverId());
+            assertEquals(USA, result.get(0).cluster());
+            assertEquals("NONE", result.get(0).dnsStatus());
+            assertEquals(Action.ADD, result.get(0).action());
+        }
+
+        private static void assertUsa2(List<ServerEntry> result) {
+            assertEquals(2, result.get(1).serverId());
+            assertEquals(USA, result.get(1).cluster());
+            assertEquals(USA + DOT_DOMAIN_COM, result.get(1).dnsStatus());
+            assertEquals(Action.REMOVE, result.get(1).action());
+        }
+
+        private static void assertSwitzerland(List<ServerEntry> result) {
+            assertEquals(20, result.get(2).serverId());
+            assertEquals(SWITZERLAND, result.get(2).cluster());
+            assertEquals("NONE", result.get(2).dnsStatus());
+            assertEquals(Action.ADD, result.get(2).action());
+        }
+
+    }
 }

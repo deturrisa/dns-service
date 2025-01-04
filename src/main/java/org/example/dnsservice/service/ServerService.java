@@ -42,15 +42,6 @@ public class ServerService {
                 .toList();
     }
 
-    public Server getServerById(Integer id){
-       return repository.findById(id)
-                       .map(entity -> Server.of(entity, getRegionCode(entity)))
-               .orElseThrow(() -> new ARecordValidationException(
-                       //TODO unit test this
-                       "Server not found with id: " + id
-               ));
-    }
-
     private String getRegionCode(ServerEntity entity) {
         return properties.getDomainRegions().stream()
                 .filter(domainRegion ->

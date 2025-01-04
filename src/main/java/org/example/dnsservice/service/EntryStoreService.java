@@ -23,6 +23,21 @@ public class EntryStoreService {
         this.aRecordService = aRecordService;
     }
 
+    public EntryStore removeFromRotation(Integer serverId) {
+        List<Server> servers = serverService.getServers();
+
+        String ipAddress = getIpAddressByServerId(serverId, servers);
+
+        List<ARecord> aRecords = aRecordService.deleteByIpAddress(ipAddress);
+
+        log.info("Successfully deleted A Record with IP Address: {}", ipAddress);
+
+        return new EntryStore(
+                getServerEntries(aRecords,servers),
+                getDnsEntries(aRecords,servers)
+        );
+    }
+
     public EntryStore getEntryStore(){
         List<Server> servers = serverService.getServers();
         List<ARecord> aRecords = aRecordService.getARecords();
@@ -65,6 +80,13 @@ public class EntryStoreService {
         return serverEntries;
     }
 
+    private static String getIpAddressByServerId(Integer serverId, List<Server> servers) {
+        //TODO unit test this when throwing exception
+        return servers.stream().filter(
+                server -> server.id().equals(serverId)
+        ).findFirst().map(Server::ipAddress).orElseThrow();
+    }
+
     private static DnsEntry toDnsEntry(ARecord aRecord, Server server) {
         log.info("Loaded: {} {}", aRecord.toString(), server.toString());
         return new DnsEntry(
@@ -95,11 +117,5 @@ public class EntryStoreService {
 
     private static boolean hasMatchingIpAddress(Server server, ARecord aRecord) {
         return aRecord.ipAddress().equals(server.ipAddress());
-    }
-
-    public List<ARecord> removeFromRotation(Integer serverId) {
-        String ipAddress = serverService.getServerById(serverId).ipAddress();
-
-        return aRecordService.deleteByIpAddress(ipAddress);
     }
 }
