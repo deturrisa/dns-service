@@ -5,15 +5,12 @@ import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
 import static org.mockito.Mockito.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
 import org.example.dnsservice.configuration.R53Properties;
 import org.example.dnsservice.util.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.services.route53.Route53AsyncClient;
 import software.amazon.awssdk.services.route53.model.*;
 

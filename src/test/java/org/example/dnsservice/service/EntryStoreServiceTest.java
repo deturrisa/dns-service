@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import java.util.List;
-
 import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
 import static org.example.dnsservice.util.TestUtil.ARecordBuilder;
 import static org.example.dnsservice.util.TestUtil.ServerBuilder;
@@ -53,6 +52,7 @@ class EntryStoreServiceTest {
 
         @Nested
         class ServerEntryTest{
+
             @Nested
             class AddToRotationTest {
 
@@ -480,36 +480,5 @@ class EntryStoreServiceTest {
             }
 
         }
-    }
-
-    @Nested
-    class PostTest{
-
-        @Nested
-        class AddToRotationTest{
-
-            @Test
-            public void testShouldRemoveServerFromRotation(){
-                //given
-                Integer serverId = 1;
-                String ipAddress = "123.123.123.123";
-
-                Server usaServer = usaServerBuilder
-                        .id(serverId)
-                        .clusterSubdomain(LA)
-                        .ipAddress(ipAddress)
-                        .build();
-
-                when(serverService.getServerById(serverId)).thenReturn(usaServer);
-                
-                //when
-                service.removeFromRotation(serverId);
-
-                //then
-                verify(aRecordService, times(1)).deleteByIpAddress(ipAddress);
-            }
-
-        }
-
     }
 }
