@@ -5,6 +5,10 @@ import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
 import static org.mockito.Mockito.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
+import org.example.dnsservice.configuration.R53Properties;
+import org.example.dnsservice.util.UnitTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,14 +18,22 @@ import software.amazon.awssdk.services.route53.Route53AsyncClient;
 import software.amazon.awssdk.services.route53.model.*;
 
 
-@ExtendWith(MockitoExtension.class)
+@UnitTest
 class AwsR53ServiceTest {
+
+    @Mock
+    private Route53AsyncClient route53AsyncClient;
+
+    @Mock
+    private R53Properties r53Properties;
 
     @InjectMocks
     private AwsR53Service service;
 
-    @Mock
-    private Route53AsyncClient route53AsyncClient;
+    @BeforeEach
+    public void setUp() {
+        when(r53Properties.hostedZoneId()).thenReturn(HOSTED_ZONE_ID);
+    }
 
     @Test
     void testShouldUpsertResourceRecordSet() {
@@ -79,7 +91,7 @@ class AwsR53ServiceTest {
 
         // when
         ListResourceRecordSetsResponse result =
-                service.upsertResourceRecordSet(HOSTED_ZONE_ID, ipAddressToRemove);
+                service.upsertResourceRecordSet(ipAddressToRemove);
 
         // then
         assertThat(result).isEqualTo(expectedListResourceRecordSetsResponse);

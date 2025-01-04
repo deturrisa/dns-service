@@ -1,5 +1,6 @@
 package org.example.dnsservice.service;
 
+import org.example.dnsservice.configuration.R53Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.route53.Route53AsyncClient;
@@ -12,44 +13,44 @@ import java.util.concurrent.CompletableFuture;
 public class AwsR53Service {
 
     private final Route53AsyncClient route53AsyncClient;
+    private final R53Properties properties;
 
     @Autowired
-    public AwsR53Service(Route53AsyncClient route53AsyncClient) {
+    public AwsR53Service(Route53AsyncClient route53AsyncClient, R53Properties properties) {
         this.route53AsyncClient = route53AsyncClient;
+        this.properties = properties;
     }
 
-    public CompletableFuture<ListResourceRecordSetsResponse> getResourceRecordSets(String hostedZoneId){
-        return getListResourceRecordSetsResponse(hostedZoneId);
+    public CompletableFuture<ListResourceRecordSetsResponse> getResourceRecordSets(){
+        return getListResourceRecordSetsResponse();
     }
 
     public ListResourceRecordSetsResponse upsertResourceRecordSet(
-            String hostedZoneId,
             String ipAddress
     ) {
         List<ResourceRecordSet> resourceRecordSets =
-                getListResourceRecordSetsResponse(hostedZoneId).thenApply(
+                getListResourceRecordSetsResponse().thenApply(
                         response -> response.resourceRecordSets().stream()
                                 .filter(AwsR53Service::isARecord)
-                                .map(
-                                        resourceRecordSet ->
+                                .map(resourceRecordSet ->
                                                 applyIpToRemoveFromResourceRecordSet(resourceRecordSet,ipAddress)
                                 ).toList()
                 ).join();
 
-        upsertARecord(hostedZoneId, resourceRecordSets);
+        upsertARecord(resourceRecordSets);
 
         return ListResourceRecordSetsResponse.builder()
                 .resourceRecordSets(resourceRecordSets)
                 .build();
     }
 
-    private CompletableFuture<ListResourceRecordSetsResponse> getListResourceRecordSetsResponse(String hostedZoneId) {
-        return route53AsyncClient.listResourceRecordSets(generateListResourceRecordSetsRequest(hostedZoneId));
+    private CompletableFuture<ListResourceRecordSetsResponse> getListResourceRecordSetsResponse() {
+        return route53AsyncClient.listResourceRecordSets(generateListResourceRecordSetsRequest());
     }
 
-    private ListResourceRecordSetsRequest generateListResourceRecordSetsRequest(String hostedZoneId) {
+    private ListResourceRecordSetsRequest generateListResourceRecordSetsRequest() {
         return ListResourceRecordSetsRequest.builder()
-                .hostedZoneId(hostedZoneId).build();
+                .hostedZoneId(properties.hostedZoneId()).build();
     }
 
     private static ResourceRecordSet applyIpToRemoveFromResourceRecordSet(ResourceRecordSet resourceRecordSet, String ipAddress) {
@@ -78,15 +79,15 @@ public class AwsR53Service {
         return resourceRecord.value().equals(ipAddress);
     }
 
-    private void upsertARecord(String hostedZoneId, List<ResourceRecordSet> resourceRecordSets) {
+    private void upsertARecord(List<ResourceRecordSet> resourceRecordSets) {
         route53AsyncClient.changeResourceRecordSets(
-                toChangeResourceRecordSetsRequest(hostedZoneId, resourceRecordSets)
+                toChangeResourceRecordSetsRequest(resourceRecordSets)
         );
     }
 
-    private static ChangeResourceRecordSetsRequest toChangeResourceRecordSetsRequest(String hostedZoneId, List<ResourceRecordSet> resourceRecordSets) {
+    private ChangeResourceRecordSetsRequest toChangeResourceRecordSetsRequest(List<ResourceRecordSet> resourceRecordSets) {
         return ChangeResourceRecordSetsRequest.builder()
-                .hostedZoneId(hostedZoneId)
+                .hostedZoneId(properties.hostedZoneId())
                 .changeBatch(
                         ChangeBatch.builder()
                                 .changes(resourceRecordSets.stream()

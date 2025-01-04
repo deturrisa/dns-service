@@ -26,18 +26,10 @@ public class ARecordServiceTest {
     private AwsR53Service awsR53Service;
 
     @Mock
-    private R53Properties r53Properties;
-
-    @Mock
     private DomainRegionProperties domainRegionProperties;
 
     @InjectMocks
     private ARecordService service;
-
-    @BeforeEach
-    public void setUp() {
-        when(r53Properties.hostedZoneId()).thenReturn(HOSTED_ZONE_ID);
-    }
 
     @Test
     public void testShouldMapListRecordResponseToRoute53Records(){
@@ -85,7 +77,7 @@ public class ARecordServiceTest {
                         resourceRecordSets
                 );
 
-        when(awsR53Service.getResourceRecordSets(r53Properties.hostedZoneId())).thenReturn(
+        when(awsR53Service.getResourceRecordSets()).thenReturn(
                 CompletableFuture.completedFuture(response)
         );
 
@@ -174,7 +166,7 @@ public class ARecordServiceTest {
                 );
 
 
-        when(awsR53Service.upsertResourceRecordSet(r53Properties.hostedZoneId(), ipAddressToRemove))
+        when(awsR53Service.upsertResourceRecordSet(ipAddressToRemove))
                 .thenReturn(response);
 
         //when

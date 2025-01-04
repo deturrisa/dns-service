@@ -75,7 +75,7 @@ public class DnsServiceSST extends BaseSST {
                         )
                 );
 
-        when(awsR53Service.getResourceRecordSets(r53Properties.hostedZoneId())).thenReturn(
+        when(awsR53Service.getResourceRecordSets()).thenReturn(
                 CompletableFuture.completedFuture(listResourceRecordSetsResponse)
         );
 

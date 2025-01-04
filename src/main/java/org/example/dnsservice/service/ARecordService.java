@@ -1,6 +1,5 @@
 package org.example.dnsservice.service;
 
-import org.example.dnsservice.configuration.R53Properties;
 import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.exception.ARecordValidationException;
 import org.example.dnsservice.model.ARecord;
@@ -20,26 +19,22 @@ public class ARecordService {
 
     private final AwsR53Service awsR53Service;
 
-    private final R53Properties r53Properties;
-
     private final DomainRegionProperties domainRegionProperties;
 
     private final Logger log = LoggerFactory.getLogger(ARecordService.class);
 
     @Autowired
     public ARecordService(AwsR53Service awsR53Service,
-                          R53Properties r53Properties,
                           DomainRegionProperties domainRegionProperties
     ) {
         this.awsR53Service = awsR53Service;
-        this.r53Properties = r53Properties;
         this.domainRegionProperties = domainRegionProperties;
     }
 
     public List<ARecord> deleteByIpAddress(String ipAddress) {
 
         ListResourceRecordSetsResponse response =
-                awsR53Service.upsertResourceRecordSet(r53Properties.hostedZoneId(),ipAddress);
+                awsR53Service.upsertResourceRecordSet(ipAddress);
 
         return getARecords(response.resourceRecordSets());
     }
@@ -115,8 +110,6 @@ public class ARecordService {
     }
 
     private ListResourceRecordSetsResponse getListResourceRecordSetsResponse() {
-        return awsR53Service.getResourceRecordSets(
-                r53Properties.hostedZoneId()
-        ).join();
+        return awsR53Service.getResourceRecordSets().join();
     }
 }
