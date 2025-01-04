@@ -24,7 +24,7 @@ class AwsR53ServiceTest {
     private Route53AsyncClient route53AsyncClient;
 
     @Test
-    void upsertResourceRecordSet() {
+    void testShouldUpsertResourceRecordSet() {
         // given
         String ipAddressToRemove = "123.123.123.123";
         Long ttl = 300L;

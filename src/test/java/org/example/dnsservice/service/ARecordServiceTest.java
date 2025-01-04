@@ -36,15 +36,7 @@ public class ARecordServiceTest {
 
     @BeforeEach
     public void setUp() {
-        when(r53Properties.hostedZoneId()).thenReturn("hosted-zone-id");
-        when(domainRegionProperties.getDomainRegions()).thenReturn(
-                List.of(
-                        new DomainRegion(USA, Set.of(LA, NYC)),
-                        new DomainRegion(SWITZERLAND, Set.of(GENEVA)),
-                        new DomainRegion(HONG_KONG, Set.of(HONG_KONG)),
-                        new DomainRegion(GERMANY, Set.of(FRANKFURT))
-                )
-        );
+        when(r53Properties.hostedZoneId()).thenReturn(HOSTED_ZONE_ID);
     }
 
     @Test
@@ -95,6 +87,15 @@ public class ARecordServiceTest {
 
         when(awsR53Service.getResourceRecordSets(r53Properties.hostedZoneId())).thenReturn(
                 CompletableFuture.completedFuture(response)
+        );
+
+        when(domainRegionProperties.getDomainRegions()).thenReturn(
+                List.of(
+                        new DomainRegion(USA, Set.of(LA, NYC)),
+                        new DomainRegion(SWITZERLAND, Set.of(GENEVA)),
+                        new DomainRegion(HONG_KONG, Set.of(HONG_KONG)),
+                        new DomainRegion(GERMANY, Set.of(FRANKFURT))
+                )
         );
 
         //when
@@ -149,7 +150,7 @@ public class ARecordServiceTest {
         ResourceRecordSet hongKongAResourceRecordSet = createAResourceRecordSet(
                 HONG_KONG + DOT_DOMAIN_COM,
                 HONG_KONG,
-                List.of(createResourceRecord("234.234.234.234"),createResourceRecord("234.234.234.234")),
+                List.of(createResourceRecord("234.234.234.234"),createResourceRecord("235.235.235.235")),
                 ttl,
                 weight
         );
@@ -157,7 +158,7 @@ public class ARecordServiceTest {
         ResourceRecordSet usaAResourceRecordSet = createAResourceRecordSet(
                 USA + DOT_DOMAIN_COM,
                 USA,
-                List.of(createResourceRecord(ipAddressToRemove),createResourceRecord("125.125.125.125")),
+                List.of(createResourceRecord("125.125.125.125")),
                 ttl,
                 weight
         );
@@ -173,8 +174,8 @@ public class ARecordServiceTest {
                 );
 
 
-        when(awsR53Service.getResourceRecordSets(r53Properties.hostedZoneId()))
-                .thenReturn(CompletableFuture.completedFuture(response));
+        when(awsR53Service.upsertResourceRecordSet(r53Properties.hostedZoneId(), ipAddressToRemove))
+                .thenReturn(response);
 
         //when
         List<ARecord> result = service.deleteByIpAddress(ipAddressToRemove);

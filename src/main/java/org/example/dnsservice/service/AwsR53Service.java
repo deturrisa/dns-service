@@ -22,15 +22,6 @@ public class AwsR53Service {
         return getListResourceRecordSetsResponse(hostedZoneId);
     }
 
-    private CompletableFuture<ListResourceRecordSetsResponse> getListResourceRecordSetsResponse(String hostedZoneId) {
-        return route53AsyncClient.listResourceRecordSets(generateListResourceRecordSetsRequest(hostedZoneId));
-    }
-
-    private ListResourceRecordSetsRequest generateListResourceRecordSetsRequest(String hostedZoneId) {
-        return ListResourceRecordSetsRequest.builder()
-                .hostedZoneId(hostedZoneId).build();
-    }
-
     public ListResourceRecordSetsResponse upsertResourceRecordSet(
             String hostedZoneId,
             String ipAddress
@@ -40,9 +31,9 @@ public class AwsR53Service {
                         response -> response.resourceRecordSets().stream()
                                 .filter(AwsR53Service::isARecord)
                                 .map(
-                                    resourceRecordSet ->
-                                            applyIpToRemoveFromResourceRecordSet(resourceRecordSet,ipAddress)
-                        ).toList()
+                                        resourceRecordSet ->
+                                                applyIpToRemoveFromResourceRecordSet(resourceRecordSet,ipAddress)
+                                ).toList()
                 ).join();
 
         upsertARecord(hostedZoneId, resourceRecordSets);
@@ -50,6 +41,15 @@ public class AwsR53Service {
         return ListResourceRecordSetsResponse.builder()
                 .resourceRecordSets(resourceRecordSets)
                 .build();
+    }
+
+    private CompletableFuture<ListResourceRecordSetsResponse> getListResourceRecordSetsResponse(String hostedZoneId) {
+        return route53AsyncClient.listResourceRecordSets(generateListResourceRecordSetsRequest(hostedZoneId));
+    }
+
+    private ListResourceRecordSetsRequest generateListResourceRecordSetsRequest(String hostedZoneId) {
+        return ListResourceRecordSetsRequest.builder()
+                .hostedZoneId(hostedZoneId).build();
     }
 
     private static ResourceRecordSet applyIpToRemoveFromResourceRecordSet(ResourceRecordSet resourceRecordSet, String ipAddress) {

@@ -36,25 +36,20 @@ public class ARecordService {
         this.domainRegionProperties = domainRegionProperties;
     }
 
-
     public List<ARecord> deleteByIpAddress(String ipAddress) {
-        //TODO implement deletion
-        getARecordByIpAddress(ipAddress);
-        return List.of();
-    }
 
-    private ARecord getARecordByIpAddress(String ipAddress) {
-        return getARecords().stream()
-                .filter(record -> record.ipAddress().equals(ipAddress))
-                .findFirst()
-                .orElseThrow(() -> new ARecordValidationException(
-                        //TODO unit test this
-                        "ARecord not found with ip: " + ipAddress
-                ));
+        ListResourceRecordSetsResponse response =
+                awsR53Service.upsertResourceRecordSet(r53Properties.hostedZoneId(),ipAddress);
+
+        return getARecords(response.resourceRecordSets());
     }
 
     public List<ARecord> getARecords() {
-        List<ARecord> aRecords = getAResourceRecordSets().stream()
+        return getARecords(getAResourceRecordSets());
+    }
+
+    private List<ARecord> getARecords(List<ResourceRecordSet> resourceRecordSets) {
+        List<ARecord> aRecords = resourceRecordSets.stream()
                 .filter(this::isValidDomain).flatMap(
                     resourceRecordSet -> resourceRecordSet.resourceRecords()
                                 .stream().map(
