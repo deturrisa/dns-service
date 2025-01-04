@@ -30,7 +30,7 @@ public class EntryStoreService {
 
         List<ARecord> aRecords = aRecordService.deleteByIpAddress(ipAddress);
 
-        log.info("Successfully deleted A Record with IP Address: {}", ipAddress);
+        log.info("Successfully deleted from R53, A Record with IP Address: {}", ipAddress);
 
         return new EntryStore(
                 getServerEntries(aRecords,servers),
@@ -41,6 +41,8 @@ public class EntryStoreService {
     public EntryStore getEntryStore(){
         List<Server> servers = serverService.getServers();
         List<ARecord> aRecords = aRecordService.getARecords();
+
+        log.info("Loaded {} A Records and {} Servers", aRecords.size(), servers.size());
 
         return new EntryStore(
                 getServerEntries(aRecords,servers),

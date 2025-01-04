@@ -3,6 +3,8 @@ package org.example.dnsservice.singleservicetests;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.configuration.R53Properties;
+import org.example.dnsservice.entity.ServerEntity;
+import org.example.dnsservice.model.Server;
 import org.example.dnsservice.repository.ClusterRepository;
 import org.example.dnsservice.repository.ServerRepository;
 import org.example.dnsservice.service.AwsR53Service;
@@ -45,4 +47,11 @@ public abstract class BaseSST {
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
+    protected ResultActions clickRemoveFromRotationEndpoint(ServerEntity server) throws Exception {
+        String baseUrl = "/dns-service/";
+        return rest.request()
+                .withUri(baseUrl + "/remove/" + server.getId())
+                .withMethod("POST").execute()
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
 }

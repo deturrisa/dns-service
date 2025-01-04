@@ -16,6 +16,12 @@ public class UIService {
         this.htmlTemplateGenerator = htmlTemplateGenerator;
     }
 
+    public String renderHtmlAfterMoveFromRotation(Integer serverId){
+        return htmlTemplateGenerator.generate(
+                entryStoreService.removeFromRotation(serverId)
+        );
+    }
+
     public String renderHtml(){
         return htmlTemplateGenerator.generate(
                 entryStoreService.getEntryStore()
