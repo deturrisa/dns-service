@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: ${PROFILES_ACTIVE:local}
   application:
     name: dns-service
   sql:
