@@ -37,7 +37,9 @@ public class AwsR53Service {
                                 ).toList()
                 ).join();
 
-        upsertARecord(resourceRecordSets);
+        ChangeResourceRecordSetsRequest request = toChangeResourceRecordSetsRequest(resourceRecordSets,ipAddress);
+
+        upsertARecord(request);
 
         return ListResourceRecordSetsResponse.builder()
                 .resourceRecordSets(resourceRecordSets)
@@ -59,7 +61,11 @@ public class AwsR53Service {
                         .filter(resourceRecord -> !matchIPAddressWithResourceRecord(ipAddress, resourceRecord))
                         .toList();
 
-        return applyResourceRecordsToResourceRecordSet(resourceRecordSet, updatedRecords);
+        if(updatedRecords.size() > 1) {
+            return applyResourceRecordsToResourceRecordSet(resourceRecordSet, updatedRecords);
+        }
+
+        return resourceRecordSet;
     }
 
     private static ResourceRecordSet applyResourceRecordsToResourceRecordSet(
@@ -79,25 +85,40 @@ public class AwsR53Service {
         return resourceRecord.value().equals(ipAddress);
     }
 
-    private void upsertARecord(List<ResourceRecordSet> resourceRecordSets) {
-        route53AsyncClient.changeResourceRecordSets(
-                toChangeResourceRecordSetsRequest(resourceRecordSets)
-        );
+    private void upsertARecord(ChangeResourceRecordSetsRequest request) {
+        route53AsyncClient.changeResourceRecordSets(request);
     }
 
-    private ChangeResourceRecordSetsRequest toChangeResourceRecordSetsRequest(List<ResourceRecordSet> resourceRecordSets) {
+    private ChangeResourceRecordSetsRequest toChangeResourceRecordSetsRequest(List<ResourceRecordSet> resourceRecordSets, String ipAddress) {
         return ChangeResourceRecordSetsRequest.builder()
                 .hostedZoneId(properties.hostedZoneId())
                 .changeBatch(
                         ChangeBatch.builder()
                                 .changes(resourceRecordSets.stream()
                                         .map(recordSet -> Change.builder()
-                                                .action(ChangeAction.UPSERT)
+                                                .action(toAction(recordSet, ipAddress))
                                                 .resourceRecordSet(recordSet)
                                                 .build())
                                         .toList())
                                 .build())
                 .build();
+    }
+
+    private ChangeAction toAction(ResourceRecordSet resourceRecordSet, String ipAddress) {
+        if (shouldDelete(resourceRecordSet, ipAddress)) {
+            return ChangeAction.DELETE;
+        } else {
+            return ChangeAction.UPSERT;
+        }
+    }
+
+    private static boolean shouldDelete(ResourceRecordSet resourceRecordSet, String ipAddress) {
+        return resourceRecordSet.resourceRecords().size() == 1 &&
+                getValues(resourceRecordSet).contains(ipAddress);
+    }
+
+    private static List<String> getValues(ResourceRecordSet resourceRecordSet) {
+        return resourceRecordSet.resourceRecords().stream().map(ResourceRecord::value).toList();
     }
 
     private static boolean isARecord(ResourceRecordSet resourceRecordSet){
