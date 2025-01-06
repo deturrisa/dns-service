@@ -110,7 +110,7 @@ public class DnsServiceSST extends BaseSST {
                         )
                 );
 
-        when(awsR53Service.upsertResourceRecordSet(ipAddressToDelete))
+        when(awsR53Service.removeResourceRecordByIpAddress(ipAddressToDelete))
                 .thenReturn(listResourceRecordSetsResponse);
 
         //when

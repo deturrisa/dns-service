@@ -34,7 +34,7 @@ public class ARecordService {
     public List<ARecord> deleteByIpAddress(String ipAddress) {
 
         ListResourceRecordSetsResponse response =
-                awsR53Service.upsertResourceRecordSet(ipAddress);
+                awsR53Service.removeResourceRecordByIpAddress(ipAddress);
 
         return getARecords(response.resourceRecordSets());
     }

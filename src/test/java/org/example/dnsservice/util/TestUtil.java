@@ -148,19 +148,42 @@ public class TestUtil {
                     .build();
         }
 
-        public static ChangeResourceRecordSetsRequest getChangeResourceRecordSetsRequest(List<ResourceRecordSet> resourceRecordSets) {
+        public static ChangeResourceRecordSetsRequest getDeleteChangeResourceRecordSetsRequest(
+                List<ResourceRecordSet> resourceRecordSets
+        ) {
             return ChangeResourceRecordSetsRequest.builder()
                     .hostedZoneId(HOSTED_ZONE_ID)
                     .changeBatch(
                             ChangeBatch.builder()
                                     .changes(resourceRecordSets.stream()
-                                            .map(ResourceRecordSetTestData::getChange)
+                                            .map(ResourceRecordSetTestData::getDeleteChange)
                                             .collect(Collectors.toList()))
                                     .build())
                     .build();
         }
 
-        public static Change getChange(ResourceRecordSet resourceRecordSet) {
+        public static Change getDeleteChange(ResourceRecordSet resourceRecordSet) {
+            return Change.builder()
+                    .action(ChangeAction.DELETE)
+                    .resourceRecordSet(resourceRecordSet)
+                    .build();
+        }
+
+        public static ChangeResourceRecordSetsRequest getUpsertChangeResourceRecordSetsRequest(
+                List<ResourceRecordSet> resourceRecordSets
+        ) {
+            return ChangeResourceRecordSetsRequest.builder()
+                    .hostedZoneId(HOSTED_ZONE_ID)
+                    .changeBatch(
+                            ChangeBatch.builder()
+                                    .changes(resourceRecordSets.stream()
+                                            .map(ResourceRecordSetTestData::getUpsertChange)
+                                            .collect(Collectors.toList()))
+                                    .build())
+                    .build();
+        }
+
+        public static Change getUpsertChange(ResourceRecordSet resourceRecordSet) {
             return Change.builder()
                     .action(ChangeAction.UPSERT)
                     .resourceRecordSet(resourceRecordSet)

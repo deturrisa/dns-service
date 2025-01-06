@@ -33,7 +33,7 @@ class AwsR53ServiceTest {
     }
 
     @Test
-    void testShouldUpsertResourceRecordSet() {
+    void testShouldUpsertWhenResourceRecordsNotEmpty() {
         // given
         String ipAddressToRemove = "123.123.123.123";
         Long ttl = 300L;
@@ -88,14 +88,72 @@ class AwsR53ServiceTest {
 
         // when
         ListResourceRecordSetsResponse result =
-                service.upsertResourceRecordSet(ipAddressToRemove);
+                service.removeResourceRecordByIpAddress(ipAddressToRemove);
 
         // then
         assertThat(result).isEqualTo(expectedListResourceRecordSetsResponse);
 
         verify(route53AsyncClient, times(1))
                 .changeResourceRecordSets(
-                        getChangeResourceRecordSetsRequest(expectedResourceRecordSets)
+                        getUpsertChangeResourceRecordSetsRequest(expectedResourceRecordSets)
+                );
+    }
+
+    @Test
+    void testShouldDeleteWhenResourceRecordsIsEmpty() {
+        // given
+        String ipAddressToRemove = "123.123.123.123";
+        Long ttl = 300L;
+        Long weight = 50L;
+
+        ResourceRecordSet usaAResourceRecordSet = getUsaAResourceRecordSet(
+                LA,
+                List.of(ipAddressToRemove),
+                ttl,
+                weight
+        );
+
+        ResourceRecordSet exptectedUsaAResourceRecordSet = getUsaAResourceRecordSet(
+                LA,
+                List.of(),
+                ttl,
+                weight
+        );
+
+        List<ResourceRecordSet> resourceRecordSets = List.of(
+                getNsResourceRecordSet(),
+                getSoaResourceRecordSet(),
+                usaAResourceRecordSet
+        );
+
+        ListResourceRecordSetsResponse listResourceRecordSetsResponse = createListResourceRecordSetsResponse(
+                resourceRecordSets
+        );
+
+        when(route53AsyncClient.listResourceRecordSets(
+                ListResourceRecordSetsRequest.builder()
+                        .hostedZoneId(HOSTED_ZONE_ID)
+                        .build()
+        )).thenReturn(CompletableFuture.completedFuture(listResourceRecordSetsResponse));
+
+        List<ResourceRecordSet> expectedResourceRecordSets = List.of(
+                exptectedUsaAResourceRecordSet
+        );
+
+        ListResourceRecordSetsResponse expectedListResourceRecordSetsResponse = createListResourceRecordSetsResponse(
+                expectedResourceRecordSets
+        );
+
+        // when
+        ListResourceRecordSetsResponse result =
+                service.removeResourceRecordByIpAddress(ipAddressToRemove);
+
+        // then
+        assertThat(result).isEqualTo(expectedListResourceRecordSetsResponse);
+
+        verify(route53AsyncClient, times(1))
+                .changeResourceRecordSets(
+                        getDeleteChangeResourceRecordSetsRequest(expectedResourceRecordSets)
                 );
     }
 }

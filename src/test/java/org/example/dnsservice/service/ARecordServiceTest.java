@@ -1,11 +1,9 @@
 package org.example.dnsservice.service;
 
 import org.example.dnsservice.configuration.DomainRegion;
-import org.example.dnsservice.configuration.R53Properties;
 import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.model.ARecord;
 import org.example.dnsservice.util.UnitTest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -166,7 +164,7 @@ public class ARecordServiceTest {
                 );
 
 
-        when(awsR53Service.upsertResourceRecordSet(ipAddressToRemove))
+        when(awsR53Service.removeResourceRecordByIpAddress(ipAddressToRemove))
                 .thenReturn(response);
 
         //when
