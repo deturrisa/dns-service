@@ -17,6 +17,7 @@ import static org.example.dnsservice.util.ErrorCodes.ServerErrors.ERROR_DUPLICAT
 @Component
 public class ARecordService {
 
+    public static final String DOMAIN_REGEX = "^(?!-)[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})\\.?$";
     private final AwsR53Service awsR53Service;
 
     private final DomainRegionProperties domainRegionProperties;
@@ -59,7 +60,7 @@ public class ARecordService {
 
     private boolean isValidDomain(ResourceRecordSet resourceRecordSet) {
         boolean isValidDomain = resourceRecordSet.name().matches(
-                "^(?!-)[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})\\.?$"
+                DOMAIN_REGEX
         );
 
         if(!isValidDomain){
