@@ -547,11 +547,11 @@ class EntryStoreServiceTest {
 
             //Server Page
             assertEquals(3, serverEntriesResult.size());
-            assertUsa1(serverEntriesResult);
-            assertUsa2(serverEntriesResult);
+            assertUsaAfterRemove(serverEntriesResult);
             assertSwitzerland(serverEntriesResult);
 
             //Dns Page
+            assertEquals(2, dnsEntriesResult.size());
             assertEquals(LA + DOT_DOMAIN_COM, dnsEntriesResult.get(0).domainString());
             assertEquals(laIpAddress, dnsEntriesResult.get(0).ip());
             assertEquals(laFriendlyName2, dnsEntriesResult.get(0).serverFriendlyName());
@@ -564,14 +564,104 @@ class EntryStoreServiceTest {
             assertEquals("#ffcccc", dnsEntriesResult.get(1).statusColour());
         }
 
-        private static void assertUsa1(List<ServerEntry> result) {
+        @Test
+        public void testShouldAddToRotation(){
+            //given
+            String losAngeles = "Los Angeles";
+            String ipAddressToAdd = "123.123.123.123";
+            String laFriendlyName1 = "ubiq-1";
+            String laFriendlyName2 = "ubiq-2";
+
+            String laIpAddress = "125.125.125.125";
+            Integer idToAdd = 1;
+
+            Server swissServer = new ServerBuilder()
+                    .id(20)
+                    .regionSubdomain(SWITZERLAND)
+                    .clusterSubdomain(GENEVA)
+                    .build();
+
+            Server serverToAdd = new ServerBuilder()
+                    .id(idToAdd)
+                    .regionSubdomain(USA)
+                    .clusterSubdomain(LA)
+                    .clusterName(losAngeles)
+                    .ipAddress(ipAddressToAdd)
+                    .friendlyName(laFriendlyName1)
+                    .build();
+
+            Server usaServer2 = new ServerBuilder()
+                    .id(2)
+                    .regionSubdomain(USA)
+                    .clusterSubdomain(LA)
+                    .clusterName(losAngeles)
+                    .ipAddress(laIpAddress)
+                    .friendlyName(laFriendlyName2)
+                    .build();
+
+            ARecord usaARecord = new ARecordBuilder()
+                    .name(USA + DOT_DOMAIN_COM)
+                    .ipAddress(laIpAddress)
+                    .setIdentifier(LA).build();
+
+            ARecord aRecordToAdd = new ARecordBuilder()
+                    .name(USA + DOT_DOMAIN_COM)
+                    .ipAddress(ipAddressToAdd)
+                    .setIdentifier(LA).build();
+
+            ARecord xyzARecord = new ARecordBuilder()
+                    .name("abc" + DOT_DOMAIN_COM)
+                    .ipAddress("5.5.5.5")
+                    .setIdentifier("xyz")
+                    .build();
+
+            when(serverService.getServers()).thenReturn(
+                    List.of(swissServer, serverToAdd, usaServer2));
+
+            when(aRecordService.addServer(serverToAdd)).thenReturn(
+                    List.of(aRecordToAdd, usaARecord, xyzARecord)
+            );
+
+            //when
+            EntryStore entryStore = service.addToRotation(idToAdd);
+            List<ServerEntry> serverEntriesResult = entryStore.serverEntries();
+            List<DnsEntry> dnsEntriesResult = entryStore.dnsEntries();
+
+            //then
+
+            //Server Page
+            assertEquals(3, serverEntriesResult.size());
+
+            assertEquals(1, serverEntriesResult.get(0).serverId());
+            assertEquals(USA, serverEntriesResult.get(0).cluster());
+            assertEquals(USA + DOT_DOMAIN_COM, serverEntriesResult.get(0).dnsStatus());
+            assertEquals(Action.REMOVE, serverEntriesResult.get(0).action());
+
+            //Dns Page
+            assertEquals(3, dnsEntriesResult.size());
+            assertEquals(LA + DOT_DOMAIN_COM, dnsEntriesResult.get(0).domainString());
+            assertEquals(ipAddressToAdd, dnsEntriesResult.get(0).ip());
+            assertEquals(laFriendlyName1, dnsEntriesResult.get(0).serverFriendlyName());
+            assertEquals(losAngeles, dnsEntriesResult.get(0).clusterName());
+
+            assertEquals(LA + DOT_DOMAIN_COM, dnsEntriesResult.get(1).domainString());
+            assertEquals(laIpAddress, dnsEntriesResult.get(1).ip());
+            assertEquals(laFriendlyName2, dnsEntriesResult.get(1).serverFriendlyName());
+            assertEquals(losAngeles, dnsEntriesResult.get(1).clusterName());
+
+            assertEquals("xyz" + DOT_DOMAIN_COM, dnsEntriesResult.get(2).domainString());
+            assertEquals("5.5.5.5", dnsEntriesResult.get(2).ip());
+            assertEquals("not found", dnsEntriesResult.get(2).serverFriendlyName());
+            assertEquals("N/A", dnsEntriesResult.get(2).clusterName());
+            assertEquals("#ffcccc", dnsEntriesResult.get(2).statusColour());
+        }
+
+        private static void assertUsaAfterRemove(List<ServerEntry> result) {
             assertEquals(1, result.get(0).serverId());
             assertEquals(USA, result.get(0).cluster());
             assertEquals("NONE", result.get(0).dnsStatus());
             assertEquals(Action.ADD, result.get(0).action());
-        }
 
-        private static void assertUsa2(List<ServerEntry> result) {
             assertEquals(2, result.get(1).serverId());
             assertEquals(USA, result.get(1).cluster());
             assertEquals(USA + DOT_DOMAIN_COM, result.get(1).dnsStatus());

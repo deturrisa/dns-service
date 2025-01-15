@@ -1,5 +1,6 @@
 package org.example.dnsservice.service;
 
+import org.example.dnsservice.exception.ServerValidationException;
 import org.example.dnsservice.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,18 @@ public class EntryStoreService {
         this.aRecordService = aRecordService;
     }
 
+    public EntryStore addToRotation(Integer serverId) {
+        List<Server> servers = serverService.getServers();
+
+        Server server = getServerById(serverId, servers);
+
+        List<ARecord> aRecords = aRecordService.addServer(server);
+
+        log.info("Successfully added to R53, A Record with IP Address: {}", server.ipAddress());
+
+        return getEntryStore(aRecords, servers);
+    }
+
     public EntryStore removeFromRotation(Integer serverId) {
         List<Server> servers = serverService.getServers();
 
@@ -32,10 +45,7 @@ public class EntryStoreService {
 
         log.info("Successfully deleted from R53, A Record with IP Address: {}", ipAddress);
 
-        return new EntryStore(
-                getServerEntries(aRecords,servers),
-                getDnsEntries(aRecords,servers)
-        );
+        return getEntryStore(aRecords, servers);
     }
 
     public EntryStore getEntryStore(){
@@ -44,9 +54,13 @@ public class EntryStoreService {
 
         log.info("Loaded {} A Records and {} Servers", aRecords.size(), servers.size());
 
+        return getEntryStore(aRecords, servers);
+    }
+
+    private EntryStore getEntryStore(List<ARecord> aRecords, List<Server> servers) {
         return new EntryStore(
-                getServerEntries(aRecords,servers),
-                getDnsEntries(aRecords,servers)
+                getServerEntries(aRecords, servers),
+                getDnsEntries(aRecords, servers)
         );
     }
 
@@ -119,5 +133,13 @@ public class EntryStoreService {
 
     private static boolean hasMatchingIpAddress(Server server, ARecord aRecord) {
         return aRecord.ipAddress().equals(server.ipAddress());
+    }
+
+    private static Server getServerById(Integer serverId, List<Server> servers) {
+        //TODO unit test throw exception if not found
+        return servers.stream()
+                .filter(it -> it.id().equals(serverId))
+                .findFirst()
+                .orElseThrow(() -> new ServerValidationException("Server with ID " + serverId + " not found"));
     }
 }

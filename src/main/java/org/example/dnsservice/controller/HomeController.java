@@ -17,17 +17,27 @@ public class HomeController {
         this.uiService = uiService;
     }
 
+    @PostMapping("/add/{serverId}")
+    public ResponseEntity<String> add(@PathVariable Integer serverId) {
+        String html = uiService.renderHtmlAfterAddToRotation(serverId);
+
+        return getOkHtmlResponse(html);
+    }
+
     @PostMapping("/remove/{serverId}")
     public ResponseEntity<String> remove(@PathVariable Integer serverId) {
-        String html = uiService.renderHtmlAfterMoveFromRotation(serverId);
+        String html = uiService.renderHtmlAfterRemoveFromRotation(serverId);
 
-        return ResponseEntity.ok().contentLength(html.length())
-                .contentType(MediaType.TEXT_HTML).body(html);
+        return getOkHtmlResponse(html);
     }
 
     @GetMapping("/home")
     public ResponseEntity<String> home(){
         String html = uiService.renderHtml();
+        return getOkHtmlResponse(html);
+    }
+
+    private static ResponseEntity<String> getOkHtmlResponse(String html) {
         return ResponseEntity.ok().contentLength(html.length())
                 .contentType(MediaType.TEXT_HTML).body(html);
     }

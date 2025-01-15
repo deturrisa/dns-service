@@ -3,6 +3,7 @@ package org.example.dnsservice.service;
 import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.exception.ARecordValidationException;
 import org.example.dnsservice.model.ARecord;
+import org.example.dnsservice.model.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,11 @@ public class ARecordService {
     ) {
         this.awsR53Service = awsR53Service;
         this.domainRegionProperties = domainRegionProperties;
+    }
+
+    public List<ARecord> addServer(Server server) {
+        //TODO implement
+        return List.of();
     }
 
     public List<ARecord> deleteByIpAddress(String ipAddress) {
