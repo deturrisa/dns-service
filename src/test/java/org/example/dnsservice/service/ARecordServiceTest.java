@@ -3,6 +3,8 @@ package org.example.dnsservice.service;
 import org.example.dnsservice.configuration.DomainRegion;
 import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.model.ARecord;
+import org.example.dnsservice.model.Server;
+import org.example.dnsservice.util.TestUtil;
 import org.example.dnsservice.util.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -164,7 +166,7 @@ public class ARecordServiceTest {
                 );
 
 
-        when(awsR53Service.removeResourceRecordByIpAddress(ipAddressToRemove))
+        when(awsR53Service.removeResourceRecordByValue(ipAddressToRemove))
                 .thenReturn(response);
 
         //when
@@ -187,5 +189,83 @@ public class ARecordServiceTest {
         assertEquals(USA, usaARecord.setIdentifier());
         assertEquals(USA + DOT_DOMAIN_COM, usaARecord.name());
         assertEquals("125.125.125.125", usaARecord.ipAddress());
+    }
+
+    @Test
+    public void testShouldAddARecordToR53(){
+        //given
+        Long ttl = 300L;
+        Long weight = 50L;
+
+        Server serverToAdd = new TestUtil.ServerBuilder()
+                .regionSubdomain(SWITZERLAND)
+                .clusterSubdomain(GENEVA)
+                .build();
+
+        ResourceRecordSet hongKongAResourceRecordSet = createAResourceRecordSet(
+                HONG_KONG + DOT_DOMAIN_COM,
+                HONG_KONG,
+                List.of(createResourceRecord("234.234.234.234"),createResourceRecord("235.235.235.235")),
+                ttl,
+                weight
+        );
+
+        ResourceRecordSet usaAResourceRecordSet = createAResourceRecordSet(
+                USA + DOT_DOMAIN_COM,
+                USA,
+                List.of(createResourceRecord("125.125.125.125")),
+                ttl,
+                weight
+        );
+
+        ResourceRecordSet swissAResourceRecordSet = createAResourceRecordSet(
+                SWITZERLAND + DOT_DOMAIN_COM,
+                GENEVA,
+                List.of(createResourceRecord("126.126.126.126")),
+                ttl,
+                weight
+        );
+
+        ListResourceRecordSetsResponse response =
+                createListResourceRecordSetsResponse(
+                        List.of(
+                                getNsResourceRecordSet(),
+                                getSoaResourceRecordSet(),
+                                hongKongAResourceRecordSet,
+                                usaAResourceRecordSet,
+                                swissAResourceRecordSet
+                        )
+                );
+
+
+        when(awsR53Service.addResourceRecordByServer(serverToAdd))
+                .thenReturn(response);
+
+        //when
+        List<ARecord> result = service.addServer(serverToAdd);
+
+        //then
+        assertEquals(4, result.size());
+
+        ARecord hongKongARecord1 = result.get(0);
+        assertEquals(HONG_KONG, hongKongARecord1.setIdentifier());
+        assertEquals(HONG_KONG + DOT_DOMAIN_COM, hongKongARecord1.name());
+        assertEquals("234.234.234.234", hongKongARecord1.ipAddress());
+
+        ARecord hongKongARecord2 = result.get(1);
+        assertEquals(HONG_KONG, hongKongARecord2.setIdentifier());
+        assertEquals(HONG_KONG + DOT_DOMAIN_COM, hongKongARecord2.name());
+        assertEquals("235.235.235.235", hongKongARecord2.ipAddress());
+
+        ARecord usaARecord = result.get(2);
+        assertEquals(USA, usaARecord.setIdentifier());
+        assertEquals(USA + DOT_DOMAIN_COM, usaARecord.name());
+        assertEquals("125.125.125.125", usaARecord.ipAddress());
+
+        ARecord swissARecord = result.get(3);
+        assertEquals(GENEVA, swissARecord.setIdentifier());
+        assertEquals(SWITZERLAND + DOT_DOMAIN_COM, swissARecord.name());
+        assertEquals("126.126.126.126", swissARecord.ipAddress());
+
     }
 }

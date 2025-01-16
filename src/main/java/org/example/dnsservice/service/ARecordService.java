@@ -34,14 +34,16 @@ public class ARecordService {
     }
 
     public List<ARecord> addServer(Server server) {
-        //TODO implement
-        return List.of();
+        ListResourceRecordSetsResponse response =
+                awsR53Service.addResourceRecordByServer(server);
+
+        return getARecords(response.resourceRecordSets());
     }
 
     public List<ARecord> deleteByIpAddress(String ipAddress) {
 
         ListResourceRecordSetsResponse response =
-                awsR53Service.removeResourceRecordByIpAddress(ipAddress);
+                awsR53Service.removeResourceRecordByValue(ipAddress);
 
         return getARecords(response.resourceRecordSets());
     }

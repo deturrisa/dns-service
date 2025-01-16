@@ -88,7 +88,7 @@ class AwsR53ServiceTest {
 
         // when
         ListResourceRecordSetsResponse result =
-                service.removeResourceRecordByIpAddress(ipAddressToRemove);
+                service.removeResourceRecordByValue(ipAddressToRemove);
 
         // then
         assertThat(result).isEqualTo(expectedListResourceRecordSetsResponse);
@@ -146,7 +146,7 @@ class AwsR53ServiceTest {
 
         // when
         ListResourceRecordSetsResponse result =
-                service.removeResourceRecordByIpAddress(ipAddressToRemove);
+                service.removeResourceRecordByValue(ipAddressToRemove);
 
         // then
         assertThat(result).isEqualTo(expectedListResourceRecordSetsResponse);

@@ -1,6 +1,7 @@
 package org.example.dnsservice.service;
 
 import org.example.dnsservice.configuration.R53Properties;
+import org.example.dnsservice.model.Server;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.route53.Route53AsyncClient;
@@ -26,8 +27,14 @@ public class AwsR53Service {
         return getListResourceRecordSetsResponse();
     }
 
-    public ListResourceRecordSetsResponse removeResourceRecordByIpAddress(
-            String ipAddress
+
+    public ListResourceRecordSetsResponse addResourceRecordByServer(Server server) {
+        return null; //TODO implement
+    }
+
+
+    public ListResourceRecordSetsResponse removeResourceRecordByValue(
+            String value
     ) {
         ChangeResourceRecordSetsRequest request =
                 getListResourceRecordSetsResponse().thenApply(
@@ -38,7 +45,7 @@ public class AwsR53Service {
                                                 .changes(response.resourceRecordSets().stream()
                                                         .filter(AwsR53Service::isARecord)
                                                         .map(recordSet -> toChange(
-                                                                removeResourceRecordByValue(recordSet, ipAddress)
+                                                                removeResourceRecordByValue(recordSet, value)
                                                             )
                                                         )
                                                         .toList())
@@ -108,4 +115,5 @@ public class AwsR53Service {
     private static boolean isARecord(ResourceRecordSet resourceRecordSet){
         return resourceRecordSet.type().equals(RRType.A);
     }
+
 }
