@@ -29,7 +29,47 @@ public class AwsR53Service {
 
 
     public ListResourceRecordSetsResponse addResourceRecordByServer(Server server) {
-        return null; //TODO implement
+        String hostedZoneName = getHostedZoneResponse().hostedZone().name();
+
+        ChangeResourceRecordSetsRequest request =
+                getListResourceRecordSetsResponse().thenApply(
+                        response -> {
+                            ResourceRecordSet resourceRecordSet = response.resourceRecordSets().stream()
+                                    .filter(recordSet -> recordSet.name().equals(server.getResourceRecordSetName(hostedZoneName)))
+                                    .findFirst()
+                                    .map(it -> appendResourceRecordToResourceRecordSet(server, it))
+                                    .orElseGet(() -> createNewResourceRecordSet(server, hostedZoneName));
+
+                            return ChangeResourceRecordSetsRequest.builder()
+                                    .hostedZoneId(properties.hostedZoneId())
+                                    .changeBatch(
+                                            ChangeBatch.builder()
+                                                    .changes(List.of(toChange(resourceRecordSet)))
+                                                    .build())
+                                    .build();
+                        }
+                ).join();
+
+        changeResourceRecordSets(request);
+        
+        return ListResourceRecordSetsResponse.builder()
+                .resourceRecordSets(toResourceRecordSets(request))
+                .build();
+    }
+
+    private static ResourceRecordSet createNewResourceRecordSet(Server server, String hostedZoneName) {
+        return ResourceRecordSet.builder()
+                .name(server.getResourceRecordSetName(hostedZoneName))
+                .setIdentifier(server.clusterSubdomain())
+                .resourceRecords(
+                        ResourceRecord.builder().value(server.ipAddress()).build()
+                ).build();
+    }
+
+    private static ResourceRecordSet appendResourceRecordToResourceRecordSet(Server server, ResourceRecordSet it) {
+        List<ResourceRecord> resourceRecords = it.resourceRecords();
+        resourceRecords.add(server.toResourceRecord());
+        return it.toBuilder().resourceRecords(resourceRecords).build();
     }
 
 
@@ -116,4 +156,9 @@ public class AwsR53Service {
         return resourceRecordSet.type().equals(RRType.A);
     }
 
+    private GetHostedZoneResponse getHostedZoneResponse(){
+        return route53AsyncClient.getHostedZone(GetHostedZoneRequest.builder()
+                .id(properties.hostedZoneId())
+                .build()).join();
+    }
 }

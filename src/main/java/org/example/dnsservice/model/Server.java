@@ -1,6 +1,7 @@
 package org.example.dnsservice.model;
 
 import org.example.dnsservice.entity.ServerEntity;
+import software.amazon.awssdk.services.route53.model.ResourceRecord;
 
 public record Server (
     Integer id,
@@ -22,6 +23,14 @@ public record Server (
                 entity.getFriendlyName(),
                 entity.getIpString()
         );
+    }
+
+    public ResourceRecord toResourceRecord(){
+        return ResourceRecord.builder().value(ipAddress).build();
+    }
+
+    public String getResourceRecordSetName(String hostedZoneName){
+        return regionSubdomain + "." + hostedZoneName;
     }
 
     @Override

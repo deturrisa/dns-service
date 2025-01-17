@@ -6,6 +6,8 @@ import static org.mockito.Mockito.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.example.dnsservice.configuration.R53Properties;
+import org.example.dnsservice.model.Server;
+import org.example.dnsservice.util.TestUtil.ServerBuilder;
 import org.example.dnsservice.util.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -156,4 +158,47 @@ class AwsR53ServiceTest {
                         getDeleteChangeResourceRecordSetsRequest(expectedResourceRecordSets)
                 );
     }
+
+    @Test
+    void testShouldAddNewResourceRecordSetWhenServerDoesNotExistsInResourceRecordSet() {
+        //given
+        String ipAddress = "123.123.123.123";
+        Server server = new ServerBuilder()
+                .regionSubdomain(USA)
+                .clusterSubdomain(LA)
+                .ipAddress(ipAddress)
+                .build();
+
+        when(route53AsyncClient.getHostedZone(
+                GetHostedZoneRequest.builder()
+                        .id(HOSTED_ZONE_ID)
+                        .build())
+        ).thenReturn(CompletableFuture.completedFuture(
+                GetHostedZoneResponse.builder()
+                        .hostedZone(
+                                HostedZone.builder()
+                                        .name("domain.com.")
+                                        .build())
+                        .build()));
+
+        when(route53AsyncClient.listResourceRecordSets(
+                ListResourceRecordSetsRequest.builder()
+                        .hostedZoneId(HOSTED_ZONE_ID)
+                        .build())
+        ).thenReturn(CompletableFuture.completedFuture(
+                ListResourceRecordSetsResponse.builder()
+                        .resourceRecordSets(List.of())
+                        .build()));
+
+        //when
+        ListResourceRecordSetsResponse result = service.addResourceRecordByServer(server);
+
+        assertThat(result).isNotNull();
+        assertThat(result.resourceRecordSets()).hasSize(1);
+        assertThat(result.resourceRecordSets().get(0).name()).isEqualTo(USA + DOT_DOMAIN_COM);
+        assertThat(result.resourceRecordSets().get(0).resourceRecords()).hasSize(1);
+        assertThat(result.resourceRecordSets().get(0).resourceRecords().get(0).value()).isEqualTo(ipAddress);
+    }
+
 }
+
