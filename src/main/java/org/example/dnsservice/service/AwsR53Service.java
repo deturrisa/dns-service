@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.route53.Route53AsyncClient;
 import software.amazon.awssdk.services.route53.model.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -67,7 +68,7 @@ public class AwsR53Service {
     }
 
     private static ResourceRecordSet appendResourceRecordToResourceRecordSet(Server server, ResourceRecordSet it) {
-        List<ResourceRecord> resourceRecords = it.resourceRecords();
+        List<ResourceRecord> resourceRecords = new ArrayList<>(it.resourceRecords());
         resourceRecords.add(server.toResourceRecord());
         return it.toBuilder().resourceRecords(resourceRecords).build();
     }

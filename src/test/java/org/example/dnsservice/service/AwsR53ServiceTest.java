@@ -200,5 +200,57 @@ class AwsR53ServiceTest {
         assertThat(result.resourceRecordSets().get(0).resourceRecords().get(0).value()).isEqualTo(ipAddress);
     }
 
+    @Test
+    void testShouldAddResourceRecordWhenServerExistsInResourceRecordSet() {
+        //given
+        String ipAddress = "125.125.125.125";
+        Server server = new ServerBuilder()
+                .regionSubdomain(USA)
+                .clusterSubdomain(LA)
+                .ipAddress(ipAddress)
+                .build();
+
+        when(route53AsyncClient.getHostedZone(
+                GetHostedZoneRequest.builder()
+                        .id(HOSTED_ZONE_ID)
+                        .build())
+        ).thenReturn(CompletableFuture.completedFuture(
+                GetHostedZoneResponse.builder()
+                        .hostedZone(
+                                HostedZone.builder()
+                                        .name("domain.com.")
+                                        .build())
+                        .build()));
+
+        ResourceRecord existingRecord = ResourceRecord.builder()
+                .value("123.123.123.123")
+                .build();
+
+        ResourceRecordSet existingRecordSet = ResourceRecordSet.builder()
+                .name(USA + DOT_DOMAIN_COM)
+                .type(RRType.A)
+                .resourceRecords(List.of(existingRecord))
+                .build();
+
+        when(route53AsyncClient.listResourceRecordSets(
+                ListResourceRecordSetsRequest.builder()
+                        .hostedZoneId(HOSTED_ZONE_ID)
+                        .build())
+        ).thenReturn(CompletableFuture.completedFuture(
+                ListResourceRecordSetsResponse.builder()
+                        .resourceRecordSets(List.of(existingRecordSet))
+                        .build()));
+
+        //when
+        ListResourceRecordSetsResponse result = service.addResourceRecordByServer(server);
+
+        //then
+        assertThat(result).isNotNull();
+        assertThat(result.resourceRecordSets()).hasSize(1);
+        assertThat(result.resourceRecordSets().get(0).name()).isEqualTo(USA + DOT_DOMAIN_COM);
+        assertThat(result.resourceRecordSets().get(0).resourceRecords()).hasSize(2);
+        assertThat(result.resourceRecordSets().get(0).resourceRecords().get(1).value()).isEqualTo(ipAddress);
+    }
+
 }
 
