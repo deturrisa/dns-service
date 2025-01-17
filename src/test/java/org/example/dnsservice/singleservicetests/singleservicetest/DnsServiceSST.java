@@ -12,7 +12,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.ResultActions;
+import software.amazon.awssdk.services.route53.model.ChangeResourceRecordSetsRequest;
+import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsRequest;
 import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsResponse;
+import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -70,7 +73,11 @@ public class DnsServiceSST extends BaseSST {
         clusterRepository.saveAll(List.of(laClusterEntity, genevaClusterEntity));
         serverRepository.saveAll(List.of(laServer1, laServer2, genevaServer));
 
-        when(awsR53Service.getResourceRecordSets()).thenReturn(
+        when(route53AsyncClient.listResourceRecordSets(
+                    ListResourceRecordSetsRequest.builder()
+                    .hostedZoneId(r53Properties.hostedZoneId()).build()
+                )
+        ).thenReturn(
                 CompletableFuture.completedFuture(listResourceRecordSetsResponse)
         );
     }
@@ -89,32 +96,20 @@ public class DnsServiceSST extends BaseSST {
     @Test
     public void testShouldRenderRemoveFromRotationPage() throws Exception {
         //given
-        String ipAddressToDelete = laIp1;
+        ResourceRecordSet resourceRecordSetToDelete = getUsaAResourceRecordSet(
+                LA,
+                List.of(laIp1)
+        );
 
-        ServerEntity serverToDelete = laServer1;
+        ChangeResourceRecordSetsRequest changeRequest = getChangeResourceRecordSetsRequest(
+                List.of(resourceRecordSetToDelete)
+        );
 
-        ListResourceRecordSetsResponse listResourceRecordSetsResponse =
-                createListResourceRecordSetsResponse(
-                        List.of(
-                                getNsResourceRecordSet(),
-                                getSoaResourceRecordSet(),
-                                getUsaAResourceRecordSet(
-                                        LA,
-                                        List.of(laIp2)
-                                ),
-                                createAResourceRecordSet(
-                                        "abc" + DOT_DOMAIN_COM,
-                                        "xyz",
-                                        createIpResourceRecords(List.of("5.5.5.5"))
-                                )
-                        )
-                );
-
-        when(awsR53Service.removeResourceRecordByValue(ipAddressToDelete))
-                .thenReturn(listResourceRecordSetsResponse);
+        when(route53AsyncClient.changeResourceRecordSets(changeRequest))
+                .thenReturn(getChangeResourceRecordSetsResponse());
 
         //when
-        ResultActions response = clickRemoveFromRotationEndpoint(serverToDelete);
+        ResultActions response = clickRemoveFromRotationEndpoint(laServer1);
 
         //then
         assertRemoveServerEntryTable(response);

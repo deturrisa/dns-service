@@ -5,7 +5,10 @@ public record ServerEntry(Integer serverId, String cluster, String dnsStatus) {
     private final static String DEFAULT_DNS_STATUS = "NONE";
 
     public String getEndpoint(){
-        return "/remove/" + this.serverId;
+        if(action() == Action.ADD){
+            return "/add/" + serverId;
+        }
+        return "/remove/" + serverId;
     }
 
     public ServerEntry(Integer serverId, String cluster){
