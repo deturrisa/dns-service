@@ -9,8 +9,10 @@ import software.amazon.awssdk.services.route53.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class AwsR53Service {
@@ -28,24 +30,31 @@ public class AwsR53Service {
         return getListResourceRecordSetsResponse();
     }
 
-
     public ListResourceRecordSetsResponse addResourceRecordByServer(Server server) {
-        String hostedZoneName = getHostedZoneResponse().hostedZone().name();
-
         ChangeResourceRecordSetsRequest request =
                 getListResourceRecordSetsResponse().thenApply(
                         response -> {
-                            ResourceRecordSet resourceRecordSet = response.resourceRecordSets().stream()
-                                    .filter(recordSet -> recordSet.name().equals(server.getResourceRecordSetName(hostedZoneName)))
-                                    .findFirst()
-                                    .map(it -> appendResourceRecordToResourceRecordSet(server, it))
-                                    .orElseGet(() -> createNewResourceRecordSet(server, hostedZoneName));
+                            List<ResourceRecordSet> resourceRecordSets =
+                                    response.resourceRecordSets().stream().toList();
+
+                            ResourceRecordSet upsertedResourceRecordSet =
+                                    upsertResourceRecordSet(resourceRecordSets, server);
+
+                            List<ResourceRecordSet> updatedResourceRecordSets =
+                                    addOrUpdateResourceRecordSet(
+                                            resourceRecordSets,
+                                            upsertedResourceRecordSet
+                                    ).filter(AwsR53Service::isARecord)
+                                            .toList();
+
+                            Stream<Change> changes = updatedResourceRecordSets.stream()
+                                    .map(AwsR53Service::toChange);
 
                             return ChangeResourceRecordSetsRequest.builder()
                                     .hostedZoneId(properties.hostedZoneId())
                                     .changeBatch(
                                             ChangeBatch.builder()
-                                                    .changes(List.of(toChange(resourceRecordSet)))
+                                                    .changes(changes.toList())
                                                     .build())
                                     .build();
                         }
@@ -57,22 +66,6 @@ public class AwsR53Service {
                 .resourceRecordSets(toResourceRecordSets(request))
                 .build();
     }
-
-    private static ResourceRecordSet createNewResourceRecordSet(Server server, String hostedZoneName) {
-        return ResourceRecordSet.builder()
-                .name(server.getResourceRecordSetName(hostedZoneName))
-                .setIdentifier(server.clusterSubdomain())
-                .resourceRecords(
-                        ResourceRecord.builder().value(server.ipAddress()).build()
-                ).build();
-    }
-
-    private static ResourceRecordSet appendResourceRecordToResourceRecordSet(Server server, ResourceRecordSet it) {
-        List<ResourceRecord> resourceRecords = new ArrayList<>(it.resourceRecords());
-        resourceRecords.add(server.toResourceRecord());
-        return it.toBuilder().resourceRecords(resourceRecords).build();
-    }
-
 
     public ListResourceRecordSetsResponse removeResourceRecordByValue(
             String value
@@ -161,5 +154,37 @@ public class AwsR53Service {
         return route53AsyncClient.getHostedZone(GetHostedZoneRequest.builder()
                 .id(properties.hostedZoneId())
                 .build()).join();
+    }
+
+    private ResourceRecordSet upsertResourceRecordSet(List<ResourceRecordSet> resourceRecordSets, Server server){
+        String hostedZoneName = getHostedZoneResponse().hostedZone().name();
+        return resourceRecordSets.stream()
+                .filter(recordSet -> recordSet.name().equals(server.getResourceRecordSetName(hostedZoneName)))
+                .findFirst()
+                .map(it -> appendResourceRecordToResourceRecordSet(server, it))
+                .orElseGet(() -> createNewResourceRecordSet(server, hostedZoneName));
+    }
+
+    private static ResourceRecordSet appendResourceRecordToResourceRecordSet(Server server, ResourceRecordSet it) {
+        List<ResourceRecord> resourceRecords = new ArrayList<>(it.resourceRecords());
+        resourceRecords.add(server.toResourceRecord());
+        return it.toBuilder().resourceRecords(resourceRecords).build();
+    }
+
+    private static ResourceRecordSet createNewResourceRecordSet(Server server, String hostedZoneName) {
+        return ResourceRecordSet.builder()
+                .name(server.getResourceRecordSetName(hostedZoneName))
+                .type(RRType.A)
+                .setIdentifier(server.clusterSubdomain())
+                .resourceRecords(
+                        ResourceRecord.builder().value(server.ipAddress()).build()
+                ).build();
+    }
+
+    public static Stream<ResourceRecordSet> addOrUpdateResourceRecordSet(
+            List<ResourceRecordSet> resourceRecordSets,
+            ResourceRecordSet resourceRecordSet
+    ) {
+        return Stream.concat(resourceRecordSets.stream(), Stream.of(resourceRecordSet));
     }
 }

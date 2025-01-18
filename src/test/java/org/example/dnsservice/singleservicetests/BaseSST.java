@@ -20,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 @TestPropertySource(properties = {"zonky.test.database.provider=Zonky"})
 public abstract class BaseSST {
 
+    public static final String BASE_URL = "/dns-service";
     @Autowired
     TestRestTemplateConfiguration.SingleServiceRestTemplate rest;
 
@@ -42,22 +43,27 @@ public abstract class BaseSST {
     protected Route53AsyncClient route53AsyncClient;
 
     protected ResultActions getDnsServiceHomePage() throws Exception {
-        String baseUrl = "/dns-service";
         return rest.request()
-                .withUri(baseUrl + "/home")
+                .withUri(BASE_URL + "/home")
                 .withMethod("GET").execute()
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     protected ResultActions clickRemoveFromRotationEndpoint(ServerEntity server) throws Exception {
-        String baseUrl = "/dns-service/";
         return rest.request()
-                .withUri(baseUrl + "/remove/" + server.getId())
+                .withUri(BASE_URL + "/remove/" + server.getId())
                 .withMethod("POST").execute()
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-    protected ChangeResourceRecordSetsRequest getChangeResourceRecordSetsRequest(List<ResourceRecordSet> resourceRecordSets) {
+    protected ResultActions clickAddToRotationEndpoint(ServerEntity server) throws Exception {
+        return rest.request()
+                .withUri(BASE_URL + "/add/" + server.getId())
+                .withMethod("POST").execute()
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    protected ChangeResourceRecordSetsRequest getUpsertChangeResourceRecordSetsRequest(List<ResourceRecordSet> resourceRecordSets) {
         return ChangeResourceRecordSetsRequest.builder()
                 .hostedZoneId(r53Properties.hostedZoneId())
                 .changeBatch(
@@ -77,5 +83,14 @@ public abstract class BaseSST {
         return CompletableFuture.completedFuture(
                 ChangeResourceRecordSetsResponse.builder().build()
         );
+    }
+
+    protected CompletableFuture<GetHostedZoneResponse> getGetHostedZoneResponse(String name){
+        return CompletableFuture.completedFuture(
+                GetHostedZoneResponse.builder()
+                        .hostedZone(HostedZone.builder()
+                                .name(name)
+                                .build())
+                        .build());
     }
 }
