@@ -79,6 +79,22 @@ public abstract class BaseSST {
                 .build();
     }
 
+    protected ChangeResourceRecordSetsRequest getDeleteChangeResourceRecordSetsRequest(List<ResourceRecordSet> resourceRecordSets) {
+        return ChangeResourceRecordSetsRequest.builder()
+                .hostedZoneId(r53Properties.hostedZoneId())
+                .changeBatch(
+                        ChangeBatch.builder()
+                                .changes(resourceRecordSets.stream()
+                                        .map(recordSet -> Change.builder()
+                                                .resourceRecordSet(recordSet)
+                                                .action(ChangeAction.DELETE)
+                                                .build()
+                                        )
+                                        .toList())
+                                .build())
+                .build();
+    }
+
     protected CompletableFuture<ChangeResourceRecordSetsResponse> getChangeResourceRecordSetsResponse() {
         return CompletableFuture.completedFuture(
                 ChangeResourceRecordSetsResponse.builder().build()

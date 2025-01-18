@@ -38,6 +38,10 @@ public class DnsServiceSST extends BaseSST {
     private static final String genevaIp = "9.9.9.9";
     private static final ServerEntity genevaServer = new ServerEntity(20,"some-friendly-name-1", genevaIp, genevaClusterEntity);
 
+    private static final ClusterEntity nycClusterEntity = new ClusterEntity(6,"New York ", NYC);
+    private static final String nycIp = "1.1.1.1";
+    private static final ServerEntity nycServer = new ServerEntity(7,"someserver", nycIp, nycClusterEntity);
+
     private static final ListResourceRecordSetsResponse listResourceRecordSetsResponse =
             createListResourceRecordSetsResponse(
                     List.of(
@@ -46,6 +50,10 @@ public class DnsServiceSST extends BaseSST {
                             getUsaAResourceRecordSet(
                                     LA,
                                     List.of(laIp1, laIp2)
+                            ),
+                            getUsaAResourceRecordSet(
+                                    NYC,
+                                    List.of(nycIp)
                             ),
                             createAResourceRecordSet(
                                     "abc" + DOT_DOMAIN_COM,
@@ -70,8 +78,8 @@ public class DnsServiceSST extends BaseSST {
                         new DomainRegion("abc", Set.of("xyz"))
                 )
         );
-        clusterRepository.saveAll(List.of(laClusterEntity, genevaClusterEntity));
-        serverRepository.saveAll(List.of(laServer1, laServer2, genevaServer));
+        clusterRepository.saveAll(List.of(laClusterEntity, genevaClusterEntity, nycClusterEntity));
+        serverRepository.saveAll(List.of(laServer1, laServer2, genevaServer, nycServer));
 
         when(route53AsyncClient.listResourceRecordSets(
                     ListResourceRecordSetsRequest.builder()
@@ -112,8 +120,31 @@ public class DnsServiceSST extends BaseSST {
         ResultActions response = clickRemoveFromRotationEndpoint(laServer1);
 
         //then
-        assertRemoveServerEntryTable(response);
-        assertRemoveDnsEntryTable(response);
+        assertRemoveServerEntryTableAfterUpsert(response);
+        assertRemoveDnsEntryTableAfterUpsert(response);
+    }
+
+    @Test
+    public void testShouldRenderRemoveFromRotationPageAfterDelete() throws Exception {
+        //given
+        ResourceRecordSet resourceRecordSetToDelete = getUsaAResourceRecordSet(
+                NYC,
+                List.of(nycIp)
+        );
+
+        ChangeResourceRecordSetsRequest changeRequest = getDeleteChangeResourceRecordSetsRequest(
+                List.of(resourceRecordSetToDelete)
+        );
+
+        when(route53AsyncClient.changeResourceRecordSets(changeRequest))
+                .thenReturn(getChangeResourceRecordSetsResponse());
+
+        //when
+        ResultActions response = clickRemoveFromRotationEndpoint(nycServer);
+
+        //then
+        assertRemoveServerEntryTableAfterDelete(response);
+        assertRemoveDnsEntryTableAfterDelete(response);
     }
 
     @Test
@@ -148,8 +179,8 @@ public class DnsServiceSST extends BaseSST {
 
     }
 
-    private static void assertRemoveServerEntryTable(ResultActions resultActions) throws Exception {
-        int expectedRowCount = 4;
+    private static void assertRemoveServerEntryTableAfterUpsert(ResultActions resultActions) throws Exception {
+        int expectedRowCount = 5;
         String serverTable = "//table[@id='serverEntries']";
 
         String friendlyNameCol = "td[1]";
@@ -169,15 +200,20 @@ public class DnsServiceSST extends BaseSST {
                 .andExpect(xpath(serverTable + "//tr[2]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[2]/" + dnsStatusCol).string(USA + DOT_DOMAIN_COM))
                 .andExpect(xpath(serverTable + "//tr[2]/" + actionCol).string(Action.REMOVE.getDescription()))
+                //server7
+                .andExpect(xpath( serverTable + "//tr[3]/" + friendlyNameCol).string("server" + nycServer.getId()))
+                .andExpect(xpath(serverTable + "//tr[3]/" + clusterCol).string(USA))
+                .andExpect(xpath(serverTable + "//tr[3]/" + dnsStatusCol).string(USA + DOT_DOMAIN_COM))
+                .andExpect(xpath(serverTable + "//tr[3]/" + actionCol).string(Action.REMOVE.getDescription()))
                 //server20
-                .andExpect(xpath( serverTable + "//tr[3]/" + friendlyNameCol).string("server" + genevaServer.getId()))
-                .andExpect(xpath(serverTable + "//tr[3]/" + clusterCol).string(SWITZERLAND))
-                .andExpect(xpath(serverTable + "//tr[3]/" + dnsStatusCol).string("NONE"))
-                .andExpect(xpath(serverTable + "//tr[3]/" + actionCol).string(Action.ADD.getDescription()));
+                .andExpect(xpath( serverTable + "//tr[4]/" + friendlyNameCol).string("server" + genevaServer.getId()))
+                .andExpect(xpath(serverTable + "//tr[4]/" + clusterCol).string(SWITZERLAND))
+                .andExpect(xpath(serverTable + "//tr[4]/" + dnsStatusCol).string("NONE"))
+                .andExpect(xpath(serverTable + "//tr[4]/" + actionCol).string(Action.ADD.getDescription()));
     }
 
-    private static void assertRemoveDnsEntryTable(ResultActions resultActions) throws Exception {
-        int expectedRowCount = 3;
+    private static void assertRemoveDnsEntryTableAfterUpsert(ResultActions resultActions) throws Exception {
+        int expectedRowCount = 4;
         String dnsTable = "//table[@id='dnsEntries']";
 
         String domainStringCol = "td[1]";
@@ -193,14 +229,19 @@ public class DnsServiceSST extends BaseSST {
                 .andExpect(xpath(dnsTable + "//tr[1]/" + serverFriendlyNameCol).string(laServer2.getFriendlyName()))
                 .andExpect(xpath(dnsTable + "//tr[1]/" + clusterNameCol).string(laServer2.getCluster().getName()))
                 //server20
-                .andExpect(xpath( dnsTable + "//tr[2]/" + domainStringCol).string("xyz" + DOT_DOMAIN_COM))
-                .andExpect(xpath(dnsTable + "//tr[2]/" + ipCol).string("5.5.5.5"))
-                .andExpect(xpath(dnsTable + "//tr[2]/" + serverFriendlyNameCol).string("not found"))
-                .andExpect(xpath(dnsTable + "//tr[2]/" + clusterNameCol).string("N/A"));
+                .andExpect(xpath( dnsTable + "//tr[2]/" + domainStringCol).string(NYC + DOT_DOMAIN_COM))
+                .andExpect(xpath(dnsTable + "//tr[2]/" + ipCol).string(nycIp))
+                .andExpect(xpath(dnsTable + "//tr[2]/" + serverFriendlyNameCol).string(nycServer.getFriendlyName()))
+                .andExpect(xpath(dnsTable + "//tr[2]/" + clusterNameCol).string(nycServer.getCluster().getName()))
+                //server20
+                .andExpect(xpath( dnsTable + "//tr[3]/" + domainStringCol).string("xyz" + DOT_DOMAIN_COM))
+                .andExpect(xpath(dnsTable + "//tr[3]/" + ipCol).string("5.5.5.5"))
+                .andExpect(xpath(dnsTable + "//tr[3]/" + serverFriendlyNameCol).string("not found"))
+                .andExpect(xpath(dnsTable + "//tr[3]/" + clusterNameCol).string("N/A"));
     }
 
-    private static void assertHomePageServerEntryTable(ResultActions resultActions) throws Exception {
-        int expectedRowCount = 4;
+    private static void assertRemoveServerEntryTableAfterDelete(ResultActions resultActions) throws Exception {
+        int expectedRowCount = 5;
         String serverTable = "//table[@id='serverEntries']";
 
         String friendlyNameCol = "td[1]";
@@ -220,14 +261,19 @@ public class DnsServiceSST extends BaseSST {
                 .andExpect(xpath(serverTable + "//tr[2]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[2]/" + dnsStatusCol).string(USA + DOT_DOMAIN_COM))
                 .andExpect(xpath(serverTable + "//tr[2]/" + actionCol).string(Action.REMOVE.getDescription()))
-                //server20
-                .andExpect(xpath( serverTable + "//tr[3]/" + friendlyNameCol).string("server" + genevaServer.getId()))
-                .andExpect(xpath(serverTable + "//tr[3]/" + clusterCol).string(SWITZERLAND))
+                //server7
+                .andExpect(xpath( serverTable + "//tr[3]/" + friendlyNameCol).string("server" + nycServer.getId()))
+                .andExpect(xpath(serverTable + "//tr[3]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[3]/" + dnsStatusCol).string("NONE"))
-                .andExpect(xpath(serverTable + "//tr[3]/" + actionCol).string(Action.ADD.getDescription()));
+                .andExpect(xpath(serverTable + "//tr[3]/" + actionCol).string(Action.ADD.getDescription()))
+                //server20
+                .andExpect(xpath( serverTable + "//tr[4]/" + friendlyNameCol).string("server" + genevaServer.getId()))
+                .andExpect(xpath(serverTable + "//tr[4]/" + clusterCol).string(SWITZERLAND))
+                .andExpect(xpath(serverTable + "//tr[4]/" + dnsStatusCol).string("NONE"))
+                .andExpect(xpath(serverTable + "//tr[4]/" + actionCol).string(Action.ADD.getDescription()));
     }
 
-    private static void assertHomePageDnsEntryTable(ResultActions resultActions) throws Exception {
+    private static void assertRemoveDnsEntryTableAfterDelete(ResultActions resultActions) throws Exception {
         int expectedRowCount = 4;
         String dnsTable = "//table[@id='dnsEntries']";
 
@@ -255,8 +301,8 @@ public class DnsServiceSST extends BaseSST {
                 .andExpect(xpath(dnsTable + "//tr[3]/" + clusterNameCol).string("N/A"));
     }
 
-    private static void assertAddServerEntryTable(ResultActions resultActions) throws Exception {
-        int expectedRowCount = 4;
+    private static void assertHomePageServerEntryTable(ResultActions resultActions) throws Exception {
+        int expectedRowCount = 5;
         String serverTable = "//table[@id='serverEntries']";
 
         String friendlyNameCol = "td[1]";
@@ -276,14 +322,19 @@ public class DnsServiceSST extends BaseSST {
                 .andExpect(xpath(serverTable + "//tr[2]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[2]/" + dnsStatusCol).string(USA + DOT_DOMAIN_COM))
                 .andExpect(xpath(serverTable + "//tr[2]/" + actionCol).string(Action.REMOVE.getDescription()))
+                //server7
+                .andExpect(xpath( serverTable + "//tr[3]/" + friendlyNameCol).string("server" + nycServer.getId()))
+                .andExpect(xpath(serverTable + "//tr[3]/" + clusterCol).string(USA))
+                .andExpect(xpath(serverTable + "//tr[3]/" + dnsStatusCol).string(USA + DOT_DOMAIN_COM))
+                .andExpect(xpath(serverTable + "//tr[3]/" + actionCol).string(Action.REMOVE.getDescription()))
                 //server20
-                .andExpect(xpath( serverTable + "//tr[3]/" + friendlyNameCol).string("server" + genevaServer.getId()))
-                .andExpect(xpath(serverTable + "//tr[3]/" + clusterCol).string(SWITZERLAND))
-                .andExpect(xpath(serverTable + "//tr[3]/" + dnsStatusCol).string(SWITZERLAND + DOT_DOMAIN_COM))
-                .andExpect(xpath(serverTable + "//tr[3]/" + actionCol).string(Action.REMOVE.getDescription()));
+                .andExpect(xpath( serverTable + "//tr[4]/" + friendlyNameCol).string("server" + genevaServer.getId()))
+                .andExpect(xpath(serverTable + "//tr[4]/" + clusterCol).string(SWITZERLAND))
+                .andExpect(xpath(serverTable + "//tr[4]/" + dnsStatusCol).string("NONE"))
+                .andExpect(xpath(serverTable + "//tr[4]/" + actionCol).string(Action.ADD.getDescription()));
     }
 
-    private static void assertAddDnsEntryTable(ResultActions resultActions) throws Exception {
+    private static void assertHomePageDnsEntryTable(ResultActions resultActions) throws Exception {
         int expectedRowCount = 5;
         String dnsTable = "//table[@id='dnsEntries']";
 
@@ -304,11 +355,82 @@ public class DnsServiceSST extends BaseSST {
                 .andExpect(xpath(dnsTable + "//tr[2]/" + ipCol).string(laServer2.getIpString()))
                 .andExpect(xpath(dnsTable + "//tr[2]/" + serverFriendlyNameCol).string(laServer2.getFriendlyName()))
                 .andExpect(xpath(dnsTable + "//tr[2]/" + clusterNameCol).string(laServer2.getCluster().getName()))
+                //server7
+                .andExpect(xpath( dnsTable + "//tr[3]/" + domainStringCol).string(NYC + DOT_DOMAIN_COM))
+                .andExpect(xpath(dnsTable + "//tr[3]/" + ipCol).string(nycIp))
+                .andExpect(xpath(dnsTable + "//tr[3]/" + serverFriendlyNameCol).string(nycServer.getFriendlyName()))
+                .andExpect(xpath(dnsTable + "//tr[3]/" + clusterNameCol).string(nycServer.getCluster().getName()))
                 //server20
-                .andExpect(xpath( dnsTable + "//tr[3]/" + domainStringCol).string("xyz" + DOT_DOMAIN_COM))
-                .andExpect(xpath(dnsTable + "//tr[3]/" + ipCol).string("5.5.5.5"))
-                .andExpect(xpath(dnsTable + "//tr[3]/" + serverFriendlyNameCol).string("not found"))
-                .andExpect(xpath(dnsTable + "//tr[3]/" + clusterNameCol).string("N/A"));
+                .andExpect(xpath( dnsTable + "//tr[4]/" + domainStringCol).string("xyz" + DOT_DOMAIN_COM))
+                .andExpect(xpath(dnsTable + "//tr[4]/" + ipCol).string("5.5.5.5"))
+                .andExpect(xpath(dnsTable + "//tr[4]/" + serverFriendlyNameCol).string("not found"))
+                .andExpect(xpath(dnsTable + "//tr[4]/" + clusterNameCol).string("N/A"));
+    }
+
+    private static void assertAddServerEntryTable(ResultActions resultActions) throws Exception {
+        int expectedRowCount = 5;
+        String serverTable = "//table[@id='serverEntries']";
+
+        String friendlyNameCol = "td[1]";
+        String clusterCol = "td[2]";
+        String dnsStatusCol = "td[3]";
+        String actionCol = "td[4]";
+
+        resultActions
+                //server1
+                .andExpect(xpath(serverTable + "//tr").nodeCount(expectedRowCount))
+                .andExpect(xpath(serverTable + "//tr[1]/" + friendlyNameCol).string("server" + laServer1.getId()))
+                .andExpect(xpath(serverTable + "//tr[1]/" + clusterCol).string(USA))
+                .andExpect(xpath(serverTable + "//tr[1]/" + dnsStatusCol).string(USA + DOT_DOMAIN_COM))
+                .andExpect(xpath(serverTable + "//tr[1]/" + actionCol).string(Action.REMOVE.getDescription()))
+                //server2
+                .andExpect(xpath(serverTable + "//tr[2]/" + friendlyNameCol).string("server" + laServer2.getId()))
+                .andExpect(xpath(serverTable + "//tr[2]/" + clusterCol).string(USA))
+                .andExpect(xpath(serverTable + "//tr[2]/" + dnsStatusCol).string(USA + DOT_DOMAIN_COM))
+                .andExpect(xpath(serverTable + "//tr[2]/" + actionCol).string(Action.REMOVE.getDescription()))
+                //server7
+                .andExpect(xpath( serverTable + "//tr[3]/" + friendlyNameCol).string("server" + nycServer.getId()))
+                .andExpect(xpath(serverTable + "//tr[3]/" + clusterCol).string(USA))
+                .andExpect(xpath(serverTable + "//tr[3]/" + dnsStatusCol).string(USA + DOT_DOMAIN_COM))
+                .andExpect(xpath(serverTable + "//tr[3]/" + actionCol).string(Action.REMOVE.getDescription()))
+                //server20
+                .andExpect(xpath( serverTable + "//tr[4]/" + friendlyNameCol).string("server" + genevaServer.getId()))
+                .andExpect(xpath(serverTable + "//tr[4]/" + clusterCol).string(SWITZERLAND))
+                .andExpect(xpath(serverTable + "//tr[4]/" + dnsStatusCol).string(SWITZERLAND + DOT_DOMAIN_COM))
+                .andExpect(xpath(serverTable + "//tr[4]/" + actionCol).string(Action.REMOVE.getDescription()));
+    }
+
+    private static void assertAddDnsEntryTable(ResultActions resultActions) throws Exception {
+        int expectedRowCount = 6;
+        String dnsTable = "//table[@id='dnsEntries']";
+
+        String domainStringCol = "td[1]";
+        String ipCol = "td[2]";
+        String serverFriendlyNameCol = "td[3]";
+        String clusterNameCol = "td[4]";
+
+        resultActions
+                //server1
+                .andExpect(xpath(dnsTable + "//tr").nodeCount(expectedRowCount))
+                .andExpect(xpath(dnsTable + "//tr[1]/" + domainStringCol).string(LA + DOT_DOMAIN_COM))
+                .andExpect(xpath(dnsTable + "//tr[1]/" + ipCol).string(laServer1.getIpString()))
+                .andExpect(xpath(dnsTable + "//tr[1]/" + serverFriendlyNameCol).string(laServer1.getFriendlyName()))
+                .andExpect(xpath(dnsTable + "//tr[1]/" + clusterNameCol).string(laServer1.getCluster().getName()))
+                //server2
+                .andExpect(xpath(dnsTable + "//tr[2]/" + domainStringCol).string(LA + DOT_DOMAIN_COM))
+                .andExpect(xpath(dnsTable + "//tr[2]/" + ipCol).string(laServer2.getIpString()))
+                .andExpect(xpath(dnsTable + "//tr[2]/" + serverFriendlyNameCol).string(laServer2.getFriendlyName()))
+                .andExpect(xpath(dnsTable + "//tr[2]/" + clusterNameCol).string(laServer2.getCluster().getName()))
+                //server7
+                .andExpect(xpath( dnsTable + "//tr[3]/" + domainStringCol).string(NYC + DOT_DOMAIN_COM))
+                .andExpect(xpath(dnsTable + "//tr[3]/" + ipCol).string(nycIp))
+                .andExpect(xpath(dnsTable + "//tr[3]/" + serverFriendlyNameCol).string(nycServer.getFriendlyName()))
+                .andExpect(xpath(dnsTable + "//tr[3]/" + clusterNameCol).string(nycServer.getCluster().getName()))
+                //server20
+                .andExpect(xpath( dnsTable + "//tr[4]/" + domainStringCol).string("xyz" + DOT_DOMAIN_COM))
+                .andExpect(xpath(dnsTable + "//tr[4]/" + ipCol).string("5.5.5.5"))
+                .andExpect(xpath(dnsTable + "//tr[4]/" + serverFriendlyNameCol).string("not found"))
+                .andExpect(xpath(dnsTable + "//tr[4]/" + clusterNameCol).string("N/A"));
     }
 
 }
