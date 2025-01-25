@@ -1,7 +1,10 @@
 package org.example.dnsservice.service;
 
 import org.example.dnsservice.configuration.R53Properties;
+import org.example.dnsservice.exception.R53AddRecordException;
 import org.example.dnsservice.model.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.route53.Route53AsyncClient;
@@ -9,7 +12,6 @@ import software.amazon.awssdk.services.route53.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,6 +21,8 @@ public class AwsR53Service {
 
     private final Route53AsyncClient route53AsyncClient;
     private final R53Properties properties;
+
+    private static final Logger log = LoggerFactory.getLogger(AwsR53Service.class);
 
     @Autowired
     public AwsR53Service(Route53AsyncClient route53AsyncClient, R53Properties properties) {
@@ -142,8 +146,14 @@ public class AwsR53Service {
     }
 
     private void changeResourceRecordSets(ChangeResourceRecordSetsRequest request) {
-        //TODO catch exception
-        route53AsyncClient.changeResourceRecordSets(request);
+        route53AsyncClient.changeResourceRecordSets(request)
+                .exceptionally(throwable -> {
+                    throw new R53AddRecordException("There was an issue adding record to R53: " + throwable.getMessage());
+                })
+                .thenAccept(response -> {
+                    log.info("Successful change request: {}", request.toString());
+                })
+                .join();
     }
 
     private static boolean isARecord(ResourceRecordSet resourceRecordSet){
