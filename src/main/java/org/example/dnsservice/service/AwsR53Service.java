@@ -171,10 +171,12 @@ public class AwsR53Service {
         return it.toBuilder().resourceRecords(resourceRecords).build();
     }
 
-    private static ResourceRecordSet createNewResourceRecordSet(Server server, String hostedZoneName) {
+    private ResourceRecordSet createNewResourceRecordSet(Server server, String hostedZoneName) {
         return ResourceRecordSet.builder()
                 .name(server.getResourceRecordSetName(hostedZoneName))
                 .type(RRType.A)
+                .ttl(properties.ttl())
+                .weight(properties.weight())
                 .setIdentifier(server.clusterSubdomain())
                 .resourceRecords(
                         ResourceRecord.builder().value(server.ipAddress()).build()

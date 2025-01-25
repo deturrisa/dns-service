@@ -36,3 +36,5 @@ aws:
     local-address: ${AWS_R53_LOCAL_ADDRESS:http://localhost:9090/}
     hosted-zone-id: ${AWS_R53_HOSTED_ZONE_ID:test}
     endpoint-override: ${AWS_R53_ENDPOINT_OVERRIDE:https://route53.amazonaws.com/}
+    ttL: ${AWS_R53_TTL:10}
+    weight: ${AWS_R53_WEIGHT:10}
