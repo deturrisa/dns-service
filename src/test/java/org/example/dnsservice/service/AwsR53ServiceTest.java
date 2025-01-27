@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.example.dnsservice.configuration.R53Properties;
 import org.example.dnsservice.model.Server;
+import org.example.dnsservice.util.TestUtil;
 import org.example.dnsservice.util.TestUtil.ServerBuilder;
 import org.example.dnsservice.util.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +41,12 @@ class AwsR53ServiceTest {
         String ipAddressToRemove = "123.123.123.123";
         Long ttl = 300L;
         Long weight = 50L;
+
+        Server serverToRemove = new TestUtil.ServerBuilder()
+                .regionSubdomain(SWITZERLAND)
+                .clusterSubdomain(GENEVA)
+                .ipAddress(ipAddressToRemove)
+                .build();
 
         ResourceRecordSet hongKongAResourceRecordSet = getUsaAResourceRecordSet(
                 LA,
@@ -90,7 +97,7 @@ class AwsR53ServiceTest {
 
         // when
         ListResourceRecordSetsResponse result =
-                service.removeResourceRecordByValue(ipAddressToRemove);
+                service.removeResourceRecordByServer(serverToRemove);
 
         // then
         assertThat(result).isEqualTo(expectedListResourceRecordSetsResponse);
@@ -107,6 +114,12 @@ class AwsR53ServiceTest {
         String ipAddressToRemove = "123.123.123.123";
         Long ttl = 300L;
         Long weight = 50L;
+
+        Server serverToRemove = new TestUtil.ServerBuilder()
+                .regionSubdomain(SWITZERLAND)
+                .clusterSubdomain(GENEVA)
+                .ipAddress(ipAddressToRemove)
+                .build();
 
         ResourceRecordSet usaAResourceRecordSet = getUsaAResourceRecordSet(
                 LA,
@@ -148,7 +161,7 @@ class AwsR53ServiceTest {
 
         // when
         ListResourceRecordSetsResponse result =
-                service.removeResourceRecordByValue(ipAddressToRemove);
+                service.removeResourceRecordByServer(serverToRemove);
 
         // then
         assertThat(result).isEqualTo(expectedListResourceRecordSetsResponse);

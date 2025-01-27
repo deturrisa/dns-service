@@ -139,6 +139,12 @@ public class ARecordServiceTest {
         Long ttl = 300L;
         Long weight = 50L;
 
+        Server serverToRemove = new TestUtil.ServerBuilder()
+                .regionSubdomain(SWITZERLAND)
+                .clusterSubdomain(GENEVA)
+                .ipAddress(ipAddressToRemove)
+                .build();
+
         ResourceRecordSet hongKongAResourceRecordSet = createAResourceRecordSet(
                 HONG_KONG + DOT_DOMAIN_COM,
                 HONG_KONG,
@@ -166,11 +172,11 @@ public class ARecordServiceTest {
                 );
 
 
-        when(awsR53Service.removeResourceRecordByValue(ipAddressToRemove))
+        when(awsR53Service.removeResourceRecordByServer(serverToRemove))
                 .thenReturn(response);
 
         //when
-        List<ARecord> result = service.deleteByIpAddress(ipAddressToRemove);
+        List<ARecord> result = service.removeServer(serverToRemove);
 
         //then
         assertEquals(3, result.size());

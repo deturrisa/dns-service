@@ -534,7 +534,7 @@ class EntryStoreServiceTest {
             when(serverService.getServers()).thenReturn(
                     List.of(swissServer, usaServer1, usaServer2));
 
-            when(aRecordService.deleteByIpAddress(ipAddressToRemove)).thenReturn(
+            when(aRecordService.removeServer(usaServer1)).thenReturn(
                     List.of(usaARecord, xyzARecord)
             );
 

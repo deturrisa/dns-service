@@ -39,11 +39,11 @@ public class EntryStoreService {
     public EntryStore removeFromRotation(Integer serverId) {
         List<Server> servers = serverService.getServers();
 
-        String ipAddress = getIpAddressByServerId(serverId, servers);
+        Server server = getServerById(serverId, servers);
 
-        List<ARecord> aRecords = aRecordService.deleteByIpAddress(ipAddress);
+        List<ARecord> aRecords = aRecordService.removeServer(server);
 
-        log.info("Successfully deleted from R53, A Record with IP Address: {}", ipAddress);
+        log.info("Successfully deleted from R53, A Record with IP Address: {}", server.ipAddress());
 
         return getEntryStore(aRecords, servers);
     }

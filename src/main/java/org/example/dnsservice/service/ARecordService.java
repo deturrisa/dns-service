@@ -40,10 +40,10 @@ public class ARecordService {
         return getARecords(response.resourceRecordSets());
     }
 
-    public List<ARecord> deleteByIpAddress(String ipAddress) {
+    public List<ARecord> removeServer(Server server) {
 
         ListResourceRecordSetsResponse response =
-                awsR53Service.removeResourceRecordByValue(ipAddress);
+                awsR53Service.removeResourceRecordByServer(server);
 
         return getARecords(response.resourceRecordSets());
     }

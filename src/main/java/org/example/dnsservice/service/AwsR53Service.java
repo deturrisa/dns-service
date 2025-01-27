@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.route53.Route53AsyncClient;
 import software.amazon.awssdk.services.route53.model.*;
-
+import software.amazon.awssdk.services.route53.model.ChangeBatch;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -37,31 +37,19 @@ public class AwsR53Service {
     public ListResourceRecordSetsResponse addResourceRecordByServer(Server server) {
         ChangeResourceRecordSetsRequest request =
                 getListResourceRecordSetsResponse().thenApply(
-                        response -> {
-                            List<ResourceRecordSet> resourceRecordSets =
-                                    response.resourceRecordSets().stream().toList();
-
-                            ResourceRecordSet upsertedResourceRecordSet =
-                                    upsertResourceRecordSet(resourceRecordSets, server);
-
-                            List<ResourceRecordSet> updatedResourceRecordSets =
-                                    addOrUpdateResourceRecordSet(
-                                            resourceRecordSets,
-                                            upsertedResourceRecordSet
-                                    ).filter(AwsR53Service::isARecord)
-                                            .toList();
-
-                            Stream<Change> changes = updatedResourceRecordSets.stream()
-                                    .map(AwsR53Service::toChange);
-
-                            return ChangeResourceRecordSetsRequest.builder()
-                                    .hostedZoneId(properties.hostedZoneId())
-                                    .changeBatch(
-                                            ChangeBatch.builder()
-                                                    .changes(changes.toList())
-                                                    .build())
-                                    .build();
-                        }
+                        response -> ChangeResourceRecordSetsRequest.builder()
+                                .hostedZoneId(properties.hostedZoneId())
+                                .changeBatch(
+                                        ChangeBatch.builder()
+                                                .changes(response.resourceRecordSets().stream()
+                                                        .filter(it -> it.setIdentifier().equals(server.clusterSubdomain()))
+                                                        .findFirst()
+                                                                .map(it -> toCreateResourceRecordChange(server,it))
+                                                                .orElseGet(() -> toCreateResourceRecordSetChange(server)
+                                                        )
+                                                )
+                                                .build())
+                                .build()
                 ).join();
 
         changeResourceRecordSets(request);
@@ -71,8 +59,8 @@ public class AwsR53Service {
                 .build();
     }
 
-    public ListResourceRecordSetsResponse removeResourceRecordByValue(
-            String value
+    public ListResourceRecordSetsResponse removeResourceRecordByServer(
+            Server server
     ) {
         ChangeResourceRecordSetsRequest request =
                 getListResourceRecordSetsResponse().thenApply(
@@ -81,10 +69,15 @@ public class AwsR53Service {
                                 .changeBatch(
                                         ChangeBatch.builder()
                                                 .changes(response.resourceRecordSets().stream()
-                                                        .filter(AwsR53Service::isARecord)
-                                                        .map(recordSet -> toChange(
-                                                                removeResourceRecordByValue(recordSet, value)
-                                                            )
+                                                        .filter(it -> it.setIdentifier().equals(server.clusterSubdomain()))
+                                                        .map(recordSet ->
+                                                                {
+                                                                    if(isLastResourceRecord(recordSet)){
+                                                                        return toDeleteResourceRecordSetChange(recordSet);
+                                                                    }else {
+                                                                        return toRemoveResourceRecordChange(recordSet, server);
+                                                                    }
+                                                                }
                                                         )
                                                         .toList())
                                                 .build())
@@ -96,6 +89,18 @@ public class AwsR53Service {
         return ListResourceRecordSetsResponse.builder()
                 .resourceRecordSets(toResourceRecordSets(request))
                 .build();
+    }
+
+    private static ResourceRecordSet addResourceRecord(ResourceRecordSet resourceRecordSet, Server server) {
+        return resourceRecordSet.toBuilder().resourceRecords(
+                Stream.concat(resourceRecordSet.resourceRecords().stream(),
+                        Stream.of(server.toResourceRecord())
+                ).toList()
+        ).build();
+    }
+
+    private static boolean isLastResourceRecord(ResourceRecordSet recordSet) {
+        return recordSet.resourceRecords().size() == 1;
     }
 
     private static List<ResourceRecordSet> toResourceRecordSets(ChangeResourceRecordSetsRequest request) {
@@ -126,14 +131,6 @@ public class AwsR53Service {
                 .resourceRecordSet(recordSet)
                 .action(ChangeAction.DELETE)
                 .build();
-    }
-
-    private static ResourceRecordSet removeResourceRecordByValue(ResourceRecordSet recordSet, String value){
-        return recordSet.toBuilder().resourceRecords(
-                recordSet.resourceRecords().stream()
-                        .filter(resourceRecord -> !resourceRecord.value().equals(value))
-                        .toList()
-        ).build();
     }
 
     private CompletableFuture<ListResourceRecordSetsResponse> getListResourceRecordSetsResponse() {
@@ -198,5 +195,111 @@ public class AwsR53Service {
             ResourceRecordSet resourceRecordSet
     ) {
         return Stream.concat(resourceRecordSets.stream(), Stream.of(resourceRecordSet));
+    }
+
+    private Change toCreateResourceRecordChange(Server server, ResourceRecordSet existingRecordSet) {
+        return buildChange(
+                ChangeAction.UPSERT,
+                existingRecordSet.name(),
+                addResourceRecord(server, existingRecordSet),
+                server.clusterSubdomain()
+        );
+    }
+
+    private static List<String> addResourceRecord(Server server, ResourceRecordSet existingRecordSet) {
+        return Stream.concat(existingRecordSet.resourceRecords().stream(),
+                Stream.of(server.toResourceRecord())
+        ).map(ResourceRecord::value).toList();
+    }
+
+    //add endpoint
+    //when does not exist in r53
+    private Change toCreateResourceRecordSetChange(Server server) {
+        String hostedZoneName = getHostedZoneResponse().hostedZone().name();
+        return buildChange(
+                ChangeAction.UPSERT,
+                server.getResourceRecordSetName(hostedZoneName),
+                server.ipAddress(),
+                server.clusterSubdomain()
+        );
+    }
+
+    private Change toDeleteResourceRecordSetChange(ResourceRecordSet recordSet) {
+        return buildChange(
+                ChangeAction.DELETE,
+                recordSet.name(),
+                recordSet.resourceRecords().stream().map(ResourceRecord::value).toList(),
+                recordSet.setIdentifier()
+        );
+    }
+
+    private Change toRemoveResourceRecordChange(ResourceRecordSet recordSet, Server server) {
+        return buildChange(
+                recordSet.name(),
+                removeResourceRecordFromResourceRecordSet(recordSet, server),
+                recordSet.setIdentifier()
+        );
+    }
+
+    private static List<String> removeResourceRecordFromResourceRecordSet(ResourceRecordSet recordSet, Server server) {
+        return recordSet.resourceRecords().stream().map(ResourceRecord::value).filter(value -> !value.equals(server.ipAddress())).toList();
+    }
+
+    private Change buildChange(ChangeAction action, String name, String value, String setIdentifier) {
+        return Change.builder()
+                .action(action)
+                .resourceRecordSet(ResourceRecordSet.builder()
+                        .name(name)
+                        .type(RRType.A)
+                        .ttl(properties.ttl())
+                        .setIdentifier(setIdentifier)
+                        .weight(properties.weight())
+                        .resourceRecords(
+                                ResourceRecord.builder()
+                                        .value(value)
+                                        .build()
+                        )
+                        .build())
+                .build();
+    }
+
+    private Change buildChange(String name, List<String> values, String setIdentifier) {
+        return Change.builder()
+                .action(ChangeAction.UPSERT)
+                .resourceRecordSet(ResourceRecordSet.builder()
+                        .name(name)
+                        .type(RRType.A)
+                        .ttl(properties.ttl())
+                        .setIdentifier(setIdentifier)
+                        .weight(properties.weight())
+                        .resourceRecords(
+                                values.stream().map(it ->
+                                                ResourceRecord.builder()
+                                                        .value(it)
+                                                        .build()
+                                        ).toList()
+                        )
+                        .build())
+                .build();
+    }
+
+    private Change buildChange(ChangeAction action, String name, List<String> values, String setIdentifier) {
+        return Change.builder()
+                .action(action)
+                .resourceRecordSet(ResourceRecordSet.builder()
+                        .name(name)
+                        .type(RRType.A)
+                        .ttl(properties.ttl())
+                        .setIdentifier(setIdentifier)
+                        .weight(properties.weight())
+                        .resourceRecords(
+                                values.stream().map(it ->
+                                                ResourceRecord.builder()
+                                                        .value(it)
+                                                        .build()
+                                        ).toList()
+                        )
+                        .build())
+                .build();
     }
 }
