@@ -54,9 +54,7 @@ public class AwsR53Service {
 
         changeResourceRecordSets(request);
         
-        return ListResourceRecordSetsResponse.builder()
-                .resourceRecordSets(toResourceRecordSets(request))
-                .build();
+        return getListResourceRecordSetsResponse().join();
     }
 
     public ListResourceRecordSetsResponse removeResourceRecordByServer(
@@ -86,51 +84,12 @@ public class AwsR53Service {
 
         changeResourceRecordSets(request);
 
-        return ListResourceRecordSetsResponse.builder()
-                .resourceRecordSets(toResourceRecordSets(request))
-                .build();
+        return getListResourceRecordSetsResponse().join();
     }
 
-    private static ResourceRecordSet addResourceRecord(ResourceRecordSet resourceRecordSet, Server server) {
-        return resourceRecordSet.toBuilder().resourceRecords(
-                Stream.concat(resourceRecordSet.resourceRecords().stream(),
-                        Stream.of(server.toResourceRecord())
-                ).toList()
-        ).build();
-    }
 
     private static boolean isLastResourceRecord(ResourceRecordSet recordSet) {
         return recordSet.resourceRecords().size() == 1;
-    }
-
-    private static List<ResourceRecordSet> toResourceRecordSets(ChangeResourceRecordSetsRequest request) {
-        return request.changeBatch()
-                .changes()
-                .stream()
-                .map(Change::resourceRecordSet)
-                .collect(Collectors.toList());
-    }
-
-    private static Change toChange(ResourceRecordSet recordSet) {
-        return isEmpty(recordSet) ? toDeleteChange(recordSet) : toUpsertChange(recordSet);
-    }
-
-    private static boolean isEmpty(ResourceRecordSet recordSet) {
-        return recordSet.resourceRecords().isEmpty();
-    }
-
-    private static Change toUpsertChange(ResourceRecordSet recordSet) {
-        return Change.builder()
-                .resourceRecordSet(recordSet)
-                .action(ChangeAction.UPSERT)
-                .build();
-    }
-
-    private static Change toDeleteChange(ResourceRecordSet recordSet){
-        return Change.builder()
-                .resourceRecordSet(recordSet)
-                .action(ChangeAction.DELETE)
-                .build();
     }
 
     private CompletableFuture<ListResourceRecordSetsResponse> getListResourceRecordSetsResponse() {
@@ -142,59 +101,21 @@ public class AwsR53Service {
                 .hostedZoneId(properties.hostedZoneId()).build();
     }
 
-    private void changeResourceRecordSets(ChangeResourceRecordSetsRequest request) {
-        route53AsyncClient.changeResourceRecordSets(request)
+    private CompletableFuture<ChangeResourceRecordSetsResponse> changeResourceRecordSets(ChangeResourceRecordSetsRequest request) {
+        return route53AsyncClient.changeResourceRecordSets(request)
                 .exceptionally(throwable -> {
                     throw new R53AddRecordException("There was an issue adding record to R53: " + throwable.getMessage());
                 })
-                .thenAccept(response -> {
+                .thenApply(response -> {
                     log.info("Successful change request: {}", request.toString());
-                })
-                .join();
-    }
-
-    private static boolean isARecord(ResourceRecordSet resourceRecordSet){
-        return resourceRecordSet.type().equals(RRType.A);
+                    return response;
+                });
     }
 
     private GetHostedZoneResponse getHostedZoneResponse(){
         return route53AsyncClient.getHostedZone(GetHostedZoneRequest.builder()
                 .id(properties.hostedZoneId())
                 .build()).join();
-    }
-
-    private ResourceRecordSet upsertResourceRecordSet(List<ResourceRecordSet> resourceRecordSets, Server server){
-        String hostedZoneName = getHostedZoneResponse().hostedZone().name();
-        return resourceRecordSets.stream()
-                .filter(recordSet -> recordSet.name().equals(server.getResourceRecordSetName(hostedZoneName)))
-                .findFirst()
-                .map(it -> appendResourceRecordToResourceRecordSet(server, it))
-                .orElseGet(() -> createNewResourceRecordSet(server, hostedZoneName));
-    }
-
-    private static ResourceRecordSet appendResourceRecordToResourceRecordSet(Server server, ResourceRecordSet it) {
-        List<ResourceRecord> resourceRecords = new ArrayList<>(it.resourceRecords());
-        resourceRecords.add(server.toResourceRecord());
-        return it.toBuilder().resourceRecords(resourceRecords).build();
-    }
-
-    private ResourceRecordSet createNewResourceRecordSet(Server server, String hostedZoneName) {
-        return ResourceRecordSet.builder()
-                .name(server.getResourceRecordSetName(hostedZoneName))
-                .type(RRType.A)
-                .ttl(properties.ttl())
-                .weight(properties.weight())
-                .setIdentifier(server.clusterSubdomain())
-                .resourceRecords(
-                        ResourceRecord.builder().value(server.ipAddress()).build()
-                ).build();
-    }
-
-    public static Stream<ResourceRecordSet> addOrUpdateResourceRecordSet(
-            List<ResourceRecordSet> resourceRecordSets,
-            ResourceRecordSet resourceRecordSet
-    ) {
-        return Stream.concat(resourceRecordSets.stream(), Stream.of(resourceRecordSet));
     }
 
     private Change toCreateResourceRecordChange(Server server, ResourceRecordSet existingRecordSet) {
@@ -212,8 +133,6 @@ public class AwsR53Service {
         ).map(ResourceRecord::value).toList();
     }
 
-    //add endpoint
-    //when does not exist in r53
     private Change toCreateResourceRecordSetChange(Server server) {
         String hostedZoneName = getHostedZoneResponse().hostedZone().name();
         return buildChange(
