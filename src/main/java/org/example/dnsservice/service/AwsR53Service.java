@@ -10,10 +10,8 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.route53.Route53AsyncClient;
 import software.amazon.awssdk.services.route53.model.*;
 import software.amazon.awssdk.services.route53.model.ChangeBatch;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -42,7 +40,7 @@ public class AwsR53Service {
                                 .changeBatch(
                                         ChangeBatch.builder()
                                                 .changes(response.resourceRecordSets().stream()
-                                                        .filter(it -> it.setIdentifier().equals(server.clusterSubdomain()))
+                                                        .filter(it -> isSetIdentifierMatch(server, it))
                                                         .findFirst()
                                                                 .map(it -> toCreateResourceRecordChange(server,it))
                                                                 .orElseGet(() -> toCreateResourceRecordSetChange(server)
@@ -57,6 +55,8 @@ public class AwsR53Service {
         return getListResourceRecordSetsResponse().join();
     }
 
+
+
     public ListResourceRecordSetsResponse removeResourceRecordByServer(
             Server server
     ) {
@@ -67,7 +67,7 @@ public class AwsR53Service {
                                 .changeBatch(
                                         ChangeBatch.builder()
                                                 .changes(response.resourceRecordSets().stream()
-                                                        .filter(it -> it.setIdentifier().equals(server.clusterSubdomain()))
+                                                        .filter(it -> isSetIdentifierMatch(server, it))
                                                         .map(recordSet ->
                                                                 {
                                                                     if(isLastResourceRecord(recordSet)){
@@ -93,7 +93,11 @@ public class AwsR53Service {
     }
 
     private CompletableFuture<ListResourceRecordSetsResponse> getListResourceRecordSetsResponse() {
-        return route53AsyncClient.listResourceRecordSets(generateListResourceRecordSetsRequest());
+        return route53AsyncClient.listResourceRecordSets(generateListResourceRecordSetsRequest())
+                .thenApply(response -> response.toBuilder().resourceRecordSets(
+                        response.resourceRecordSets().stream().filter(it -> it.setIdentifier()!=null).toList()
+                ).build());
+
     }
 
     private ListResourceRecordSetsRequest generateListResourceRecordSetsRequest() {
@@ -220,5 +224,9 @@ public class AwsR53Service {
                         )
                         .build())
                 .build();
+    }
+
+    private static boolean isSetIdentifierMatch(Server server, ResourceRecordSet it) {
+        return it.setIdentifier()!=null && it.setIdentifier().equals(server.clusterSubdomain());
     }
 }
