@@ -32,7 +32,7 @@ public class AwsR53Service {
         return getListResourceRecordSetsResponse();
     }
 
-    public ListResourceRecordSetsResponse addResourceRecordByServer(Server server) {
+    public void addResourceRecordByServer(Server server) {
         ChangeResourceRecordSetsRequest request =
                 getListResourceRecordSetsResponse().thenApply(
                         response -> ChangeResourceRecordSetsRequest.builder()
@@ -51,13 +51,11 @@ public class AwsR53Service {
                 ).join();
 
         changeResourceRecordSets(request);
-        
-        return getListResourceRecordSetsResponse().join();
     }
 
 
 
-    public ListResourceRecordSetsResponse removeResourceRecordByServer(
+    public void removeResourceRecordByServer(
             Server server
     ) {
         ChangeResourceRecordSetsRequest request =
@@ -83,8 +81,6 @@ public class AwsR53Service {
                 ).join();
 
         changeResourceRecordSets(request);
-
-        return getListResourceRecordSetsResponse().join();
     }
 
 

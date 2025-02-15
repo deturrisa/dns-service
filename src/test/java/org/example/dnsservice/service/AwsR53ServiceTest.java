@@ -96,12 +96,9 @@ class AwsR53ServiceTest {
         );
 
         // when
-        ListResourceRecordSetsResponse result =
-                service.removeResourceRecordByServer(serverToRemove);
+        service.removeResourceRecordByServer(serverToRemove);
 
         // then
-        assertThat(result).isEqualTo(expectedListResourceRecordSetsResponse);
-
         verify(route53AsyncClient, times(1))
                 .changeResourceRecordSets(
                         getUpsertChangeResourceRecordSetsRequest(expectedResourceRecordSets)

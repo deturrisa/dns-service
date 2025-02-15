@@ -33,19 +33,12 @@ public class ARecordService {
         this.domainRegionProperties = domainRegionProperties;
     }
 
-    public List<ARecord> addServer(Server server) {
-        ListResourceRecordSetsResponse response =
-                awsR53Service.addResourceRecordByServer(server);
-
-        return getARecords(response.resourceRecordSets());
+    public void addServer(Server server) {
+        awsR53Service.addResourceRecordByServer(server);
     }
 
-    public List<ARecord> removeServer(Server server) {
-
-        ListResourceRecordSetsResponse response =
-                awsR53Service.removeResourceRecordByServer(server);
-
-        return getARecords(response.resourceRecordSets());
+    public void removeServer(Server server) {
+        awsR53Service.removeResourceRecordByServer(server);
     }
 
     public List<ARecord> getARecords() {

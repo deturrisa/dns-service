@@ -17,6 +17,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -172,8 +173,7 @@ public class ARecordServiceTest {
                 );
 
 
-        when(awsR53Service.removeResourceRecordByServer(serverToRemove))
-                .thenReturn(response);
+        doNothing().when(awsR53Service).removeResourceRecordByServer(serverToRemove);
 
         //when
         List<ARecord> result = service.removeServer(serverToRemove);
@@ -244,8 +244,7 @@ public class ARecordServiceTest {
                 );
 
 
-        when(awsR53Service.addResourceRecordByServer(serverToAdd))
-                .thenReturn(response);
+        doNothing().when(awsR53Service).removeResourceRecordByServer(serverToAdd);
 
         //when
         List<ARecord> result = service.addServer(serverToAdd);

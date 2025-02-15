@@ -24,28 +24,24 @@ public class EntryStoreService {
         this.aRecordService = aRecordService;
     }
 
-    public EntryStore addToRotation(Integer serverId) {
+    public void addToRotation(Integer serverId) {
         List<Server> servers = serverService.getServers();
 
         Server server = getServerById(serverId, servers);
 
-        List<ARecord> aRecords = aRecordService.addServer(server);
+        aRecordService.addServer(server);
 
         log.info("Successfully added to R53, A Record with IP Address: {}", server.ipAddress());
-
-        return getEntryStore(aRecords, servers);
     }
 
-    public EntryStore removeFromRotation(Integer serverId) {
+    public void removeFromRotation(Integer serverId) {
         List<Server> servers = serverService.getServers();
 
         Server server = getServerById(serverId, servers);
 
-        List<ARecord> aRecords = aRecordService.removeServer(server);
+        aRecordService.removeServer(server);
 
         log.info("Successfully deleted from R53, A Record with IP Address: {}", server.ipAddress());
-
-        return getEntryStore(aRecords, servers);
     }
 
     public EntryStore getEntryStore(){
