@@ -1,5 +1,6 @@
 package org.example.dnsservice.controller;
 
+import org.example.dnsservice.service.EntryStoreService;
 import org.example.dnsservice.service.UIService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,22 +17,24 @@ public class HomeController {
 
     private final String HOME = "/home";
     private final UIService uiService;
+    private final EntryStoreService entryStoreService;
 
     @Autowired
-    public HomeController(UIService uiService) {
+    public HomeController(UIService uiService, EntryStoreService entryStoreService) {
         this.uiService = uiService;
+        this.entryStoreService = entryStoreService;
     }
 
     @PostMapping("/add/{serverId}")
     public ResponseEntity<String> add(@PathVariable Integer serverId) {
-        uiService.addToRotation(serverId);
+        entryStoreService.addToRotation(serverId);
         log.info("Successfully added server: {}. Redirecting home", serverId);
         return getHomeResponse();
     }
 
     @PostMapping("/remove/{serverId}")
     public ResponseEntity<String> remove(@PathVariable Integer serverId) {
-        uiService.removeFromRotation(serverId);
+        entryStoreService.removeFromRotation(serverId);
         log.info("Successfully removed server: {}. Redirecting home", serverId);
         return getHomeResponse();
     }
