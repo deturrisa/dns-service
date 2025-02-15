@@ -60,7 +60,7 @@ class EntryStoreServiceTest {
                 public void testMapServersFromDb(){
                     //given
                     //when
-                    List<ServerEntry> result = service.getEntryStore().serverEntries();
+                    var result = service.getEntryStore().serverEntries();
                     //then
                     assertEquals(4, result.size());
                     assertSwitzerland(result);
@@ -72,7 +72,7 @@ class EntryStoreServiceTest {
                 @Test
                 public void testMapServersAndIgnoreUnknownARecords(){
                     //given
-                    ARecord singaporeARecord = new ARecordBuilder()
+                    var singaporeARecord = new ARecordBuilder()
                             .name("singapore" + DOT_DOMAIN_COM)
                             .setIdentifier("sg")
                             .build();
@@ -80,7 +80,7 @@ class EntryStoreServiceTest {
                     when(aRecordService.getARecords()).thenReturn(List.of(singaporeARecord));
 
                     //when
-                    List<ServerEntry> result = service.getEntryStore().serverEntries();
+                    var result = service.getEntryStore().serverEntries();
 
                     //then
                     assertEquals(4, result.size());
@@ -166,7 +166,7 @@ class EntryStoreServiceTest {
                 public void testMapServersFromDbAndR53(){
                     //given
                     //when
-                    List<ServerEntry> result = service.getEntryStore().serverEntries();
+                    var result = service.getEntryStore().serverEntries();
 
                     //then
                     assertEquals(4, result.size());
@@ -212,35 +212,35 @@ class EntryStoreServiceTest {
                 @Test
                 public void testMapAddToAndRemoveFromRotationEntries(){
                     //given
-                    String ipAddress1 = "123.123.123.123";
-                    String ipAddress2 = "125.125.125.125";
+                    var ipAddress1 = "123.123.123.123";
+                    var ipAddress2 = "125.125.125.125";
 
-                    Server swissServer = new ServerBuilder()
+                    var swissServer = new ServerBuilder()
                             .id(20)
                             .regionSubdomain(SWITZERLAND)
                             .clusterSubdomain(GENEVA)
                             .build();
 
-                    Server usaServer1 = new ServerBuilder()
+                    var usaServer1 = new ServerBuilder()
                             .id(1)
                             .regionSubdomain(USA)
                             .clusterSubdomain(LA)
                             .ipAddress(ipAddress1)
                             .build();
 
-                    Server usaServer2 = new ServerBuilder()
+                    var usaServer2 = new ServerBuilder()
                             .id(2)
                             .regionSubdomain(USA)
                             .clusterSubdomain(LA)
                             .ipAddress(ipAddress2)
                             .build();
 
-                    ARecord usaARecord1 = new ARecordBuilder()
+                    var usaARecord1 = new ARecordBuilder()
                             .name(USA + DOT_DOMAIN_COM)
                             .ipAddress(ipAddress1)
                             .setIdentifier(LA).build();
 
-                    ARecord usaARecord2 = new ARecordBuilder()
+                    var usaARecord2 = new ARecordBuilder()
                             .name(USA + DOT_DOMAIN_COM)
                             .ipAddress(ipAddress2)
                             .setIdentifier(LA).build();
@@ -253,7 +253,7 @@ class EntryStoreServiceTest {
                     );
 
                     //when
-                    List<ServerEntry> result = service.getEntryStore().serverEntries();
+                    var result = service.getEntryStore().serverEntries();
 
                     //then
                     assertEquals(3, result.size());
@@ -291,13 +291,13 @@ class EntryStoreServiceTest {
             @Test
             public void testMapPublishedDnsEntries(){
                 //given
-                String losAngeles = "Los Angeles";
-                String laIpAddress1 = "123.123.123.123";
-                String laIpAddress2 = "125.125.125.125";
-                String laFriendlyName1 = "ubiq-1";
-                String laFriendlyName2 = "ubiq-2";
+                var losAngeles = "Los Angeles";
+                var laIpAddress1 = "123.123.123.123";
+                var laIpAddress2 = "125.125.125.125";
+                var laFriendlyName1 = "ubiq-1";
+                var laFriendlyName2 = "ubiq-2";
 
-                Server laServer1  =
+                var laServer1  =
                         new ServerBuilder()
                                 .id(1)
                                 .clusterSubdomain(LA)
@@ -307,7 +307,7 @@ class EntryStoreServiceTest {
                                 .clusterName(losAngeles)
                                 .build();
 
-                Server laServer2  =
+                var laServer2  =
                         new ServerBuilder()
                                 .id(2)
                                 .clusterSubdomain(LA)
@@ -317,19 +317,19 @@ class EntryStoreServiceTest {
                                 .clusterName(losAngeles)
                                 .build();
 
-                ARecord laARecord1 = new ARecordBuilder()
+                var laARecord1 = new ARecordBuilder()
                         .name(USA + DOT_DOMAIN_COM)
                         .ipAddress(laIpAddress1)
                         .setIdentifier(LA)
                         .build();
 
-                ARecord laARecord2 = new ARecordBuilder()
+                var laARecord2 = new ARecordBuilder()
                         .name(USA + DOT_DOMAIN_COM)
                         .ipAddress(laIpAddress2)
                         .setIdentifier(LA)
                         .build();
 
-                ARecord xyzARecord = new ARecordBuilder()
+                var xyzARecord = new ARecordBuilder()
                         .name("abc" + DOT_DOMAIN_COM)
                         .ipAddress("5.5.5.5")
                         .setIdentifier("xyz")
@@ -344,7 +344,7 @@ class EntryStoreServiceTest {
                 );
 
                 //when
-                List<DnsEntry> result = service.getEntryStore().dnsEntries();
+                var result = service.getEntryStore().dnsEntries();
 
                 //then
                 assertEquals(3, result.size());
@@ -373,19 +373,19 @@ class EntryStoreServiceTest {
             @Test
             public void testMapServerAndDnsEntries(){
                 //given
-                String losAngeles = "Los Angeles";
-                String laIpAddress1 = "123.123.123.123";
-                String laIpAddress2 = "125.125.125.125";
-                String laFriendlyName1 = "ubiq-1";
-                String laFriendlyName2 = "ubiq-2";
+                var losAngeles = "Los Angeles";
+                var laIpAddress1 = "123.123.123.123";
+                var laIpAddress2 = "125.125.125.125";
+                var laFriendlyName1 = "ubiq-1";
+                var laFriendlyName2 = "ubiq-2";
 
-                Server swissServer = new ServerBuilder()
+                var swissServer = new ServerBuilder()
                         .id(20)
                         .regionSubdomain(SWITZERLAND)
                         .clusterSubdomain(GENEVA)
                         .build();
 
-                Server usaServer1 = new ServerBuilder()
+                var usaServer1 = new ServerBuilder()
                         .id(1)
                         .regionSubdomain(USA)
                         .clusterSubdomain(LA)
@@ -394,7 +394,7 @@ class EntryStoreServiceTest {
                         .friendlyName(laFriendlyName1)
                         .build();
 
-                Server usaServer2 = new ServerBuilder()
+                var usaServer2 = new ServerBuilder()
                         .id(2)
                         .regionSubdomain(USA)
                         .clusterSubdomain(LA)
@@ -403,17 +403,17 @@ class EntryStoreServiceTest {
                         .friendlyName(laFriendlyName2)
                         .build();
 
-                ARecord usaARecord1 = new ARecordBuilder()
+                var usaARecord1 = new ARecordBuilder()
                         .name(USA + DOT_DOMAIN_COM)
                         .ipAddress(laIpAddress1)
                         .setIdentifier(LA).build();
 
-                ARecord usaARecord2 = new ARecordBuilder()
+                var usaARecord2 = new ARecordBuilder()
                         .name(USA + DOT_DOMAIN_COM)
                         .ipAddress(laIpAddress2)
                         .setIdentifier(LA).build();
 
-                ARecord xyzARecord = new ARecordBuilder()
+                var xyzARecord = new ARecordBuilder()
                         .name("abc" + DOT_DOMAIN_COM)
                         .ipAddress("5.5.5.5")
                         .setIdentifier("xyz")
@@ -427,9 +427,9 @@ class EntryStoreServiceTest {
                 );
 
                 //when
-                EntryStore entryStore = service.getEntryStore();
-                List<ServerEntry> serverEntriesResult = entryStore.serverEntries();
-                List<DnsEntry> dnsEntriesResult = entryStore.dnsEntries();
+                var entryStore = service.getEntryStore();
+                var serverEntriesResult = entryStore.serverEntries();
+                var dnsEntriesResult = entryStore.dnsEntries();
 
                 //then
 

@@ -21,7 +21,7 @@ public class LocalityCodesValidator
 
     @Override
     public boolean isValid(DomainRegionProperties domainRegionProperties, ConstraintValidatorContext context) {
-        List<DomainRegion> domainRegions = domainRegionProperties.getDomainRegions();
+        var domainRegions = domainRegionProperties.getDomainRegions();
         if (isNullOrEmpty(domainRegions)) {
             log.error(ERROR_EMPTY_DOMAIN_REGIONS);
             return false;

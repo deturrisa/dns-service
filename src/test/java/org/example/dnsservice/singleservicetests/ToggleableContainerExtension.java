@@ -54,9 +54,9 @@ public class ToggleableContainerExtension implements BeforeAllCallback, AfterAll
     }
 
     private boolean isExtensionEnabled(ExtensionContext context) {
-        Class<?> testClass = context.getTestClass()
+        var testClass = context.getTestClass()
                 .orElseThrow(() -> new ExtensionConfigurationException("Could not find test class"));
-        SingleServiceTest annotation =testClass.getAnnotation(SingleServiceTest.class);
+        var annotation =testClass.getAnnotation(SingleServiceTest.class);
         if(annotation == null) {
             throw new ExtensionConfigurationException("Could not find @SingleServiceTest annotation");
         }

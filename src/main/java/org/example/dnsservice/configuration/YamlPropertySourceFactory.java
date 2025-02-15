@@ -11,9 +11,9 @@ public class YamlPropertySourceFactory implements PropertySourceFactory {
 
     @Override
     public PropertiesPropertySource createPropertySource(String name, EncodedResource resource) {
-        Properties propertiesFromYaml = loadYamlIntoProperties(resource);
+        var propertiesFromYaml = loadYamlIntoProperties(resource);
 
-        String sourceName = getSourceName(name, resource);
+        var sourceName = getSourceName(name, resource);
 
         return new PropertiesPropertySource(sourceName, propertiesFromYaml);
     }
@@ -29,7 +29,7 @@ public class YamlPropertySourceFactory implements PropertySourceFactory {
     }
 
     private Properties loadYamlIntoProperties(EncodedResource resource) {
-        YamlPropertiesFactoryBean factory = new YamlPropertiesFactoryBean();
+        var factory = new YamlPropertiesFactoryBean();
         factory.setResources(resource.getResource());
         factory.afterPropertiesSet();
         return factory.getObject();

@@ -46,7 +46,7 @@ public class ARecordService {
     }
 
     private List<ARecord> getARecords(List<ResourceRecordSet> resourceRecordSets) {
-        List<ARecord> aRecords = resourceRecordSets.stream()
+        var aRecords = resourceRecordSets.stream()
                 .filter(this::isValidDomain).flatMap(
                     resourceRecordSet -> resourceRecordSet.resourceRecords()
                                 .stream().map(
@@ -60,7 +60,7 @@ public class ARecordService {
     }
 
     private boolean isValidDomain(ResourceRecordSet resourceRecordSet) {
-        boolean isValidDomain = resourceRecordSet.name().matches(
+        var isValidDomain = resourceRecordSet.name().matches(
                 DOMAIN_REGEX
         );
 

@@ -36,8 +36,8 @@ public class RestServerMockContainerExtension extends ToggleableContainerExtensi
         mockRestServer.start();
         restMockClient = new MockServerClient(mockRestServer.getHost(), mockRestServer.getServerPort()) ;
         setConnectionProperties();
-        String mockUrl = System.getProperty ("MOCK_URL");
-        String workflowsUrl = System.getProperty("MOCK_WORKFLOWS_URL");
+        var mockUrl = System.getProperty ("MOCK_URL");
+        var workflowsUrl = System.getProperty("MOCK_WORKFLOWS_URL");
         log.info(String.format("### REST mock server container startup finished with properties: [MOCK_URL=%, MOCK_WORKFLOWS_URL=%]", mockUrl, workflowsUrl)) ;
     }
 
@@ -45,17 +45,17 @@ public class RestServerMockContainerExtension extends ToggleableContainerExtensi
     public void afterAllInternal(ExtensionContext context) {
         log.info("Inside afterAllInternal RestServerMockContainerExtension");
         log.info("### Stopping REST mock server container.");
-        String recordedRequests = restMockClient.retrieveRecordedRequests(
+        var recordedRequests = restMockClient.retrieveRecordedRequests(
                 HttpRequest.request(),
                 Format.JSON
         );
         log.info("### Recorded requests: {}", recordedRequests);
-        String recordedExpectations = restMockClient.retrieveRecordedExpectations(
+        var recordedExpectations = restMockClient.retrieveRecordedExpectations(
                 HttpRequest.request(),
                 Format.JSON
         );
         log.info("### Recorded expectations: {}", recordedExpectations);
-        String activeExpectations = restMockClient.retrieveActiveExpectations(
+        var activeExpectations = restMockClient.retrieveActiveExpectations(
                 HttpRequest.request(),
                 Format.JSON
         );

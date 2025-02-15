@@ -21,9 +21,9 @@ public class ClusterRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        ClusterEntity clusterEntity = new ClusterEntity(5,"Geneva","ge");
+        var clusterEntity = new ClusterEntity(5,"Geneva","ge");
 
-        ServerEntity serverEntity = new ServerEntity(20,"my-web-1","9.9.9.9",clusterEntity);
+        var serverEntity = new ServerEntity(20,"my-web-1","9.9.9.9",clusterEntity);
 
         clusterEntity.addServer(serverEntity);
         clusterRepository.save(clusterEntity);

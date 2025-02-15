@@ -32,14 +32,14 @@ class DomainRegionValidatorTest {
     @Test
     public void testValidDomainRegionProperties_NoDuplicates() {
         // given
-        DomainRegion usa = new DomainRegion(USA, Set.of(LA,NYC));
-        DomainRegion germany = new DomainRegion(GERMANY, Set.of(FRANKFURT));
+        var usa = new DomainRegion(USA, Set.of(LA,NYC));
+        var germany = new DomainRegion(GERMANY, Set.of(FRANKFURT));
 
-        DomainRegionProperties properties = new DomainRegionProperties();
+        var properties = new DomainRegionProperties();
         properties.setDomainRegions(Arrays.asList(germany, usa));
 
         // when
-        boolean result = validator.isValid(properties, context);
+        var result = validator.isValid(properties, context);
 
         // then
         assertTrue(result);
@@ -48,16 +48,16 @@ class DomainRegionValidatorTest {
     @Test
     public void testInvalidDomainRegionProperties_WithDuplicates() {
         // given
-        ConstraintValidatorContext.ConstraintViolationBuilder builder = mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
-        DomainRegion usa1 = new DomainRegion(USA, Set.of(LA,NYC));
-        DomainRegion usa2 = new DomainRegion(USA, Set.of(LA,NYC));
-        DomainRegionProperties properties = new DomainRegionProperties();
+        var builder = mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
+        var usa1 = new DomainRegion(USA, Set.of(LA,NYC));
+        var usa2 = new DomainRegion(USA, Set.of(LA,NYC));
+        var properties = new DomainRegionProperties();
         properties.setDomainRegions(Arrays.asList(usa1, usa2));
 
         when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(builder);
 
         // when
-        boolean result = validator.isValid(properties, context);
+        var result = validator.isValid(properties, context);
 
         // then
         verify(context, times(1)).disableDefaultConstraintViolation();
@@ -68,16 +68,16 @@ class DomainRegionValidatorTest {
     @Test
     public void testInvalidDomainRegions() {
         // given
-        ConstraintValidatorContext.ConstraintViolationBuilder builder = mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
-        DomainRegion usa1 = new DomainRegion(USA + ".abc", Set.of(LA,NYC));
-        DomainRegion usa2 = new DomainRegion(USA, Set.of(LA,NYC));
-        DomainRegionProperties properties = new DomainRegionProperties();
+        var builder = mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
+        var usa1 = new DomainRegion(USA + ".abc", Set.of(LA,NYC));
+        var usa2 = new DomainRegion(USA, Set.of(LA,NYC));
+        var properties = new DomainRegionProperties();
         properties.setDomainRegions(Arrays.asList(usa1, usa2));
 
         when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(builder);
 
         // when
-        boolean result = validator.isValid(properties, context);
+        var result = validator.isValid(properties, context);
 
         // then
         verify(context, times(1)).disableDefaultConstraintViolation();

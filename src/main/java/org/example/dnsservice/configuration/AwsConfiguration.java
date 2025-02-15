@@ -38,7 +38,7 @@ public class AwsConfiguration {
     }
 
     private StaticCredentialsProvider getStaticCredentialsProvider(R53Properties r53Properties){
-        AwsBasicCredentials awsCredentials  =
+        var awsCredentials  =
                 AwsBasicCredentials.create(r53Properties.accessKey(), r53Properties.secretKey());
         return StaticCredentialsProvider.create(awsCredentials);
     }
@@ -51,15 +51,15 @@ public class AwsConfiguration {
     }
 
     private StsAssumeRoleCredentialsProvider assumeRoleCredentialsProvider(R53Properties r53Properties) throws UnknownHostException {
-        StaticCredentialsProvider userCredentialsProvider =
+        var userCredentialsProvider =
                 StaticCredentialsProvider.create(AwsBasicCredentials.create(r53Properties.accessKey(), r53Properties.secretKey()));
 
-        StsClient stsClient = StsClient.builder()
+        var stsClient = StsClient.builder()
                 .credentialsProvider(userCredentialsProvider)
                 .region(Region.of(r53Properties.region()))
                 .build();
 
-        AssumeRoleRequest assumeRoleRefreshRequest = AssumeRoleRequest.builder()
+        var assumeRoleRefreshRequest = AssumeRoleRequest.builder()
                 .roleArn(r53Properties.role())
                 .roleSessionName(InetAddress.getLocalHost().getHostName())
                 .durationSeconds(60*60*10)

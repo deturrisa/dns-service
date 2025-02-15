@@ -13,8 +13,8 @@ public class ThymeleafConfiguration {
 
     @Bean
     public SpringTemplateEngine templateEngine() {
-        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
-        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+        var templateEngine = new SpringTemplateEngine();
+        var templateResolver = new ClassLoaderTemplateResolver();
         templateResolver.setPrefix(templatesPath);
         templateResolver.setSuffix(".html");
         templateResolver.setCharacterEncoding("UTF-8");

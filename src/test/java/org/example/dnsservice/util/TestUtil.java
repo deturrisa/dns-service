@@ -206,7 +206,7 @@ public class TestUtil {
         }
 
         public static long generateRandomTTL() {
-            Random random = new Random();
+            var random = new Random();
             return (long) (random.nextDouble() * (172800L));
         }
 
@@ -300,7 +300,7 @@ public class TestUtil {
     }
 
     private static String getRandomIp(){
-        Random r = new Random();
+        var r = new Random();
         return r.nextInt(256) + "." + r.nextInt(256) + "." + r.nextInt(256) + "." + r.nextInt(256);
     }
 }

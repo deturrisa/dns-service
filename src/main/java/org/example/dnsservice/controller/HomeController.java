@@ -45,7 +45,7 @@ public class HomeController {
     }
 
     private ResponseEntity<String> getHomeResponse() {
-        String html = uiService.renderHtml();
+        var html = uiService.renderHtml();
         return getOkHtmlResponse(html);
     }
 

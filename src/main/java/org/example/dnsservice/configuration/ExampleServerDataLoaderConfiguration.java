@@ -35,12 +35,12 @@ public class ExampleServerDataLoaderConfiguration {
 
         @PostConstruct
         public void loadData() {
-            ClusterEntity laClusterEntity = new ClusterEntity(1,"Los Angeles","la");
-            ClusterEntity genevaClusterEntity = new ClusterEntity(5,"Geneva","ge");
+            var laClusterEntity = new ClusterEntity(1,"Los Angeles","la");
+            var genevaClusterEntity = new ClusterEntity(5,"Geneva","ge");
 
-            ServerEntity laServer1 = new ServerEntity(1,"ubiq-1","123.123.123.123", laClusterEntity);
-            ServerEntity laServer2 = new ServerEntity(2,"ubiq-2","125.125.125.125", laClusterEntity);
-            ServerEntity genevaSever = new ServerEntity(20,"something", "192.1.1.1", genevaClusterEntity);
+            var laServer1 = new ServerEntity(1,"ubiq-1","123.123.123.123", laClusterEntity);
+            var laServer2 = new ServerEntity(2,"ubiq-2","125.125.125.125", laClusterEntity);
+            var genevaSever = new ServerEntity(20,"something", "192.1.1.1", genevaClusterEntity);
 
             clusterRepository.saveAll(List.of(laClusterEntity, genevaClusterEntity));
             serverRepository.saveAll(List.of(laServer1, laServer2, genevaSever));

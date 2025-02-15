@@ -21,29 +21,29 @@ public class DomainRegionValidator
 
     @Override
     public boolean isValid(DomainRegionProperties domainRegionProperties, ConstraintValidatorContext context) {
-        List<DomainRegion> domainRegions = domainRegionProperties.getDomainRegions();
+        var domainRegions = domainRegionProperties.getDomainRegions();
         if (isNullOrEmpty(domainRegions)) {
             log.error(ERROR_EMPTY_DOMAIN_REGIONS);
             return false;
         }
 
-        Set<String> regionCodes =
+        var regionCodes =
                 domainRegionProperties.getDomainRegions().
                         stream().map(DomainRegion::getRegionCode)
                         .collect(Collectors.toSet());
 
-        boolean containsUniqueRegions = regionCodes.size() == domainRegionProperties.getDomainRegions().size();
-        boolean containsOnlyLowerCaseAtoZ = regionCodes.stream().allMatch(AbstractValidator::containsOnlyLowerCaseAtoZ);
+        var containsUniqueRegions = regionCodes.size() == domainRegionProperties.getDomainRegions().size();
+        var containsOnlyLowerCaseAtoZ = regionCodes.stream().allMatch(AbstractValidator::containsOnlyLowerCaseAtoZ);
 
         if (!containsUniqueRegions) {
-            String message = "Duplicate region codes found";
+            var message = "Duplicate region codes found";
             context.disableDefaultConstraintViolation();
             log.error(message);
             context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
         }
 
         if (!containsOnlyLowerCaseAtoZ) {
-            String message = "Invalid character found in region codes";
+            var message = "Invalid character found in region codes";
             context.disableDefaultConstraintViolation();
             log.error(message);
             context.buildConstraintViolationWithTemplate(message).addConstraintViolation();

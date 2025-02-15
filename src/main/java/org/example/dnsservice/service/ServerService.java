@@ -30,7 +30,7 @@ public class ServerService {
     }
 
     public List<Server> getServers() {
-        List<ServerEntity> entities = repository.findAll();
+        var entities = repository.findAll();
 
         validateSubdomains(entities);
         validateUniqueIpAddresses(entities);
@@ -55,7 +55,7 @@ public class ServerService {
     }
 
     private static void validateSubdomains(List<ServerEntity> entities){
-        for(ServerEntity entity : entities){
+        for(var entity : entities){
             if(!hasValidSubdomain(entity)){
                 throw new ServerValidationException(ERROR_INVALID_SUBDOMAIN);
             }
@@ -77,7 +77,7 @@ public class ServerService {
     }
 
     private boolean isSupportedClusterSubdomain(ServerEntity entity){
-        boolean isSupportedClusterSubdomain =
+        var isSupportedClusterSubdomain =
                 properties.getDomainRegions().stream().anyMatch(
                     domainRegion -> domainRegion.getLocalityCodes()
                             .contains(entity.getCluster().getSubdomain())
@@ -94,7 +94,7 @@ public class ServerService {
     }
 
     private boolean isValidIPAddress(ServerEntity entity){
-        boolean isValidIPAddress = IPV4_PATTERN.matcher(entity.getIpString()).matches() ||
+        var isValidIPAddress = IPV4_PATTERN.matcher(entity.getIpString()).matches() ||
                 IPV6_PATTERN.matcher(entity.getIpString()).matches();
 
         if(!isValidIPAddress){

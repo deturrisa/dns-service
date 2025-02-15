@@ -94,7 +94,7 @@ public class DnsServiceSST extends BaseSST {
     public void testShouldRenderHomePage() throws Exception {
         //given
         //when
-        ResultActions response = getDnsServiceHomePage();
+        var response = getDnsServiceHomePage();
 
         //then
         assertHomePageServerEntryTable(response);
@@ -104,12 +104,12 @@ public class DnsServiceSST extends BaseSST {
     @Test
     public void testShouldRenderRemoveFromRotationPageAfterUpsert() throws Exception {
         //given
-        ResourceRecordSet resourceRecordSetToDelete = getUsaAResourceRecordSet(
+        var resourceRecordSetToDelete = getUsaAResourceRecordSet(
                 LA,
                 List.of(laIp1)
         );
 
-        ChangeResourceRecordSetsRequest changeRequest = getUpsertChangeResourceRecordSetsRequest(
+        var changeRequest = getUpsertChangeResourceRecordSetsRequest(
                 List.of(resourceRecordSetToDelete)
         );
 
@@ -117,7 +117,7 @@ public class DnsServiceSST extends BaseSST {
                 .thenReturn(getChangeResourceRecordSetsResponse());
 
         //when
-        ResultActions response = clickRemoveFromRotationEndpoint(laServer1);
+        var response = clickRemoveFromRotationEndpoint(laServer1);
 
         //then
         assertRemoveServerEntryTableAfterUpsert(response);
@@ -127,12 +127,12 @@ public class DnsServiceSST extends BaseSST {
     @Test
     public void testShouldRenderRemoveFromRotationPageAfterDelete() throws Exception {
         //given
-        ResourceRecordSet resourceRecordSetToDelete = getUsaAResourceRecordSet(
+        var resourceRecordSetToDelete = getUsaAResourceRecordSet(
                 NYC,
                 List.of(nycIp)
         );
 
-        ChangeResourceRecordSetsRequest changeRequest = getDeleteChangeResourceRecordSetsRequest(
+        var changeRequest = getDeleteChangeResourceRecordSetsRequest(
                 List.of(resourceRecordSetToDelete)
         );
 
@@ -140,7 +140,7 @@ public class DnsServiceSST extends BaseSST {
                 .thenReturn(getChangeResourceRecordSetsResponse());
 
         //when
-        ResultActions response = clickRemoveFromRotationEndpoint(nycServer);
+        var response = clickRemoveFromRotationEndpoint(nycServer);
 
         //then
         assertRemoveServerEntryTableAfterDelete(response);
@@ -150,19 +150,19 @@ public class DnsServiceSST extends BaseSST {
     @Test
     public void testShouldRenderAddToRotationPageAfterUpsert() throws Exception {
         //given
-        ResourceRecordSet resourceRecordSetToAdd = getSwitzerlandAResourceRecordSet(
+        var resourceRecordSetToAdd = getSwitzerlandAResourceRecordSet(
                 GENEVA,
                 List.of(genevaIp)
         );
 
-        ChangeResourceRecordSetsRequest changeRequest = getUpsertChangeResourceRecordSetsRequest(
+        var changeRequest = getUpsertChangeResourceRecordSetsRequest(
                 List.of(resourceRecordSetToAdd)
         );
 
         when(route53AsyncClient.changeResourceRecordSets(changeRequest))
                 .thenReturn(getChangeResourceRecordSetsResponse());
 
-        GetHostedZoneRequest getHostedZoneRequest = GetHostedZoneRequest.builder()
+        var getHostedZoneRequest = GetHostedZoneRequest.builder()
                 .id(r53Properties.hostedZoneId())
                 .build();
 
@@ -171,7 +171,7 @@ public class DnsServiceSST extends BaseSST {
         );
 
         //when
-        ResultActions response = clickAddToRotationEndpoint(genevaServer);
+        var response = clickAddToRotationEndpoint(genevaServer);
 
         //then
         assertAddServerEntryTable(response);
@@ -180,13 +180,13 @@ public class DnsServiceSST extends BaseSST {
     }
 
     private static void assertRemoveServerEntryTableAfterUpsert(ResultActions resultActions) throws Exception {
-        int expectedRowCount = 5;
-        String serverTable = "//table[@id='serverEntries']";
+        var expectedRowCount = 5;
+        var serverTable = "//table[@id='serverEntries']";
 
-        String friendlyNameCol = "td[1]";
-        String clusterCol = "td[2]";
-        String dnsStatusCol = "td[3]";
-        String actionCol = "td[4]";
+        var friendlyNameCol = "td[1]";
+        var clusterCol = "td[2]";
+        var dnsStatusCol = "td[3]";
+        var actionCol = "td[4]";
 
         resultActions
                 //server1
@@ -213,13 +213,13 @@ public class DnsServiceSST extends BaseSST {
     }
 
     private static void assertRemoveDnsEntryTableAfterUpsert(ResultActions resultActions) throws Exception {
-        int expectedRowCount = 4;
-        String dnsTable = "//table[@id='dnsEntries']";
+        var expectedRowCount = 4;
+        var dnsTable = "//table[@id='dnsEntries']";
 
-        String domainStringCol = "td[1]";
-        String ipCol = "td[2]";
-        String serverFriendlyNameCol = "td[3]";
-        String clusterNameCol = "td[4]";
+        var domainStringCol = "td[1]";
+        var ipCol = "td[2]";
+        var serverFriendlyNameCol = "td[3]";
+        var clusterNameCol = "td[4]";
 
         resultActions
                 //server1
@@ -241,13 +241,13 @@ public class DnsServiceSST extends BaseSST {
     }
 
     private static void assertRemoveServerEntryTableAfterDelete(ResultActions resultActions) throws Exception {
-        int expectedRowCount = 5;
-        String serverTable = "//table[@id='serverEntries']";
+        var expectedRowCount = 5;
+        var serverTable = "//table[@id='serverEntries']";
 
-        String friendlyNameCol = "td[1]";
-        String clusterCol = "td[2]";
-        String dnsStatusCol = "td[3]";
-        String actionCol = "td[4]";
+        var friendlyNameCol = "td[1]";
+        var clusterCol = "td[2]";
+        var dnsStatusCol = "td[3]";
+        var actionCol = "td[4]";
 
         resultActions
                 //server1
@@ -274,13 +274,13 @@ public class DnsServiceSST extends BaseSST {
     }
 
     private static void assertRemoveDnsEntryTableAfterDelete(ResultActions resultActions) throws Exception {
-        int expectedRowCount = 4;
-        String dnsTable = "//table[@id='dnsEntries']";
+        var expectedRowCount = 4;
+        var dnsTable = "//table[@id='dnsEntries']";
 
-        String domainStringCol = "td[1]";
-        String ipCol = "td[2]";
-        String serverFriendlyNameCol = "td[3]";
-        String clusterNameCol = "td[4]";
+        var domainStringCol = "td[1]";
+        var ipCol = "td[2]";
+        var serverFriendlyNameCol = "td[3]";
+        var clusterNameCol = "td[4]";
 
         resultActions
                 //server1
@@ -302,13 +302,13 @@ public class DnsServiceSST extends BaseSST {
     }
 
     private static void assertHomePageServerEntryTable(ResultActions resultActions) throws Exception {
-        int expectedRowCount = 5;
-        String serverTable = "//table[@id='serverEntries']";
+        var expectedRowCount = 5;
+        var serverTable = "//table[@id='serverEntries']";
 
-        String friendlyNameCol = "td[1]";
-        String clusterCol = "td[2]";
-        String dnsStatusCol = "td[3]";
-        String actionCol = "td[4]";
+        var friendlyNameCol = "td[1]";
+        var clusterCol = "td[2]";
+        var dnsStatusCol = "td[3]";
+        var actionCol = "td[4]";
 
         resultActions
                 //server1
@@ -335,13 +335,13 @@ public class DnsServiceSST extends BaseSST {
     }
 
     private static void assertHomePageDnsEntryTable(ResultActions resultActions) throws Exception {
-        int expectedRowCount = 5;
-        String dnsTable = "//table[@id='dnsEntries']";
+        var expectedRowCount = 5;
+        var dnsTable = "//table[@id='dnsEntries']";
 
-        String domainStringCol = "td[1]";
-        String ipCol = "td[2]";
-        String serverFriendlyNameCol = "td[3]";
-        String clusterNameCol = "td[4]";
+        var domainStringCol = "td[1]";
+        var ipCol = "td[2]";
+        var serverFriendlyNameCol = "td[3]";
+        var clusterNameCol = "td[4]";
 
         resultActions
                 //server1
@@ -368,13 +368,13 @@ public class DnsServiceSST extends BaseSST {
     }
 
     private static void assertAddServerEntryTable(ResultActions resultActions) throws Exception {
-        int expectedRowCount = 5;
-        String serverTable = "//table[@id='serverEntries']";
+        var expectedRowCount = 5;
+        var serverTable = "//table[@id='serverEntries']";
 
-        String friendlyNameCol = "td[1]";
-        String clusterCol = "td[2]";
-        String dnsStatusCol = "td[3]";
-        String actionCol = "td[4]";
+        var friendlyNameCol = "td[1]";
+        var clusterCol = "td[2]";
+        var dnsStatusCol = "td[3]";
+        var actionCol = "td[4]";
 
         resultActions
                 //server1
@@ -401,13 +401,13 @@ public class DnsServiceSST extends BaseSST {
     }
 
     private static void assertAddDnsEntryTable(ResultActions resultActions) throws Exception {
-        int expectedRowCount = 6;
-        String dnsTable = "//table[@id='dnsEntries']";
+        var expectedRowCount = 6;
+        var dnsTable = "//table[@id='dnsEntries']";
 
-        String domainStringCol = "td[1]";
-        String ipCol = "td[2]";
-        String serverFriendlyNameCol = "td[3]";
-        String clusterNameCol = "td[4]";
+        var domainStringCol = "td[1]";
+        var ipCol = "td[2]";
+        var serverFriendlyNameCol = "td[3]";
+        var clusterNameCol = "td[4]";
 
         resultActions
                 //server1

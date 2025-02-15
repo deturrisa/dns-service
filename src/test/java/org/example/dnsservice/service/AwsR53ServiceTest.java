@@ -38,45 +38,45 @@ class AwsR53ServiceTest {
     @Test
     void testShouldUpsertWhenResourceRecordsNotEmpty() {
         // given
-        String ipAddressToRemove = "123.123.123.123";
+        var ipAddressToRemove = "123.123.123.123";
         Long ttl = 300L;
         Long weight = 50L;
 
-        Server serverToRemove = new TestUtil.ServerBuilder()
+        var serverToRemove = new TestUtil.ServerBuilder()
                 .regionSubdomain(SWITZERLAND)
                 .clusterSubdomain(GENEVA)
                 .ipAddress(ipAddressToRemove)
                 .build();
 
-        ResourceRecordSet hongKongAResourceRecordSet = getUsaAResourceRecordSet(
+        var hongKongAResourceRecordSet = getUsaAResourceRecordSet(
                 LA,
                 List.of("234.234.234.234", "235.235.235.235"),
                 ttl,
                 weight
         );
 
-        ResourceRecordSet usaAResourceRecordSet = getUsaAResourceRecordSet(
+        var usaAResourceRecordSet = getUsaAResourceRecordSet(
                 LA,
                 List.of(ipAddressToRemove, "125.125.125.125"),
                 ttl,
                 weight
         );
 
-        ResourceRecordSet exptectedUsaAResourceRecordSet = getUsaAResourceRecordSet(
+        var exptectedUsaAResourceRecordSet = getUsaAResourceRecordSet(
                 LA,
                 List.of("125.125.125.125"),
                 ttl,
                 weight
         );
 
-        List<ResourceRecordSet> resourceRecordSets = List.of(
+        var resourceRecordSets = List.of(
                 getNsResourceRecordSet(),
                 getSoaResourceRecordSet(),
                 hongKongAResourceRecordSet,
                 usaAResourceRecordSet
         );
 
-        ListResourceRecordSetsResponse listResourceRecordSetsResponse = createListResourceRecordSetsResponse(
+        var listResourceRecordSetsResponse = createListResourceRecordSetsResponse(
                 resourceRecordSets
         );
 
@@ -86,7 +86,7 @@ class AwsR53ServiceTest {
                         .build()
         )).thenReturn(CompletableFuture.completedFuture(listResourceRecordSetsResponse));
 
-        List<ResourceRecordSet> expectedResourceRecordSets = List.of(
+        var expectedResourceRecordSets = List.of(
                 hongKongAResourceRecordSet,
                 exptectedUsaAResourceRecordSet
         );
@@ -104,37 +104,37 @@ class AwsR53ServiceTest {
     @Test
     void testShouldDeleteWhenResourceRecordsIsEmpty() {
         // given
-        String ipAddressToRemove = "123.123.123.123";
+        var ipAddressToRemove = "123.123.123.123";
         Long ttl = 300L;
         Long weight = 50L;
 
-        Server serverToRemove = new TestUtil.ServerBuilder()
+        var serverToRemove = new TestUtil.ServerBuilder()
                 .regionSubdomain(SWITZERLAND)
                 .clusterSubdomain(GENEVA)
                 .ipAddress(ipAddressToRemove)
                 .build();
 
-        ResourceRecordSet usaAResourceRecordSet = getUsaAResourceRecordSet(
+        var usaAResourceRecordSet = getUsaAResourceRecordSet(
                 LA,
                 List.of(ipAddressToRemove),
                 ttl,
                 weight
         );
 
-        ResourceRecordSet exptectedUsaAResourceRecordSet = getUsaAResourceRecordSet(
+        var exptectedUsaAResourceRecordSet = getUsaAResourceRecordSet(
                 LA,
                 List.of(),
                 ttl,+
                 weight
         );
 
-        List<ResourceRecordSet> resourceRecordSets = List.of(
+        var resourceRecordSets = List.of(
                 getNsResourceRecordSet(),
                 getSoaResourceRecordSet(),
                 usaAResourceRecordSet
         );
 
-        ListResourceRecordSetsResponse listResourceRecordSetsResponse = createListResourceRecordSetsResponse(
+        var listResourceRecordSetsResponse = createListResourceRecordSetsResponse(
                 resourceRecordSets
         );
 
@@ -144,11 +144,11 @@ class AwsR53ServiceTest {
                         .build()
         )).thenReturn(CompletableFuture.completedFuture(listResourceRecordSetsResponse));
 
-        List<ResourceRecordSet> expectedResourceRecordSets = List.of(
+        var expectedResourceRecordSets = List.of(
                 exptectedUsaAResourceRecordSet
         );
 
-        ListResourceRecordSetsResponse expectedListResourceRecordSetsResponse = createListResourceRecordSetsResponse(
+        var expectedListResourceRecordSetsResponse = createListResourceRecordSetsResponse(
                 expectedResourceRecordSets
         );
 
@@ -166,8 +166,8 @@ class AwsR53ServiceTest {
     @Test
     void testShouldAddNewResourceRecordSetWhenServerDoesNotExistsInResourceRecordSet() {
         //given
-        String ipAddress = "123.123.123.123";
-        Server server = new ServerBuilder()
+        var ipAddress = "123.123.123.123";
+        var server = new ServerBuilder()
                 .regionSubdomain(USA)
                 .clusterSubdomain(LA)
                 .ipAddress(ipAddress)
@@ -204,8 +204,8 @@ class AwsR53ServiceTest {
     @Test
     void testShouldAddResourceRecordWhenServerExistsInResourceRecordSet() {
         //given
-        String ipAddress = "125.125.125.125";
-        Server server = new ServerBuilder()
+        var ipAddress = "125.125.125.125";
+        var server = new ServerBuilder()
                 .regionSubdomain(USA)
                 .clusterSubdomain(LA)
                 .ipAddress(ipAddress)
@@ -223,11 +223,11 @@ class AwsR53ServiceTest {
                                         .build())
                         .build()));
 
-        ResourceRecord existingRecord = ResourceRecord.builder()
+        var existingRecord = ResourceRecord.builder()
                 .value("123.123.123.123")
                 .build();
 
-        ResourceRecordSet existingRecordSet = ResourceRecordSet.builder()
+        var existingRecordSet = ResourceRecordSet.builder()
                 .name(USA + DOT_DOMAIN_COM)
                 .type(RRType.A)
                 .resourceRecords(List.of(existingRecord))

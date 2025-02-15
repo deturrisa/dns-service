@@ -25,9 +25,9 @@ public class EntryStoreService {
     }
 
     public void addToRotation(Integer serverId) {
-        List<Server> servers = serverService.getServers();
+        var servers = serverService.getServers();
 
-        Server server = getServerById(serverId, servers);
+        var server = getServerById(serverId, servers);
 
         aRecordService.addServer(server);
 
@@ -35,9 +35,9 @@ public class EntryStoreService {
     }
 
     public void removeFromRotation(Integer serverId) {
-        List<Server> servers = serverService.getServers();
+        var servers = serverService.getServers();
 
-        Server server = getServerById(serverId, servers);
+        var server = getServerById(serverId, servers);
 
         aRecordService.removeServer(server);
 
@@ -45,8 +45,8 @@ public class EntryStoreService {
     }
 
     public EntryStore getEntryStore(){
-        List<Server> servers = serverService.getServers();
-        List<ARecord> aRecords = aRecordService.getARecords();
+        var servers = serverService.getServers();
+        var aRecords = aRecordService.getARecords();
 
         log.info("Loaded {} A Records and {} Servers", aRecords.size(), servers.size());
 
@@ -61,7 +61,7 @@ public class EntryStoreService {
     }
 
     private List<DnsEntry> getDnsEntries(List<ARecord> aRecords, List<Server> servers) {
-        List<DnsEntry> dnsEntries = aRecords.stream().map(aRecord ->
+        var dnsEntries = aRecords.stream().map(aRecord ->
                 servers.stream()
                         .filter(server -> hasMatchingIpAddress(server, aRecord))
                         .findFirst()

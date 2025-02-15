@@ -35,22 +35,22 @@ public class ARecordServiceTest {
     @Test
     public void testShouldMapListRecordResponseToRoute53Records(){
         //given
-        ResourceRecordSet ignoredNameResourceRecordSet = createAResourceRecordSet(
+        var ignoredNameResourceRecordSet = createAResourceRecordSet(
                 "uk." + DOT_DOMAIN_COM,
                 "ma",
                 createIpResourceRecords(List.of("1.1.1.1"))
         );
-        ResourceRecordSet ignoredSetIdentifierResourceRecordSet = getGermanyAResourceRecordSet(
+        var ignoredSetIdentifierResourceRecordSet = getGermanyAResourceRecordSet(
                 "ber",
                 List.of("12.12.12.12")
         );
-        ResourceRecordSet invalidDomainNameResourceRecordSet = createAResourceRecordSet(
+        var invalidDomainNameResourceRecordSet = createAResourceRecordSet(
                 "abc.xyz" + DOT_DOMAIN_COM,
                 "ma",
                 createIpResourceRecords(List.of("1.1.1.1"))
         );
 
-        List<ResourceRecordSet> resourceRecordSets = List.of(
+        var resourceRecordSets = List.of(
                 getNsResourceRecordSet(),
                 getSoaResourceRecordSet(),
                 getGermanyAResourceRecordSet(FRANKFURT,
@@ -73,7 +73,7 @@ public class ARecordServiceTest {
                 invalidDomainNameResourceRecordSet
         );
 
-        ListResourceRecordSetsResponse response =
+        var response =
                 createListResourceRecordSetsResponse(
                         resourceRecordSets
                 );
@@ -92,41 +92,41 @@ public class ARecordServiceTest {
         );
 
         //when
-        List<ARecord> result = service.getARecords();
+        var result = service.getARecords();
 
         assertEquals(7, result.size());
 
-        ARecord frankfurtRecord = result.get(0);
+        var frankfurtRecord = result.get(0);
         assertEquals(FRANKFURT, frankfurtRecord.setIdentifier());
         assertEquals(GERMANY + DOT_DOMAIN_COM, frankfurtRecord.name());
         assertEquals("12.12.12.12", frankfurtRecord.ipAddress());
 
-        ARecord genevaRecord = result.get(1);
+        var genevaRecord = result.get(1);
         assertEquals(GENEVA, genevaRecord.setIdentifier());
         assertEquals(SWITZERLAND + DOT_DOMAIN_COM, genevaRecord.name());
         assertEquals("1.2.3.4", genevaRecord.ipAddress());
 
-        ARecord hongKongRecord1 = result.get(2);
+        var hongKongRecord1 = result.get(2);
         assertEquals(HONG_KONG, hongKongRecord1.setIdentifier());
         assertEquals(HONG_KONG + DOT_DOMAIN_COM, hongKongRecord1.name());
         assertEquals("234.234.234.234", hongKongRecord1.ipAddress());
 
-        ARecord hongKongRecord2 = result.get(3);
+        var hongKongRecord2 = result.get(3);
         assertEquals(HONG_KONG, hongKongRecord2.setIdentifier());
         assertEquals(HONG_KONG + DOT_DOMAIN_COM, hongKongRecord2.name());
         assertEquals("235.235.235.235", hongKongRecord2.ipAddress());
 
-        ARecord laRecord1 = result.get(4);
+        var laRecord1 = result.get(4);
         assertEquals(LA, laRecord1.setIdentifier());
         assertEquals(USA + DOT_DOMAIN_COM, laRecord1.name());
         assertEquals("123.123.123.123", laRecord1.ipAddress());
 
-        ARecord laRecord2 = result.get(5);
+        var laRecord2 = result.get(5);
         assertEquals(LA, laRecord2.setIdentifier());
         assertEquals(USA + DOT_DOMAIN_COM, laRecord2.name());
         assertEquals("125.125.125.125", laRecord2.ipAddress());
 
-        ARecord nycRecord = result.get(6);
+        var nycRecord = result.get(6);
         assertEquals(NYC, nycRecord.setIdentifier());
         assertEquals(USA + DOT_DOMAIN_COM, nycRecord.name());
         assertEquals("13.13.13.13", nycRecord.ipAddress());

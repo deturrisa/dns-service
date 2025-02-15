@@ -55,20 +55,20 @@ public class TestRestTemplateConfiguration {
         public ResultActions execute(){
             Map<String, String> requestHeaders = new java.util.HashMap<>(headers);
             requestHeaders.put("Content-Type", "application/json");
-            HttpEntity<String> entity = new HttpEntity<> (body, new HttpHeaders(toMultiValueMap(requestHeaders)));
+            var entity = new HttpEntity<String>(body, new HttpHeaders(toMultiValueMap(requestHeaders)));
 
             log.info ("### Sending HTTP request: \nuri: {}\nmethod: {}\nheaders: {}" ,
                     uri, method, entity.getHeaders());
 
             try{
-                ResultActions resultActions = mvc.perform(
+                var resultActions = mvc.perform(
                         MockMvcRequestBuilders.request(org.springframework.http.HttpMethod.valueOf(method),uri)
                                 .headers (new HttpHeaders (toMultiValueMap(requestHeaders)))
                                 .queryParams(toMultiValueMap(params))
                                 .content(body)
                 );
 
-                MockHttpServletResponse response = resultActions.andReturn().getResponse();
+                var response = resultActions.andReturn().getResponse();
                 log.info("### Received HTTP response: \ncode: {} \nresponse : {}",
                         response.getStatus(),response);
                 return resultActions;

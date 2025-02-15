@@ -33,7 +33,7 @@ public class AwsR53Service {
     }
 
     public void addResourceRecordByServer(Server server) {
-        ChangeResourceRecordSetsRequest request =
+        var request =
                 getListResourceRecordSetsResponse().thenApply(
                         response -> ChangeResourceRecordSetsRequest.builder()
                                 .hostedZoneId(properties.hostedZoneId())
@@ -58,7 +58,7 @@ public class AwsR53Service {
     public void removeResourceRecordByServer(
             Server server
     ) {
-        ChangeResourceRecordSetsRequest request =
+        var request =
                 getListResourceRecordSetsResponse().thenApply(
                         response -> ChangeResourceRecordSetsRequest.builder()
                                 .hostedZoneId(properties.hostedZoneId())
@@ -134,7 +134,7 @@ public class AwsR53Service {
     }
 
     private Change toCreateResourceRecordSetChange(Server server) {
-        String hostedZoneName = getHostedZoneResponse().hostedZone().name();
+        var hostedZoneName = getHostedZoneResponse().hostedZone().name();
         return buildChange(
                 ChangeAction.UPSERT,
                 server.getResourceRecordSetName(hostedZoneName),

@@ -60,7 +60,7 @@ class ServerServiceTest {
         @Test
         public void testShouldFilterInvalidIpAddresses(){
             //given
-            ServerEntity invalidIpAddressEntity = new ServerEntity(
+            var invalidIpAddressEntity = new ServerEntity(
                     1,
                     "my-web-1",
                     "invalid_ip_address",
@@ -70,7 +70,7 @@ class ServerServiceTest {
             when(serverRepository.findAll()).thenReturn(List.of(serverEntity, invalidIpAddressEntity));
 
             //when
-            List<Server> result = service.getServers();
+            var result = service.getServers();
 
             //then
             assertEquals(1, result.size());
@@ -86,10 +86,10 @@ class ServerServiceTest {
         @Test
         public void testShouldFilterSubdomainNotMatchingLocalityCodes(){
             //given
-            ClusterEntity nonMatchingLocalityCodeClusterEntity =
+            var nonMatchingLocalityCodeClusterEntity =
                     new ClusterEntity(2,"abc", "xyz");
 
-            ServerEntity nonMatchingLocalityCodeServerEntity = new ServerEntity(
+            var nonMatchingLocalityCodeServerEntity = new ServerEntity(
                     3,
                     "my-web-1",
                     "1.1.1.1",
@@ -99,7 +99,7 @@ class ServerServiceTest {
             when(serverRepository.findAll()).thenReturn(List.of(serverEntity, nonMatchingLocalityCodeServerEntity));
 
             //when
-            List<Server> result = service.getServers();
+            var result = service.getServers();
 
             //then
             assertEquals(1, result.size());
@@ -119,7 +119,7 @@ class ServerServiceTest {
         @Test
         public void testShouldThrowServerValidationExceptionIfDuplicateIpAddresses(){
             //given
-            ServerEntity duplicatedIpServerEntity = new ServerEntity(
+            var duplicatedIpServerEntity = new ServerEntity(
                     3,
                     "my-web-1",
                     serverEntity.getIpString(),
@@ -138,9 +138,9 @@ class ServerServiceTest {
         @Test
         public void testShouldThrowServerValidationExceptionIfSpecialCharactersInSubdomain(){
             //given
-            ClusterEntity clusterEntity = new ClusterEntity(5,"Geneva", "ge.");
+            var clusterEntity = new ClusterEntity(5,"Geneva", "ge.");
 
-            ServerEntity serverEntity = new ServerEntity(
+            var serverEntity = new ServerEntity(
                     3,
                     "my-web-1",
                     ServerServiceTest.this.serverEntity.getIpString(),
