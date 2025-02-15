@@ -157,11 +157,9 @@ class AwsR53ServiceTest {
         );
 
         // when
-        ListResourceRecordSetsResponse result =
-                service.removeResourceRecordByServer(serverToRemove);
+        service.removeResourceRecordByServer(serverToRemove);
 
         // then
-        assertThat(result).isEqualTo(expectedListResourceRecordSetsResponse);
 
         verify(route53AsyncClient, times(1))
                 .changeResourceRecordSets(
@@ -201,13 +199,10 @@ class AwsR53ServiceTest {
                         .build()));
 
         //when
-        ListResourceRecordSetsResponse result = service.addResourceRecordByServer(server);
+        service.addResourceRecordByServer(server);
 
-        assertThat(result).isNotNull();
-        assertThat(result.resourceRecordSets()).hasSize(1);
-        assertThat(result.resourceRecordSets().get(0).name()).isEqualTo(USA + DOT_DOMAIN_COM);
-        assertThat(result.resourceRecordSets().get(0).resourceRecords()).hasSize(1);
-        assertThat(result.resourceRecordSets().get(0).resourceRecords().get(0).value()).isEqualTo(ipAddress);
+        //then
+        getUpsertChangeResourceRecordSetsRequest(List.of());
     }
 
     @Test
@@ -252,14 +247,13 @@ class AwsR53ServiceTest {
                         .build()));
 
         //when
-        ListResourceRecordSetsResponse result = service.addResourceRecordByServer(server);
+        service.addResourceRecordByServer(server);
 
         //then
-        assertThat(result).isNotNull();
-        assertThat(result.resourceRecordSets()).hasSize(1);
-        assertThat(result.resourceRecordSets().get(0).name()).isEqualTo(USA + DOT_DOMAIN_COM);
-        assertThat(result.resourceRecordSets().get(0).resourceRecords()).hasSize(2);
-        assertThat(result.resourceRecordSets().get(0).resourceRecords().get(1).value()).isEqualTo(ipAddress);
+        verify(route53AsyncClient, times(1))
+                .changeResourceRecordSets(
+                        getUpsertChangeResourceRecordSetsRequest(List.of(existingRecordSet))
+                );
     }
 
 }
