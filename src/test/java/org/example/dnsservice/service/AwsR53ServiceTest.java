@@ -91,10 +91,6 @@ class AwsR53ServiceTest {
                 exptectedUsaAResourceRecordSet
         );
 
-        ListResourceRecordSetsResponse expectedListResourceRecordSetsResponse = createListResourceRecordSetsResponse(
-                expectedResourceRecordSets
-        );
-
         // when
         service.removeResourceRecordByServer(serverToRemove);
 
@@ -128,7 +124,7 @@ class AwsR53ServiceTest {
         ResourceRecordSet exptectedUsaAResourceRecordSet = getUsaAResourceRecordSet(
                 LA,
                 List.of(),
-                ttl,
+                ttl,+
                 weight
         );
 

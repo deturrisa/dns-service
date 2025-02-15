@@ -43,25 +43,6 @@ public class TestMockMvcConfiguration {
             this.mvc = mvc;
         }
 
-        public ResultActions execute() throws Exception {
-            Map<String, String> requestHeaders = new java.util.HashMap<>(headers);
-            requestHeaders.put("Content-Type", "application/json");
-            HttpEntity<String> entity = new HttpEntity<> (body, new HttpHeaders(toMultiValueMap(requestHeaders)));
-
-            //TODO log http request
-
-            ResultActions resultActions = mvc.perform(
-                    MockMvcRequestBuilders.request(org.springframework.http.HttpMethod.valueOf(method),uri)
-                            .headers (new HttpHeaders (toMultiValueMap(requestHeaders)))
-                            .queryParams(toMultiValueMap(params))
-                            .content(body)
-            );
-
-            //TODO log http result actions
-
-            return resultActions;
-    }
-
         private static <K, V> MultiValueMap<K, V> toMultiValueMap(Map<K, V> map) {
             MultiValueMap<K, V> result = new LinkedMultiValueMap<>() ;
             result.setAll (map);

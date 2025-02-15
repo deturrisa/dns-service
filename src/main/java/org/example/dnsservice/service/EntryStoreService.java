@@ -92,13 +92,6 @@ public class EntryStoreService {
         return serverEntries;
     }
 
-    private static String getIpAddressByServerId(Integer serverId, List<Server> servers) {
-        //TODO unit test this when throwing exception
-        return servers.stream().filter(
-                server -> server.id().equals(serverId)
-        ).findFirst().map(Server::ipAddress).orElseThrow();
-    }
-
     private static DnsEntry toDnsEntry(ARecord aRecord, Server server) {
         log.info("Loaded: {} {}", aRecord.toString(), server.toString());
         return new DnsEntry(
@@ -132,7 +125,6 @@ public class EntryStoreService {
     }
 
     private static Server getServerById(Integer serverId, List<Server> servers) {
-        //TODO unit test throw exception if not found
         return servers.stream()
                 .filter(it -> it.id().equals(serverId))
                 .findFirst()
