@@ -1,0 +1,32 @@
+name: Spotless Check
+
+on:
+  pull_request: # Run whenever a PR is created or updated
+    branches:
+      - main
+      - development # Add other branches if necessary
+
+jobs:
+  spotlessCheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Run Spotless Check
+        run: ./gradlew spotlessCheck

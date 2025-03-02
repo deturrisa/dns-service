@@ -109,3 +109,7 @@ spotless {
         }
     }
 }
+
+tasks.named("check") {
+    dependsOn("spotlessCheck") // Ensures `spotlessCheck` runs as part of your checks
+}
