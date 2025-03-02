@@ -1,9 +1,36 @@
 package org.example.dnsservice.service;
 
-import static org.example.dnsservice.util.TestUtil.*;
-import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
-import static org.example.dnsservice.util.TestUtil.ServerTestData.*;
-import static org.mockito.Mockito.*;
+import static org.example.dnsservice.util.TestUtil.DOT_DOMAIN_COM;
+import static org.example.dnsservice.util.TestUtil.HOSTED_ZONE_ID;
+import static org.example.dnsservice.util.TestUtil.LA;
+import static org.example.dnsservice.util.TestUtil.LA_IP_1;
+import static org.example.dnsservice.util.TestUtil.NYC;
+import static org.example.dnsservice.util.TestUtil.NYC_IP;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.createAResourceRecordSet;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.createIpResourceRecords;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.createListResourceRecordSetsResponse;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getChangeResourceRecordSetsRequest;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getChangeResourceRecordSetsResponse;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getGenevaAResourceRecordSet;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getGetHostedZoneRequest;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getGetHostedZoneResponse;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getLaAResourceRecordSet;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getListResourceRecordSetsRequest;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getNsAndSoaResourceRecordSets;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getNycAResourceRecordSet;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getResourceRecordSets;
+import static org.example.dnsservice.util.TestUtil.ServerBuilder;
+import static org.example.dnsservice.util.TestUtil.ServerTestData.GENEVA_SERVER;
+import static org.example.dnsservice.util.TestUtil.ServerTestData.LA_SERVER_2;
+import static org.example.dnsservice.util.TestUtil.ServerTestData.NYC_SERVER;
+import static org.example.dnsservice.util.TestUtil.TTL;
+import static org.example.dnsservice.util.TestUtil.USA;
+import static org.example.dnsservice.util.TestUtil.WEIGHT;
+import static org.example.dnsservice.util.TestUtil.getRandomIp;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -15,7 +42,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import software.amazon.awssdk.services.route53.Route53AsyncClient;
-import software.amazon.awssdk.services.route53.model.*;
+import software.amazon.awssdk.services.route53.model.ChangeAction;
+import software.amazon.awssdk.services.route53.model.ChangeResourceRecordSetsRequest;
 
 @UnitTest
 class AwsR53ServiceTest {

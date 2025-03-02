@@ -2,8 +2,12 @@ package org.example.dnsservice.service;
 
 import static org.example.dnsservice.util.ErrorCodes.ServerErrors.ERROR_DUPLICATE_IP_ADDRESSES;
 import static org.example.dnsservice.util.ErrorCodes.ServerErrors.ERROR_INVALID_SUBDOMAIN;
-import static org.example.dnsservice.util.TestUtil.*;
-import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
+import static org.example.dnsservice.util.TestUtil.GENEVA;
+import static org.example.dnsservice.util.TestUtil.HONG_KONG;
+import static org.example.dnsservice.util.TestUtil.LA;
+import static org.example.dnsservice.util.TestUtil.NYC;
+import static org.example.dnsservice.util.TestUtil.SWITZERLAND;
+import static org.example.dnsservice.util.TestUtil.USA;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;

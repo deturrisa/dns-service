@@ -1,8 +1,27 @@
 package org.example.dnsservice.service;
 
-import static org.example.dnsservice.util.TestUtil.*;
-import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.example.dnsservice.util.TestUtil.DOT_DOMAIN_COM;
+import static org.example.dnsservice.util.TestUtil.FRANKFURT;
+import static org.example.dnsservice.util.TestUtil.FRANKFURT_IP;
+import static org.example.dnsservice.util.TestUtil.GENEVA;
+import static org.example.dnsservice.util.TestUtil.GENEVA_IP;
+import static org.example.dnsservice.util.TestUtil.GERMANY;
+import static org.example.dnsservice.util.TestUtil.HONG_KONG;
+import static org.example.dnsservice.util.TestUtil.LA;
+import static org.example.dnsservice.util.TestUtil.NYC;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.createAResourceRecordSet;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.createIpResourceRecords;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.createListResourceRecordSetsResponse;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getFrankfurtAResourceRecordSet;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getGenevaAResourceRecordSet;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getHongKongAResourceRecordSet;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getLaAResourceRecordSet;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getNsResourceRecordSet;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getNycAResourceRecordSet;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getSoaResourceRecordSet;
+import static org.example.dnsservice.util.TestUtil.SWITZERLAND;
+import static org.example.dnsservice.util.TestUtil.USA;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import java.util.List;

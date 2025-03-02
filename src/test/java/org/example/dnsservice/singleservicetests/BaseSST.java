@@ -14,7 +14,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import software.amazon.awssdk.services.route53.Route53AsyncClient;
-import software.amazon.awssdk.services.route53.model.*;
+import software.amazon.awssdk.services.route53.model.ChangeResourceRecordSetsResponse;
 
 @TestPropertySource(properties = {"zonky.test.database.provider=Zonky"})
 public abstract class BaseSST {

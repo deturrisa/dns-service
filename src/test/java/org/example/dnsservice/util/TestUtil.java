@@ -1,12 +1,28 @@
 package org.example.dnsservice.util;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Stream;
 import org.example.dnsservice.entity.ClusterEntity;
 import org.example.dnsservice.entity.ServerEntity;
 import org.example.dnsservice.model.ARecord;
 import org.example.dnsservice.model.Server;
-import software.amazon.awssdk.services.route53.model.*;
+import software.amazon.awssdk.services.route53.model.Change;
+import software.amazon.awssdk.services.route53.model.ChangeAction;
+import software.amazon.awssdk.services.route53.model.ChangeBatch;
+import software.amazon.awssdk.services.route53.model.ChangeInfo;
+import software.amazon.awssdk.services.route53.model.ChangeResourceRecordSetsRequest;
+import software.amazon.awssdk.services.route53.model.ChangeResourceRecordSetsResponse;
+import software.amazon.awssdk.services.route53.model.GetHostedZoneRequest;
+import software.amazon.awssdk.services.route53.model.GetHostedZoneResponse;
+import software.amazon.awssdk.services.route53.model.HostedZone;
+import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsRequest;
+import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsResponse;
+import software.amazon.awssdk.services.route53.model.RRType;
+import software.amazon.awssdk.services.route53.model.ResourceRecord;
+import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 
 public class TestUtil {
   // r53 config

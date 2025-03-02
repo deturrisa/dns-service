@@ -1,7 +1,10 @@
 package org.example.dnsservice.validation;
 
-import static org.example.dnsservice.util.TestUtil.*;
-import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
+import static org.example.dnsservice.util.TestUtil.FRANKFURT;
+import static org.example.dnsservice.util.TestUtil.GERMANY;
+import static org.example.dnsservice.util.TestUtil.LA;
+import static org.example.dnsservice.util.TestUtil.NYC;
+import static org.example.dnsservice.util.TestUtil.USA;
 
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.ArrayList;

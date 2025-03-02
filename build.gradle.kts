@@ -92,5 +92,20 @@ spotless {
     java {
         googleJavaFormat("1.17.0")
         target("src/**/*.java")
+        removeUnusedImports()
+        custom("noWildcardImports") { str ->
+            if (str.contains(".*;")) {
+                throw IllegalArgumentException("Wildcard imports are not allowed.")
+            }
+            str
+        }
+        custom("maxLineLength") { content ->
+            content.lines().forEach { line ->
+                if (line.length > 120) {
+                    throw IllegalArgumentException("Line exceeds 120 characters: $line")
+                }
+            }
+            content
+        }
     }
 }

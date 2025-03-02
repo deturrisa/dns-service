@@ -1,8 +1,44 @@
 package org.example.dnsservice.singleservicetests.singleservicetest;
 
-import static org.example.dnsservice.util.TestUtil.*;
-import static org.example.dnsservice.util.TestUtil.EntityTestData.*;
-import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
+import static org.example.dnsservice.util.TestUtil.ABC;
+import static org.example.dnsservice.util.TestUtil.DOT_DOMAIN_COM;
+import static org.example.dnsservice.util.TestUtil.DOT_DOMAIN_DOT_COM;
+import static org.example.dnsservice.util.TestUtil.EntityTestData.GENEVA_CLUSTER_ENTITY;
+import static org.example.dnsservice.util.TestUtil.EntityTestData.GENEVA_SERVER_ENTITY;
+import static org.example.dnsservice.util.TestUtil.EntityTestData.LA_CLUSTER_ENTITY;
+import static org.example.dnsservice.util.TestUtil.EntityTestData.LA_SERVER_ENTITY_1;
+import static org.example.dnsservice.util.TestUtil.EntityTestData.LA_SERVER_ENTITY_2;
+import static org.example.dnsservice.util.TestUtil.EntityTestData.NYC_CLUSTER_ENTITY;
+import static org.example.dnsservice.util.TestUtil.EntityTestData.NYC_SERVER_ENTITY;
+import static org.example.dnsservice.util.TestUtil.FRANKFURT;
+import static org.example.dnsservice.util.TestUtil.GENEVA;
+import static org.example.dnsservice.util.TestUtil.GENEVA_IP;
+import static org.example.dnsservice.util.TestUtil.GERMANY;
+import static org.example.dnsservice.util.TestUtil.HONG_KONG;
+import static org.example.dnsservice.util.TestUtil.HOSTED_ZONE_ID;
+import static org.example.dnsservice.util.TestUtil.LA;
+import static org.example.dnsservice.util.TestUtil.LA_IP_1;
+import static org.example.dnsservice.util.TestUtil.LA_IP_2;
+import static org.example.dnsservice.util.TestUtil.NYC;
+import static org.example.dnsservice.util.TestUtil.NYC_IP;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.createAResourceRecordSet;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.createIpResourceRecords;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.createListResourceRecordSetsResponse;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.createResourceRecords;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getChangeResourceRecordSetsRequest;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getGenevaAResourceRecordSet;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getGetHostedZoneRequest;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getGetHostedZoneResponse;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getLaAResourceRecordSet;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getListResourceRecordSetsRequest;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getNycAResourceRecordSet;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.getXyzAResourceRecordSet;
+import static org.example.dnsservice.util.TestUtil.SWITZERLAND;
+import static org.example.dnsservice.util.TestUtil.TTL;
+import static org.example.dnsservice.util.TestUtil.USA;
+import static org.example.dnsservice.util.TestUtil.WEIGHT;
+import static org.example.dnsservice.util.TestUtil.XYZ;
+import static org.example.dnsservice.util.TestUtil.XYZ_IP;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.xpath;
 
@@ -14,11 +50,12 @@ import org.example.dnsservice.model.Action;
 import org.example.dnsservice.singleservicetests.BaseSST;
 import org.example.dnsservice.singleservicetests.ExternalPlatform;
 import org.example.dnsservice.singleservicetests.SingleServiceTest;
+import org.example.dnsservice.util.TestUtil;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.ResultActions;
-import software.amazon.awssdk.services.route53.model.*;
+import software.amazon.awssdk.services.route53.model.ChangeAction;
 
 @SingleServiceTest({ExternalPlatform.POSTGRES, ExternalPlatform.REST_SERVER})
 public class DnsServiceSST extends BaseSST {
@@ -122,7 +159,7 @@ public class DnsServiceSST extends BaseSST {
     var changeRequest =
         getChangeResourceRecordSetsRequest(
             ChangeAction.UPSERT,
-            createAResourceRecordSet(
+            TestUtil.ResourceRecordSetTestData.createAResourceRecordSet(
                 USA + DOT_DOMAIN_COM, LA, createResourceRecords(List.of(LA_IP_2))));
 
     when(route53AsyncClient.changeResourceRecordSets(changeRequest))
