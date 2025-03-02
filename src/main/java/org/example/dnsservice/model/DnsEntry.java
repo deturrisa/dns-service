@@ -17,4 +17,11 @@ public record DnsEntry(
     public DnsEntry(String domainString, String ip){
         this(domainString, ip, "not found", "N/A", RED);
     }
+    public DnsEntry trimDnsStatus() {
+        if (domainString.endsWith(".")) {
+            var trimmed = domainString.substring(0, domainString.length() - 1);
+            return new DnsEntry(trimmed, ip, serverFriendlyName, clusterName, statusColour);
+        }
+        return this;
+    }
 }

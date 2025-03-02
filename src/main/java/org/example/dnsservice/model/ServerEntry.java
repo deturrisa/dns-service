@@ -21,4 +21,12 @@ public record ServerEntry(Integer serverId, String cluster, String dnsStatus) {
         }
         return Action.REMOVE;
     }
+
+    public ServerEntry trimDnsStatus() {
+        if (dnsStatus.endsWith(".")) {
+            var trimmed = dnsStatus.substring(0, dnsStatus.length() - 1);
+            return new ServerEntry(serverId, cluster, trimmed);
+        }
+        return this;
+    }
 }

@@ -32,7 +32,7 @@
     </thead>
     <tbody>
     <tr th:each="dns : ${dnsEntries}">
-      <td th:text="${dns.domainString}"
+      <td th:text="${dns.trimDnsStatus().domainString()}"
           th:style="'background-color: ' + (${dns.statusColour()})"></td>
       <td th:text="${dns.ip}"
           th:style="'background-color: ' + (${dns.statusColour()})"></td>
@@ -59,7 +59,7 @@
     <tr th:each="server : ${serverEntries}">
       <td th:text="'server' + ${server.serverId()}"></td>
       <td th:text="${server.cluster()}"></td>
-      <td th:text="${server.dnsStatus()}"></td>
+      <td th:text="${server.trimDnsStatus().dnsStatus()}"></td>
       <td th:text="${server.action().getDescription()}"></td>
       <td>
         <form th:action="'/dns-service' + ${server.endpoint}" method="post" style="display:inline;">
