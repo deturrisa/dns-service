@@ -5,6 +5,7 @@ import org.example.dnsservice.model.Action;
 import org.example.dnsservice.singleservicetests.BaseSST;
 import org.example.dnsservice.singleservicetests.ExternalPlatform;
 import org.example.dnsservice.singleservicetests.SingleServiceTest;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.ResultActions;
@@ -263,22 +264,22 @@ public class DnsServiceSST extends BaseSST {
                 .andExpect(xpath(serverTable + "//tr[1]/" + friendlyNameCol).string("server" + LA_SERVER_ENTITY_1.getId()))
                 .andExpect(xpath(serverTable + "//tr[1]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[1]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-                .andExpect(xpath(serverTable + "//tr[1]/" + actionCol).string(Action.REMOVE.getDescription()))
+                .andExpect(xpath(serverTable + "//tr[1]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
                 //server2
                 .andExpect(xpath(serverTable + "//tr[2]/" + friendlyNameCol).string("server" + LA_SERVER_ENTITY_2.getId()))
                 .andExpect(xpath(serverTable + "//tr[2]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[2]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-                .andExpect(xpath(serverTable + "//tr[2]/" + actionCol).string(Action.REMOVE.getDescription()))
+                .andExpect(xpath(serverTable + "//tr[2]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
                 //server7
                 .andExpect(xpath( serverTable + "//tr[3]/" + friendlyNameCol).string("server" + NYC_SERVER_ENTITY.getId()))
                 .andExpect(xpath(serverTable + "//tr[3]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[3]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-                .andExpect(xpath(serverTable + "//tr[3]/" + actionCol).string(Action.REMOVE.getDescription()))
+                .andExpect(xpath(serverTable + "//tr[3]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
                 //server20
                 .andExpect(xpath( serverTable + "//tr[4]/" + friendlyNameCol).string("server" + GENEVA_SERVER_ENTITY.getId()))
                 .andExpect(xpath(serverTable + "//tr[4]/" + clusterCol).string(SWITZERLAND))
                 .andExpect(xpath(serverTable + "//tr[4]/" + dnsStatusCol).string("NONE"))
-                .andExpect(xpath(serverTable + "//tr[4]/" + actionCol).string(Action.ADD.getDescription()));
+                .andExpect(xpath(serverTable + "//tr[4]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.ADD.getDescription())));
     }
 
     private static void assertAddDnsEntryHomePageAfterAddResourceRecord(ResultActions resultActions) throws Exception {
@@ -329,22 +330,22 @@ public class DnsServiceSST extends BaseSST {
                 .andExpect(xpath(serverTable + "//tr[1]/" + friendlyNameCol).string("server" + LA_SERVER_ENTITY_1.getId()))
                 .andExpect(xpath(serverTable + "//tr[1]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[1]/" + dnsStatusCol).string("NONE"))
-                .andExpect(xpath(serverTable + "//tr[1]/" + actionCol).string(Action.ADD.getDescription()))
+                .andExpect(xpath(serverTable + "//tr[1]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.ADD.getDescription())))
                 //server2
                 .andExpect(xpath(serverTable + "//tr[2]/" + friendlyNameCol).string("server" + LA_SERVER_ENTITY_2.getId()))
                 .andExpect(xpath(serverTable + "//tr[2]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[2]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-                .andExpect(xpath(serverTable + "//tr[2]/" + actionCol).string(Action.REMOVE.getDescription()))
+                .andExpect(xpath(serverTable + "//tr[2]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
                 //server7
                 .andExpect(xpath( serverTable + "//tr[3]/" + friendlyNameCol).string("server" + NYC_SERVER_ENTITY.getId()))
                 .andExpect(xpath(serverTable + "//tr[3]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[3]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-                .andExpect(xpath(serverTable + "//tr[3]/" + actionCol).string(Action.REMOVE.getDescription()))
+                .andExpect(xpath(serverTable + "//tr[3]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
                 //server20
                 .andExpect(xpath( serverTable + "//tr[4]/" + friendlyNameCol).string("server" + GENEVA_SERVER_ENTITY.getId()))
                 .andExpect(xpath(serverTable + "//tr[4]/" + clusterCol).string(SWITZERLAND))
                 .andExpect(xpath(serverTable + "//tr[4]/" + dnsStatusCol).string("NONE"))
-                .andExpect(xpath(serverTable + "//tr[4]/" + actionCol).string(Action.ADD.getDescription()));
+                .andExpect(xpath(serverTable + "//tr[4]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.ADD.getDescription())));
     }
 
     private static void assertRemoveDnsEntryHomePageAfterRemoveResourceRecord(ResultActions resultActions) throws Exception {
@@ -385,22 +386,22 @@ public class DnsServiceSST extends BaseSST {
                 .andExpect(xpath(serverTable + "//tr[1]/" + friendlyNameCol).string("server" + LA_SERVER_ENTITY_1.getId()))
                 .andExpect(xpath(serverTable + "//tr[1]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[1]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-                .andExpect(xpath(serverTable + "//tr[1]/" + actionCol).string(Action.REMOVE.getDescription()))
+                .andExpect(xpath(serverTable + "//tr[1]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
                 //server2
                 .andExpect(xpath(serverTable + "//tr[2]/" + friendlyNameCol).string("server" + LA_SERVER_ENTITY_2.getId()))
                 .andExpect(xpath(serverTable + "//tr[2]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[2]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-                .andExpect(xpath(serverTable + "//tr[2]/" + actionCol).string(Action.REMOVE.getDescription()))
+                .andExpect(xpath(serverTable + "//tr[2]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
                 //server7
                 .andExpect(xpath( serverTable + "//tr[3]/" + friendlyNameCol).string("server" + NYC_SERVER_ENTITY.getId()))
                 .andExpect(xpath(serverTable + "//tr[3]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[3]/" + dnsStatusCol).string("NONE"))
-                .andExpect(xpath(serverTable + "//tr[3]/" + actionCol).string(Action.ADD.getDescription()))
+                .andExpect(xpath(serverTable + "//tr[3]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.ADD.getDescription())))
                 //server20
                 .andExpect(xpath( serverTable + "//tr[4]/" + friendlyNameCol).string("server" + GENEVA_SERVER_ENTITY.getId()))
                 .andExpect(xpath(serverTable + "//tr[4]/" + clusterCol).string(SWITZERLAND))
                 .andExpect(xpath(serverTable + "//tr[4]/" + dnsStatusCol).string("NONE"))
-                .andExpect(xpath(serverTable + "//tr[4]/" + actionCol).string(Action.ADD.getDescription()));
+                .andExpect(xpath(serverTable + "//tr[4]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.ADD.getDescription())));
     }
 
     private static void assertRemoveDnsEntryHomePageAfterDeleteResourceRecordSet(ResultActions resultActions) throws Exception {
@@ -441,17 +442,17 @@ public class DnsServiceSST extends BaseSST {
                 .andExpect(xpath(serverTable + "//tr[1]/" + friendlyNameCol).string("server" + LA_SERVER_ENTITY_1.getId()))
                 .andExpect(xpath(serverTable + "//tr[1]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[1]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-                .andExpect(xpath(serverTable + "//tr[1]/" + actionCol).string(Action.REMOVE.getDescription()))
+                .andExpect(xpath(serverTable + "//tr[1]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
                 //server2
                 .andExpect(xpath(serverTable + "//tr[2]/" + friendlyNameCol).string("server" + LA_SERVER_ENTITY_2.getId()))
                 .andExpect(xpath(serverTable + "//tr[2]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[2]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-                .andExpect(xpath(serverTable + "//tr[2]/" + actionCol).string(Action.REMOVE.getDescription()))
+                .andExpect(xpath(serverTable + "//tr[2]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
                 //server20
                 .andExpect(xpath( serverTable + "//tr[3]/" + friendlyNameCol).string("server" + GENEVA_SERVER_ENTITY.getId()))
                 .andExpect(xpath(serverTable + "//tr[3]/" + clusterCol).string(SWITZERLAND))
                 .andExpect(xpath(serverTable + "//tr[3]/" + dnsStatusCol).string("NONE"))
-                .andExpect(xpath(serverTable + "//tr[3]/" + actionCol).string(Action.ADD.getDescription()));
+                .andExpect(xpath(serverTable + "//tr[3]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.ADD.getDescription())));
     }
 
     private static void assertHomePageDnsEntryTable(ResultActions resultActions) throws Exception {
@@ -497,22 +498,22 @@ public class DnsServiceSST extends BaseSST {
                 .andExpect(xpath(serverTable + "//tr[1]/" + friendlyNameCol).string("server" + LA_SERVER_ENTITY_1.getId()))
                 .andExpect(xpath(serverTable + "//tr[1]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[1]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-                .andExpect(xpath(serverTable + "//tr[1]/" + actionCol).string(Action.REMOVE.getDescription()))
+                .andExpect(xpath(serverTable + "//tr[1]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
                 //server2
                 .andExpect(xpath(serverTable + "//tr[2]/" + friendlyNameCol).string("server" + LA_SERVER_ENTITY_2.getId()))
                 .andExpect(xpath(serverTable + "//tr[2]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[2]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-                .andExpect(xpath(serverTable + "//tr[2]/" + actionCol).string(Action.REMOVE.getDescription()))
+                .andExpect(xpath(serverTable + "//tr[2]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
                 //server7
                 .andExpect(xpath( serverTable + "//tr[3]/" + friendlyNameCol).string("server" + NYC_SERVER_ENTITY.getId()))
                 .andExpect(xpath(serverTable + "//tr[3]/" + clusterCol).string(USA))
                 .andExpect(xpath(serverTable + "//tr[3]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-                .andExpect(xpath(serverTable + "//tr[3]/" + actionCol).string(Action.REMOVE.getDescription()))
+                .andExpect(xpath(serverTable + "//tr[3]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
                 //server20
                 .andExpect(xpath( serverTable + "//tr[4]/" + friendlyNameCol).string("server" + GENEVA_SERVER_ENTITY.getId()))
                 .andExpect(xpath(serverTable + "//tr[4]/" + clusterCol).string(SWITZERLAND))
                 .andExpect(xpath(serverTable + "//tr[4]/" + dnsStatusCol).string(SWITZERLAND + DOT_DOMAIN_DOT_COM))
-                .andExpect(xpath(serverTable + "//tr[4]/" + actionCol).string(Action.REMOVE.getDescription()));
+                .andExpect(xpath(serverTable + "//tr[4]/" + actionCol).string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())));
     }
 
     private static void assertAddDnsEntryHomePageAfterAddResourceRecordSet(ResultActions resultActions) throws Exception {
