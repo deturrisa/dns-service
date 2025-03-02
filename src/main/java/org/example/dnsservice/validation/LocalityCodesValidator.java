@@ -1,8 +1,6 @@
 package org.example.dnsservice.validation;
 
-import static org.example.dnsservice.util.ErrorCodes.ServerErrors.ERROR_DUPLICATE_LOCALITY_CODE;
-import static org.example.dnsservice.util.ErrorCodes.ServerErrors.ERROR_EMPTY_DOMAIN_REGIONS;
-import static org.example.dnsservice.util.ErrorCodes.ServerErrors.ERROR_INVALID_REGION;
+import static org.example.dnsservice.util.ErrorCodes.ServerErrors.*;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
