@@ -1,10 +1,13 @@
 name: Spotless Check
 
 on:
-  pull_request: # Run whenever a PR is created or updated
+  push:
+    branches-ignore:
+      - master
+  pull_request:
     branches:
-      - main
-      - development # Add other branches if necessary
+      - master
+      - *
 
 jobs:
   spotlessCheck:
