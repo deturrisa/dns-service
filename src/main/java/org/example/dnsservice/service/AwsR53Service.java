@@ -134,8 +134,8 @@ public class AwsR53Service {
     private Change toCreateResourceRecordSetChange(Server server) {
         var hostedZoneName = getHostedZoneResponse().hostedZone().name();
         return buildChange(
-                ChangeAction.UPSERT,
-                server.regionSubdomain() + hostedZoneName,
+                ChangeAction.UPSERT, //domain.com.
+                server.getResourceRecordSetName(hostedZoneName),
                 server.ipAddress(),
                 server.clusterSubdomain()
         );

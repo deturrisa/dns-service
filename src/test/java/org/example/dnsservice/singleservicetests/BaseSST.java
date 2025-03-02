@@ -66,23 +66,7 @@ public abstract class BaseSST {
                 .withMethod("POST").execute()
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
-
-    protected ChangeResourceRecordSetsRequest getUpsertChangeResourceRecordSetsRequest(List<ResourceRecordSet> resourceRecordSets) {
-        return ChangeResourceRecordSetsRequest.builder()
-                .hostedZoneId(r53Properties.hostedZoneId())
-                .changeBatch(
-                        ChangeBatch.builder()
-                                .changes(resourceRecordSets.stream()
-                                        .map(recordSet -> Change.builder()
-                                                .resourceRecordSet(recordSet)
-                                                .action(ChangeAction.UPSERT)
-                                                .build()
-                                        )
-                                        .toList())
-                                .build())
-                .build();
-    }
-
+    
     protected CompletableFuture<ChangeResourceRecordSetsResponse> getChangeResourceRecordSetsResponse() {
         return CompletableFuture.completedFuture(
                 ChangeResourceRecordSetsResponse.builder().build()

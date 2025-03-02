@@ -14,6 +14,7 @@ public class TestUtil {
     public static final String CHANGE_ID = "changeId";
     public static final String HOSTED_ZONE_ID = "someHostedZoneId";
     public static final String DOT_DOMAIN_COM = ".domain.com.";
+    public static final String DOMAIN_DOT_COM_DOT = "domain.com.";
     public static final Long TTL = 10L;
     public static final Long WEIGHT = 10L;
     // domains
@@ -209,7 +210,7 @@ public class TestUtil {
 
         public static GetHostedZoneResponse getGetHostedZoneResponse(){
             return GetHostedZoneResponse.builder().hostedZone(
-                    HostedZone.builder().name(DOT_DOMAIN_COM).build()
+                    HostedZone.builder().name(DOMAIN_DOT_COM_DOT).build()
             ).build();
         }
 
