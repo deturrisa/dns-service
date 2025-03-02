@@ -16,22 +16,20 @@ import org.springframework.context.annotation.Import;
 @Import({DatabaseConfiguration.class})
 public class ClusterRepositoryTest {
 
-    @Autowired
-    ClusterRepository clusterRepository;
+  @Autowired ClusterRepository clusterRepository;
 
-    @BeforeEach
-    void setUp() {
-        var clusterEntity = new ClusterEntity(5,"Geneva","ge");
+  @BeforeEach
+  void setUp() {
+    var clusterEntity = new ClusterEntity(5, "Geneva", "ge");
 
-        var serverEntity = new ServerEntity(20,"my-web-1","9.9.9.9",clusterEntity);
+    var serverEntity = new ServerEntity(20, "my-web-1", "9.9.9.9", clusterEntity);
 
-        clusterEntity.addServer(serverEntity);
-        clusterRepository.save(clusterEntity);
-    }
+    clusterEntity.addServer(serverEntity);
+    clusterRepository.save(clusterEntity);
+  }
 
-    @Test
-    public void findAll_ExistingClusterAndServerEntities_ReturnsServerEntity(){
-        Assertions.assertNotNull(clusterRepository.findById(5));
-    }
-
+  @Test
+  public void findAll_ExistingClusterAndServerEntities_ReturnsServerEntity() {
+    Assertions.assertNotNull(clusterRepository.findById(5));
+  }
 }

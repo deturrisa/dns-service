@@ -1,103 +1,99 @@
 package org.example.dnsservice.validation;
 
+import static org.example.dnsservice.util.TestUtil.*;
+import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
+
 import jakarta.validation.ConstraintValidatorContext;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
 import org.example.dnsservice.configuration.DomainRegion;
 import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.util.UnitTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Set;
-
-import static org.example.dnsservice.util.TestUtil.*;
-import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
-
 @UnitTest
 public class LocalityCodesValidatorTest {
 
-    @Mock
-    private DomainRegionProperties domainRegionProperties;
+  @Mock private DomainRegionProperties domainRegionProperties;
 
-    @Mock
-    private ConstraintValidatorContext context;
+  @Mock private ConstraintValidatorContext context;
 
-    @InjectMocks
-    private LocalityCodesValidator validator;
+  @InjectMocks private LocalityCodesValidator validator;
 
-    @Test
-    public void shouldReturnFalseIfDomainRegionsListIsEmpty() {
-        //given
-        Mockito.when(domainRegionProperties.getDomainRegions()).thenReturn(new ArrayList<>());
-        var context = Mockito.mock(ConstraintValidatorContext.class);
+  @Test
+  public void shouldReturnFalseIfDomainRegionsListIsEmpty() {
+    // given
+    Mockito.when(domainRegionProperties.getDomainRegions()).thenReturn(new ArrayList<>());
+    var context = Mockito.mock(ConstraintValidatorContext.class);
 
-        //when
-        //then
-        Assertions.assertFalse(validator.isValid(domainRegionProperties, context));
-    }
+    // when
+    // then
+    Assertions.assertFalse(validator.isValid(domainRegionProperties, context));
+  }
 
-    @Test
-    public void shouldReturnTrueIfLocalityCodesAreUnique() {
-        //given
-        var usa = new DomainRegion(USA, Set.of(LA,NYC));
-        var germany = new DomainRegion(GERMANY, Set.of(FRANKFURT));
+  @Test
+  public void shouldReturnTrueIfLocalityCodesAreUnique() {
+    // given
+    var usa = new DomainRegion(USA, Set.of(LA, NYC));
+    var germany = new DomainRegion(GERMANY, Set.of(FRANKFURT));
 
+    Mockito.when(domainRegionProperties.getDomainRegions()).thenReturn(Arrays.asList(usa, germany));
+    // when
+    // then
+    Assertions.assertTrue(validator.isValid(domainRegionProperties, context));
+  }
 
-        Mockito.when(domainRegionProperties.getDomainRegions()).thenReturn(Arrays.asList(usa, germany));
-        //when
-        //then
-        Assertions.assertTrue(validator.isValid(domainRegionProperties, context));
-    }
+  @Test
+  public void shouldReturnFalseIfLocalityCodesAreNotUnique() {
+    // given
+    var validator = new LocalityCodesValidator();
 
-    @Test
-    public void shouldReturnFalseIfLocalityCodesAreNotUnique() {
-        //given
-        var validator = new LocalityCodesValidator();
+    var duplicateLocalityCode = "duplicated_locality_code";
 
-        var duplicateLocalityCode = "duplicated_locality_code";
+    var usa = new DomainRegion(USA, Set.of(LA, NYC, duplicateLocalityCode));
+    var germany = new DomainRegion(GERMANY, Set.of(FRANKFURT, duplicateLocalityCode));
 
-        var usa = new DomainRegion(USA, Set.of(LA,NYC, duplicateLocalityCode));
-        var germany = new DomainRegion(GERMANY, Set.of(FRANKFURT, duplicateLocalityCode));
+    Mockito.when(domainRegionProperties.getDomainRegions()).thenReturn(Arrays.asList(usa, germany));
 
-        Mockito.when(domainRegionProperties.getDomainRegions()).thenReturn(Arrays.asList(usa, germany));
+    // when
+    // then
+    Assertions.assertFalse(validator.isValid(domainRegionProperties, context));
+  }
 
-        //when
-        //then
-        Assertions.assertFalse(validator.isValid(domainRegionProperties, context));
-    }
+  @Test
+  public void shouldReturnFalseIfLocalityCodesAreNullOrEmpty() {
+    // given
+    var validator = new LocalityCodesValidator();
 
-    @Test
-    public void shouldReturnFalseIfLocalityCodesAreNullOrEmpty() {
-        //given
-        var validator = new LocalityCodesValidator();
+    var emptyLocalityCodes = new DomainRegion(USA, Set.of());
+    var germany = new DomainRegion(GERMANY, Set.of(FRANKFURT));
 
-        var emptyLocalityCodes = new DomainRegion(USA, Set.of());
-        var germany = new DomainRegion(GERMANY, Set.of(FRANKFURT));
+    Mockito.when(domainRegionProperties.getDomainRegions())
+        .thenReturn(Arrays.asList(emptyLocalityCodes, germany));
 
-        Mockito.when(domainRegionProperties.getDomainRegions()).thenReturn(Arrays.asList(emptyLocalityCodes, germany));
+    // when
+    // then
+    Assertions.assertFalse(validator.isValid(domainRegionProperties, context));
+  }
 
-        //when
-        //then
-        Assertions.assertFalse(validator.isValid(domainRegionProperties, context));
-    }
+  @Test
+  public void shouldReturnFalseIfInvalidLocalityCode() {
+    // given
+    var validator = new LocalityCodesValidator();
 
-    @Test
-    public void shouldReturnFalseIfInvalidLocalityCode() {
-        //given
-        var validator = new LocalityCodesValidator();
+    var emptyLocalityCodes = new DomainRegion(USA, Set.of());
+    var germany = new DomainRegion(GERMANY, Set.of(FRANKFURT + "something.else"));
 
-        var emptyLocalityCodes = new DomainRegion(USA, Set.of());
-        var germany = new DomainRegion(GERMANY, Set.of(FRANKFURT + "something.else"));
+    Mockito.when(domainRegionProperties.getDomainRegions())
+        .thenReturn(Arrays.asList(emptyLocalityCodes, germany));
 
-        Mockito.when(domainRegionProperties.getDomainRegions()).thenReturn(Arrays.asList(emptyLocalityCodes, germany));
-
-        //when
-        //then
-        Assertions.assertFalse(validator.isValid(domainRegionProperties, context));
-    }
+    // when
+    // then
+    Assertions.assertFalse(validator.isValid(domainRegionProperties, context));
+  }
 }

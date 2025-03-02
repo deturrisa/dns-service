@@ -8,17 +8,17 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 @Configuration
 public class ThymeleafConfiguration {
-    @Value("${spring.thymeleaf.templates.path}")
-    private String templatesPath;
+  @Value("${spring.thymeleaf.templates.path}")
+  private String templatesPath;
 
-    @Bean
-    public SpringTemplateEngine templateEngine() {
-        var templateEngine = new SpringTemplateEngine();
-        var templateResolver = new ClassLoaderTemplateResolver();
-        templateResolver.setPrefix(templatesPath);
-        templateResolver.setSuffix(".html");
-        templateResolver.setCharacterEncoding("UTF-8");
-        templateEngine.setTemplateResolver(templateResolver);
-        return templateEngine;
-    }
+  @Bean
+  public SpringTemplateEngine templateEngine() {
+    var templateEngine = new SpringTemplateEngine();
+    var templateResolver = new ClassLoaderTemplateResolver();
+    templateResolver.setPrefix(templatesPath);
+    templateResolver.setSuffix(".html");
+    templateResolver.setCharacterEncoding("UTF-8");
+    templateEngine.setTemplateResolver(templateResolver);
+    return templateEngine;
+  }
 }

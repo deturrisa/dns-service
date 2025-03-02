@@ -10,17 +10,17 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 @Component
 public class HtmlTemplateGenerator {
 
-    private final SpringTemplateEngine templateEngine;
-    @Value("${spring.thymeleaf.templates.file}")
-    private String templateFileName;
+  private final SpringTemplateEngine templateEngine;
 
-    @Autowired
-    public HtmlTemplateGenerator(SpringTemplateEngine templateEngine) {
-        this.templateEngine = templateEngine;
-    }
+  @Value("${spring.thymeleaf.templates.file}")
+  private String templateFileName;
 
-    public String generate(EntryStore entryStore) {
-        return templateEngine.process(templateFileName, ServerContext.create(entryStore));
-    }
+  @Autowired
+  public HtmlTemplateGenerator(SpringTemplateEngine templateEngine) {
+    this.templateEngine = templateEngine;
+  }
 
+  public String generate(EntryStore entryStore) {
+    return templateEngine.process(templateFileName, ServerContext.create(entryStore));
+  }
 }

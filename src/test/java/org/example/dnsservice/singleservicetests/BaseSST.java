@@ -1,6 +1,7 @@
 package org.example.dnsservice.singleservicetests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.concurrent.CompletableFuture;
 import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.configuration.R53Properties;
 import org.example.dnsservice.entity.ServerEntity;
@@ -15,61 +16,52 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import software.amazon.awssdk.services.route53.Route53AsyncClient;
 import software.amazon.awssdk.services.route53.model.*;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-
 @TestPropertySource(properties = {"zonky.test.database.provider=Zonky"})
 public abstract class BaseSST {
 
-    public static final String BASE_URL = "/dns-service";
-    @Autowired
-    TestRestTemplateConfiguration.SingleServiceRestTemplate rest;
+  public static final String BASE_URL = "/dns-service";
+  @Autowired TestRestTemplateConfiguration.SingleServiceRestTemplate rest;
 
-    @Autowired
-    KafkaTemplate<Object, Object> kafkaTemplate;
+  @Autowired KafkaTemplate<Object, Object> kafkaTemplate;
 
-    @Autowired
-    ObjectMapper objectMapper;
+  @Autowired ObjectMapper objectMapper;
 
-    @Autowired
-    protected ServerRepository serverRepository;
+  @Autowired protected ServerRepository serverRepository;
 
-    @Autowired
-    protected ClusterRepository clusterRepository;
+  @Autowired protected ClusterRepository clusterRepository;
 
-    @MockBean
-    protected DomainRegionProperties domainRegionProperties;
+  @MockBean protected DomainRegionProperties domainRegionProperties;
 
-    @MockBean
-    protected R53Properties r53Properties;
+  @MockBean protected R53Properties r53Properties;
 
-    @MockBean
-    protected Route53AsyncClient route53AsyncClient;
+  @MockBean protected Route53AsyncClient route53AsyncClient;
 
-    protected ResultActions getDnsServiceHomePage() throws Exception {
-        return rest.request()
-                .withUri(BASE_URL + "/home")
-                .withMethod("GET").execute()
-                .andExpect(MockMvcResultMatchers.status().isOk());
-    }
+  protected ResultActions getDnsServiceHomePage() throws Exception {
+    return rest.request()
+        .withUri(BASE_URL + "/home")
+        .withMethod("GET")
+        .execute()
+        .andExpect(MockMvcResultMatchers.status().isOk());
+  }
 
-    protected ResultActions clickRemoveFromRotationEndpoint(ServerEntity server) throws Exception {
-        return rest.request()
-                .withUri(BASE_URL + "/remove/" + server.getId())
-                .withMethod("POST").execute()
-                .andExpect(MockMvcResultMatchers.status().isOk());
-    }
+  protected ResultActions clickRemoveFromRotationEndpoint(ServerEntity server) throws Exception {
+    return rest.request()
+        .withUri(BASE_URL + "/remove/" + server.getId())
+        .withMethod("POST")
+        .execute()
+        .andExpect(MockMvcResultMatchers.status().isOk());
+  }
 
-    protected ResultActions clickAddToRotationEndpoint(ServerEntity server) throws Exception {
-        return rest.request()
-                .withUri(BASE_URL + "/add/" + server.getId())
-                .withMethod("POST").execute()
-                .andExpect(MockMvcResultMatchers.status().isOk());
-    }
-    
-    protected CompletableFuture<ChangeResourceRecordSetsResponse> getChangeResourceRecordSetsResponse() {
-        return CompletableFuture.completedFuture(
-                ChangeResourceRecordSetsResponse.builder().build()
-        );
-    }
+  protected ResultActions clickAddToRotationEndpoint(ServerEntity server) throws Exception {
+    return rest.request()
+        .withUri(BASE_URL + "/add/" + server.getId())
+        .withMethod("POST")
+        .execute()
+        .andExpect(MockMvcResultMatchers.status().isOk());
+  }
+
+  protected CompletableFuture<ChangeResourceRecordSetsResponse>
+      getChangeResourceRecordSetsResponse() {
+    return CompletableFuture.completedFuture(ChangeResourceRecordSetsResponse.builder().build());
+  }
 }

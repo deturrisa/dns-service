@@ -16,15 +16,17 @@ import org.springframework.transaction.PlatformTransactionManager;
 @EnableJpaRepositories("org.example.dnsservice.repository")
 @EntityScan("org.example.dnsservice.entity")
 public class DatabaseConfiguration {
-    @Bean
-    @Primary
-    public PlatformTransactionManager transactionManager() {
-        return new JpaTransactionManager();
-    }
+  @Bean
+  @Primary
+  public PlatformTransactionManager transactionManager() {
+    return new JpaTransactionManager();
+  }
 
-    @Bean
-    public HibernatePropertiesCustomizer jsonFormatMapperCustomizer() {
-        return properties -> properties.put(AvailableSettings.JSON_FORMAT_MAPPER,
-                new JacksonJsonFormatMapper(new ObjectMapper().findAndRegisterModules()));
-    }
+  @Bean
+  public HibernatePropertiesCustomizer jsonFormatMapperCustomizer() {
+    return properties ->
+        properties.put(
+            AvailableSettings.JSON_FORMAT_MAPPER,
+            new JacksonJsonFormatMapper(new ObjectMapper().findAndRegisterModules()));
+  }
 }

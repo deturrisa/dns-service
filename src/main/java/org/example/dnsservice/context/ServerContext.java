@@ -5,10 +5,10 @@ import org.thymeleaf.context.Context;
 
 public record ServerContext() {
 
-    public static Context create(EntryStore entryStore) {
-        var context = new Context();
-        context.setVariable("serverEntries",entryStore.serverEntries());
-        context.setVariable("dnsEntries", entryStore.dnsEntries());
-        return context;
-    }
+  public static Context create(EntryStore entryStore) {
+    var context = new Context();
+    context.setVariable("serverEntries", entryStore.serverEntries());
+    context.setVariable("dnsEntries", entryStore.dnsEntries());
+    return context;
+  }
 }
