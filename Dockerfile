@@ -1,5 +1,13 @@
 # Use an official OpenJDK 17 runtime as a parent image
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk AS build
+WORKDIR /app
+COPY . .
+RUN ./gradlew build
+
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+COPY --from=build /app/build/libs/*.jar app.jar
+CMD ["java", "-jar", "app.jar"]
 
 # Set the working directory
 WORKDIR /app
