@@ -1,6 +1,7 @@
 package org.example.dnsservice.singleservicetests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.configuration.R53Properties;
 import org.example.dnsservice.entity.ServerEntity;
 import org.example.dnsservice.repository.ClusterRepository;
@@ -36,7 +37,10 @@ public abstract class BaseSST {
     @Autowired
     protected ClusterRepository clusterRepository;
 
-    @Autowired
+    @MockBean
+    protected DomainRegionProperties domainRegionProperties;
+
+    @MockBean
     protected R53Properties r53Properties;
 
     @MockBean
@@ -79,34 +83,9 @@ public abstract class BaseSST {
                 .build();
     }
 
-    protected ChangeResourceRecordSetsRequest getDeleteChangeResourceRecordSetsRequest(List<ResourceRecordSet> resourceRecordSets) {
-        return ChangeResourceRecordSetsRequest.builder()
-                .hostedZoneId(r53Properties.hostedZoneId())
-                .changeBatch(
-                        ChangeBatch.builder()
-                                .changes(resourceRecordSets.stream()
-                                        .map(recordSet -> Change.builder()
-                                                .resourceRecordSet(recordSet)
-                                                .action(ChangeAction.DELETE)
-                                                .build()
-                                        )
-                                        .toList())
-                                .build())
-                .build();
-    }
-
     protected CompletableFuture<ChangeResourceRecordSetsResponse> getChangeResourceRecordSetsResponse() {
         return CompletableFuture.completedFuture(
                 ChangeResourceRecordSetsResponse.builder().build()
         );
-    }
-
-    protected CompletableFuture<GetHostedZoneResponse> getGetHostedZoneResponse(String name){
-        return CompletableFuture.completedFuture(
-                GetHostedZoneResponse.builder()
-                        .hostedZone(HostedZone.builder()
-                                .name(name)
-                                .build())
-                        .build());
     }
 }

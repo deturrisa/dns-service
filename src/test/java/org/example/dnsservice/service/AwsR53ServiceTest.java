@@ -4,7 +4,6 @@ import static org.example.dnsservice.util.TestUtil.*;
 import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
 import static org.example.dnsservice.util.TestUtil.ServerTestData.*;
 import static org.mockito.Mockito.*;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.example.dnsservice.configuration.R53Properties;
@@ -67,7 +66,7 @@ class AwsR53ServiceTest {
             //then
             verify(route53AsyncClient, times(1))
                     .changeResourceRecordSets(
-                            getExpectedChangeResourceRecordSetsRequest(
+                            getChangeResourceRecordSetsRequest(
                                     ChangeAction.UPSERT,
                                     expectedResourceRecordSet
                             )
@@ -106,7 +105,7 @@ class AwsR53ServiceTest {
             //then
             verify(route53AsyncClient, times(1))
                     .changeResourceRecordSets(
-                            getExpectedChangeResourceRecordSetsRequest(
+                            getChangeResourceRecordSetsRequest(
                                     ChangeAction.UPSERT,
                                     expectedResourceRecordSet
                             )
@@ -136,7 +135,7 @@ class AwsR53ServiceTest {
             //then
             verify(route53AsyncClient, times(1))
                     .changeResourceRecordSets(
-                            getExpectedChangeResourceRecordSetsRequest(
+                            getChangeResourceRecordSetsRequest(
                                     ChangeAction.DELETE,
                                     nycResourceRecordSet
                             )
@@ -168,7 +167,7 @@ class AwsR53ServiceTest {
             //then
             verify(route53AsyncClient, times(1))
                     .changeResourceRecordSets(
-                            getExpectedChangeResourceRecordSetsRequest(
+                            getChangeResourceRecordSetsRequest(
                                     ChangeAction.UPSERT,
                                     expectedResourceRecordSet
                             )

@@ -1,5 +1,7 @@
 package org.example.dnsservice.util;
 
+import org.example.dnsservice.entity.ClusterEntity;
+import org.example.dnsservice.entity.ServerEntity;
 import org.example.dnsservice.model.ARecord;
 import org.example.dnsservice.model.Server;
 import software.amazon.awssdk.services.route53.model.*;
@@ -117,9 +119,9 @@ public class TestUtil {
 
         public static ResourceRecordSet getXyzAResourceRecordSet(){
             return createAResourceRecordSet(
-                    USA + DOT_DOMAIN_COM,
-                    NYC,
-                    createIpResourceRecords(List.of(NYC_IP))
+                    ABC + DOT_DOMAIN_COM,
+                    XYZ,
+                    createIpResourceRecords(List.of(XYZ_IP))
             );
         }
 
@@ -177,7 +179,7 @@ public class TestUtil {
             return List.of(getNsResourceRecordSet(), getSoaResourceRecordSet());
         }
 
-        public static ChangeResourceRecordSetsRequest getExpectedChangeResourceRecordSetsRequest(
+        public static ChangeResourceRecordSetsRequest getChangeResourceRecordSetsRequest(
                 ChangeAction action,
                 ResourceRecordSet resourceRecordSet
         ){
@@ -364,6 +366,21 @@ public class TestUtil {
                 .weight(WEIGHT)
                 .ttl(TTL)
                 .build();
+    }
+
+    public static class EntityTestData {
+        // la
+        public static final ClusterEntity LA_CLUSTER_ENTITY = new ClusterEntity(1,LA_CLUSTER_NAME, LA);
+        public static final ServerEntity LA_SERVER_ENTITY_1 = new ServerEntity(1,LA_FRIENDLY_NAME_1, LA_IP_1, LA_CLUSTER_ENTITY);
+        public static final ServerEntity LA_SERVER_ENTITY_2 = new ServerEntity(2,LA_FRIENDLY_NAME_2, LA_IP_2, LA_CLUSTER_ENTITY);
+
+        //geneva
+        public static final ClusterEntity GENEVA_CLUSTER_ENTITY = new ClusterEntity(5,GENEVA_CLUSTER_NAME, GENEVA);
+        public static final ServerEntity GENEVA_SERVER_ENTITY = new ServerEntity(20,GENEVA_FRIENDLY_NAME, GENEVA_IP, GENEVA_CLUSTER_ENTITY);
+
+        // nyc
+        public static final ClusterEntity NYC_CLUSTER_ENTITY = new ClusterEntity(6,NYC_CLUSTER_NAME, NYC);
+        public static final ServerEntity NYC_SERVER_ENTITY = new ServerEntity(7,NYC_FRIENDLY_NAME, NYC_IP, NYC_CLUSTER_ENTITY);
     }
 
     public static class ServerBuilder {
