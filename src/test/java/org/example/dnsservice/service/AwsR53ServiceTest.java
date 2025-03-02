@@ -1,16 +1,16 @@
 package org.example.dnsservice.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.example.dnsservice.util.TestUtil.*;
 import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
+import static org.example.dnsservice.util.TestUtil.ServerTestData.*;
 import static org.mockito.Mockito.*;
+
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.example.dnsservice.configuration.R53Properties;
-import org.example.dnsservice.model.Server;
-import org.example.dnsservice.util.TestUtil;
-import org.example.dnsservice.util.TestUtil.ServerBuilder;
 import org.example.dnsservice.util.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -33,224 +33,147 @@ class AwsR53ServiceTest {
     @BeforeEach
     public void setUp() {
         when(r53Properties.hostedZoneId()).thenReturn(HOSTED_ZONE_ID);
+        when(r53Properties.ttl()).thenReturn(TTL);
+        when(r53Properties.weight()).thenReturn(WEIGHT);
+
+        when(route53AsyncClient.changeResourceRecordSets(any(ChangeResourceRecordSetsRequest.class)))
+                    .thenReturn(CompletableFuture.completedFuture(getChangeResourceRecordSetsResponse()));
     }
 
-    @Test
-    void testShouldUpsertWhenResourceRecordsNotEmpty() {
-        // given
-        var ipAddressToRemove = "123.123.123.123";
-        Long ttl = 300L;
-        Long weight = 50L;
+    @Nested
+    public class AddTest {
 
-        var serverToRemove = new TestUtil.ServerBuilder()
-                .regionSubdomain(SWITZERLAND)
-                .clusterSubdomain(GENEVA)
-                .ipAddress(ipAddressToRemove)
-                .build();
+        @Test
+        public void testShouldAddNewResourceRecordSet(){
+            //given
+            var resourceRecordSets = getNsAndSoaResourceRecordSets();
 
-        var hongKongAResourceRecordSet = getUsaAResourceRecordSet(
-                LA,
-                List.of("234.234.234.234", "235.235.235.235"),
-                ttl,
-                weight
-        );
+            var listResourceRecordSetsResponse = createListResourceRecordSetsResponse(
+                    resourceRecordSets
+            );
 
-        var usaAResourceRecordSet = getUsaAResourceRecordSet(
-                LA,
-                List.of(ipAddressToRemove, "125.125.125.125"),
-                ttl,
-                weight
-        );
+            when(route53AsyncClient.getHostedZone(getGetHostedZoneRequest()))
+                    .thenReturn(CompletableFuture.completedFuture(getGetHostedZoneResponse()));
 
-        var exptectedUsaAResourceRecordSet = getUsaAResourceRecordSet(
-                LA,
-                List.of("125.125.125.125"),
-                ttl,
-                weight
-        );
+            when(route53AsyncClient.listResourceRecordSets(
+                    getListResourceRecordSetsRequest()
+            )).thenReturn(CompletableFuture.completedFuture(listResourceRecordSetsResponse));
 
-        var resourceRecordSets = List.of(
-                getNsResourceRecordSet(),
-                getSoaResourceRecordSet(),
-                hongKongAResourceRecordSet,
-                usaAResourceRecordSet
-        );
+            var expectedResourceRecordSet = getGenevaAResourceRecordSet();
 
-        var listResourceRecordSetsResponse = createListResourceRecordSetsResponse(
-                resourceRecordSets
-        );
+            // when
+            service.addResourceRecordByServer(GENEVA_SERVER);
 
-        when(route53AsyncClient.listResourceRecordSets(
-                ListResourceRecordSetsRequest.builder()
-                        .hostedZoneId(HOSTED_ZONE_ID)
-                        .build()
-        )).thenReturn(CompletableFuture.completedFuture(listResourceRecordSetsResponse));
+            //then
+            verify(route53AsyncClient, times(1))
+                    .changeResourceRecordSets(
+                            getExpectedChangeResourceRecordSetsRequest(
+                                    ChangeAction.UPSERT,
+                                    expectedResourceRecordSet
+                            )
+                    );
+        }
 
-        var expectedResourceRecordSets = List.of(
-                hongKongAResourceRecordSet,
-                exptectedUsaAResourceRecordSet
-        );
+        @Test
+        public void testShouldAddNewResourceRecord(){
+            //given
+            var newIp = getRandomIp();
+            var newServer = new ServerBuilder()
+                    .regionSubdomain(USA)
+                    .clusterSubdomain(NYC)
+                    .ipAddress(newIp)
+                    .build();
 
-        // when
-        service.removeResourceRecordByServer(serverToRemove);
+            var listResourceRecordSetsResponse = createListResourceRecordSetsResponse(
+                    getResourceRecordSets(
+                            getNycAResourceRecordSet()
+                    )
+            );
 
-        // then
-        verify(route53AsyncClient, times(1))
-                .changeResourceRecordSets(
-                        getUpsertChangeResourceRecordSetsRequest(expectedResourceRecordSets)
-                );
+            when(route53AsyncClient.listResourceRecordSets(
+                    getListResourceRecordSetsRequest()
+            )).thenReturn(CompletableFuture.completedFuture(listResourceRecordSetsResponse));
+
+            var expectedResourceRecordSet = createAResourceRecordSet(
+                    USA + DOT_DOMAIN_COM,
+                    NYC,
+                    createIpResourceRecords(List.of(NYC_IP,newIp))
+            );
+
+            // when
+            service.addResourceRecordByServer(newServer);
+
+            //then
+            verify(route53AsyncClient, times(1))
+                    .changeResourceRecordSets(
+                            getExpectedChangeResourceRecordSetsRequest(
+                                    ChangeAction.UPSERT,
+                                    expectedResourceRecordSet
+                            )
+                    );
+        }
     }
 
-    @Test
-    void testShouldDeleteWhenResourceRecordsIsEmpty() {
-        // given
-        var ipAddressToRemove = "123.123.123.123";
-        Long ttl = 300L;
-        Long weight = 50L;
+    @Nested
+    public class RemoveTest {
 
-        var serverToRemove = new TestUtil.ServerBuilder()
-                .regionSubdomain(SWITZERLAND)
-                .clusterSubdomain(GENEVA)
-                .ipAddress(ipAddressToRemove)
-                .build();
+        @Test
+        public void testShouldDeleteResourceRecordSet(){
+            //given
+            var nycResourceRecordSet = getNycAResourceRecordSet();
 
-        var usaAResourceRecordSet = getUsaAResourceRecordSet(
-                LA,
-                List.of(ipAddressToRemove),
-                ttl,
-                weight
-        );
+            var listResourceRecordSetsResponse = createListResourceRecordSetsResponse(
+                    getResourceRecordSets(nycResourceRecordSet)
+            );
 
-        var exptectedUsaAResourceRecordSet = getUsaAResourceRecordSet(
-                LA,
-                List.of(),
-                ttl,+
-                weight
-        );
+            when(route53AsyncClient.listResourceRecordSets(
+                    getListResourceRecordSetsRequest()
+            )).thenReturn(CompletableFuture.completedFuture(listResourceRecordSetsResponse));
 
-        var resourceRecordSets = List.of(
-                getNsResourceRecordSet(),
-                getSoaResourceRecordSet(),
-                usaAResourceRecordSet
-        );
+            // when
+            service.removeResourceRecordByServer(NYC_SERVER);
 
-        var listResourceRecordSetsResponse = createListResourceRecordSetsResponse(
-                resourceRecordSets
-        );
+            //then
+            verify(route53AsyncClient, times(1))
+                    .changeResourceRecordSets(
+                            getExpectedChangeResourceRecordSetsRequest(
+                                    ChangeAction.DELETE,
+                                    nycResourceRecordSet
+                            )
+                    );
+        }
 
-        when(route53AsyncClient.listResourceRecordSets(
-                ListResourceRecordSetsRequest.builder()
-                        .hostedZoneId(HOSTED_ZONE_ID)
-                        .build()
-        )).thenReturn(CompletableFuture.completedFuture(listResourceRecordSetsResponse));
+        @Test
+        public void testShouldRemoveResourceRecord(){
+            //given
+            var laResourceRecordSet = getLaAResourceRecordSet();
 
-        var expectedResourceRecordSets = List.of(
-                exptectedUsaAResourceRecordSet
-        );
+            var listResourceRecordSetsResponse = createListResourceRecordSetsResponse(
+                    getResourceRecordSets(laResourceRecordSet)
+            );
 
-        var expectedListResourceRecordSetsResponse = createListResourceRecordSetsResponse(
-                expectedResourceRecordSets
-        );
+            when(route53AsyncClient.listResourceRecordSets(
+                    getListResourceRecordSetsRequest()
+            )).thenReturn(CompletableFuture.completedFuture(listResourceRecordSetsResponse));
 
-        // when
-        service.removeResourceRecordByServer(serverToRemove);
+            var expectedResourceRecordSet = createAResourceRecordSet(
+                    USA + DOT_DOMAIN_COM,
+                    LA,
+                    createIpResourceRecords(List.of(LA_IP_1))
+            );
 
-        // then
+            // when
+            service.removeResourceRecordByServer(LA_SERVER_2);
 
-        verify(route53AsyncClient, times(1))
-                .changeResourceRecordSets(
-                        getDeleteChangeResourceRecordSetsRequest(expectedResourceRecordSets)
-                );
+            //then
+            verify(route53AsyncClient, times(1))
+                    .changeResourceRecordSets(
+                            getExpectedChangeResourceRecordSetsRequest(
+                                    ChangeAction.UPSERT,
+                                    expectedResourceRecordSet
+                            )
+                    );
+        }
     }
-
-    @Test
-    void testShouldAddNewResourceRecordSetWhenServerDoesNotExistsInResourceRecordSet() {
-        //given
-        var ipAddress = "123.123.123.123";
-        var server = new ServerBuilder()
-                .regionSubdomain(USA)
-                .clusterSubdomain(LA)
-                .ipAddress(ipAddress)
-                .build();
-
-        when(route53AsyncClient.getHostedZone(
-                GetHostedZoneRequest.builder()
-                        .id(HOSTED_ZONE_ID)
-                        .build())
-        ).thenReturn(CompletableFuture.completedFuture(
-                GetHostedZoneResponse.builder()
-                        .hostedZone(
-                                HostedZone.builder()
-                                        .name("domain.com.")
-                                        .build())
-                        .build()));
-
-        when(route53AsyncClient.listResourceRecordSets(
-                ListResourceRecordSetsRequest.builder()
-                        .hostedZoneId(HOSTED_ZONE_ID)
-                        .build())
-        ).thenReturn(CompletableFuture.completedFuture(
-                ListResourceRecordSetsResponse.builder()
-                        .resourceRecordSets(List.of())
-                        .build()));
-
-        //when
-        service.addResourceRecordByServer(server);
-
-        //then
-        getUpsertChangeResourceRecordSetsRequest(List.of());
-    }
-
-    @Test
-    void testShouldAddResourceRecordWhenServerExistsInResourceRecordSet() {
-        //given
-        var ipAddress = "125.125.125.125";
-        var server = new ServerBuilder()
-                .regionSubdomain(USA)
-                .clusterSubdomain(LA)
-                .ipAddress(ipAddress)
-                .build();
-
-        when(route53AsyncClient.getHostedZone(
-                GetHostedZoneRequest.builder()
-                        .id(HOSTED_ZONE_ID)
-                        .build())
-        ).thenReturn(CompletableFuture.completedFuture(
-                GetHostedZoneResponse.builder()
-                        .hostedZone(
-                                HostedZone.builder()
-                                        .name("domain.com.")
-                                        .build())
-                        .build()));
-
-        var existingRecord = ResourceRecord.builder()
-                .value("123.123.123.123")
-                .build();
-
-        var existingRecordSet = ResourceRecordSet.builder()
-                .name(USA + DOT_DOMAIN_COM)
-                .type(RRType.A)
-                .resourceRecords(List.of(existingRecord))
-                .build();
-
-        when(route53AsyncClient.listResourceRecordSets(
-                ListResourceRecordSetsRequest.builder()
-                        .hostedZoneId(HOSTED_ZONE_ID)
-                        .build())
-        ).thenReturn(CompletableFuture.completedFuture(
-                ListResourceRecordSetsResponse.builder()
-                        .resourceRecordSets(List.of(existingRecordSet))
-                        .build()));
-
-        //when
-        service.addResourceRecordByServer(server);
-
-        //then
-        verify(route53AsyncClient, times(1))
-                .changeResourceRecordSets(
-                        getUpsertChangeResourceRecordSetsRequest(List.of(existingRecordSet))
-                );
-    }
-
 }
 

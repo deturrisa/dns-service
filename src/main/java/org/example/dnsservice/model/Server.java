@@ -29,10 +29,6 @@ public record Server (
         return ResourceRecord.builder().value(ipAddress).build();
     }
 
-    public String getResourceRecordSetName(String hostedZoneName){
-        return regionSubdomain + "." + hostedZoneName;
-    }
-
     @Override
     public String toString() {
         return "Server{" +

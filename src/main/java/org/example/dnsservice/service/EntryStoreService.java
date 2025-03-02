@@ -56,6 +56,7 @@ public class EntryStoreService {
     private EntryStore getEntryStore(List<ARecord> aRecords, List<Server> servers) {
         return new EntryStore(
                 getServerEntries(aRecords, servers),
+
                 getDnsEntries(aRecords, servers)
         );
     }

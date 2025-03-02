@@ -2,22 +2,18 @@ package org.example.dnsservice.service;
 
 import org.example.dnsservice.configuration.DomainRegion;
 import org.example.dnsservice.configuration.DomainRegionProperties;
-import org.example.dnsservice.model.ARecord;
-import org.example.dnsservice.model.Server;
-import org.example.dnsservice.util.TestUtil;
 import org.example.dnsservice.util.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsResponse;
-import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
+
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import static org.example.dnsservice.util.TestUtil.*;
 import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -40,9 +36,10 @@ public class ARecordServiceTest {
                 "ma",
                 createIpResourceRecords(List.of("1.1.1.1"))
         );
-        var ignoredSetIdentifierResourceRecordSet = getGermanyAResourceRecordSet(
+        var ignoredSetIdentifierResourceRecordSet = createAResourceRecordSet(
+                GERMANY + DOT_DOMAIN_COM,
                 "ber",
-                List.of("12.12.12.12")
+                createIpResourceRecords(List.of("12.12.12.12"))
         );
         var invalidDomainNameResourceRecordSet = createAResourceRecordSet(
                 "abc.xyz" + DOT_DOMAIN_COM,
@@ -53,21 +50,11 @@ public class ARecordServiceTest {
         var resourceRecordSets = List.of(
                 getNsResourceRecordSet(),
                 getSoaResourceRecordSet(),
-                getGermanyAResourceRecordSet(FRANKFURT,
-                        List.of("12.12.12.12")
-                ),
-                getSwitzerlandAResourceRecordSet(GENEVA,
-                        List.of("1.2.3.4")
-                ),
-                getHongKongAResourceRecordSet(HONG_KONG,
-                        List.of("234.234.234.234", "235.235.235.235")
-                ),
-                getUsaAResourceRecordSet(LA,
-                        List.of("123.123.123.123", "125.125.125.125")
-                ),
-                getUsaAResourceRecordSet(NYC,
-                        List.of("13.13.13.13")
-                ),
+                getFrankfurtAResourceRecordSet(),
+                getGenevaAResourceRecordSet(),
+                getHongKongAResourceRecordSet(),
+                getLaAResourceRecordSet(),
+                getNycAResourceRecordSet(),
                 ignoredNameResourceRecordSet,
                 ignoredSetIdentifierResourceRecordSet,
                 invalidDomainNameResourceRecordSet
@@ -99,12 +86,12 @@ public class ARecordServiceTest {
         var frankfurtRecord = result.get(0);
         assertEquals(FRANKFURT, frankfurtRecord.setIdentifier());
         assertEquals(GERMANY + DOT_DOMAIN_COM, frankfurtRecord.name());
-        assertEquals("12.12.12.12", frankfurtRecord.ipAddress());
+        assertEquals(FRANKFURT_IP, frankfurtRecord.ipAddress());
 
         var genevaRecord = result.get(1);
         assertEquals(GENEVA, genevaRecord.setIdentifier());
         assertEquals(SWITZERLAND + DOT_DOMAIN_COM, genevaRecord.name());
-        assertEquals("1.2.3.4", genevaRecord.ipAddress());
+        assertEquals(GENEVA_IP, genevaRecord.ipAddress());
 
         var hongKongRecord1 = result.get(2);
         assertEquals(HONG_KONG, hongKongRecord1.setIdentifier());

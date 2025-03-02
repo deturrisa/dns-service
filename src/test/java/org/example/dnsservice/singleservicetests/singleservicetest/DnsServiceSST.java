@@ -17,8 +17,9 @@ import software.amazon.awssdk.services.route53.model.*;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+
+import static org.example.dnsservice.util.TestUtil.*;
 import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.*;
-import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.FRANKFURT;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.xpath;
 
@@ -47,19 +48,12 @@ public class DnsServiceSST extends BaseSST {
                     List.of(
                             getNsResourceRecordSet(),
                             getSoaResourceRecordSet(),
-                            getUsaAResourceRecordSet(
-                                    LA,
-                                    List.of(laIp1, laIp2)
-                            ),
-                            getUsaAResourceRecordSet(
-                                    NYC,
-                                    List.of(nycIp)
-                            ),
-                            createAResourceRecordSet(
-                                    "abc" + DOT_DOMAIN_COM,
-                                    "xyz",
-                                    createIpResourceRecords(List.of("5.5.5.5"))
-                            )
+                            getLaAResourceRecordSet(),
+                            getNycAResourceRecordSet(),
+                            getGenevaAResourceRecordSet(),
+                            getHongKongAResourceRecordSet(),
+                            getFrankfurtAResourceRecordSet(),
+                            getXyzAResourceRecordSet()
                     )
             );
 
@@ -104,9 +98,10 @@ public class DnsServiceSST extends BaseSST {
     @Test
     public void testShouldRenderRemoveFromRotationPageAfterUpsert() throws Exception {
         //given
-        var resourceRecordSetToDelete = getUsaAResourceRecordSet(
+        var resourceRecordSetToDelete = createAResourceRecordSet(
+                USA + DOT_DOMAIN_COM,
                 LA,
-                List.of(laIp1)
+                createResourceRecords(List.of(LA_IP_1))
         );
 
         var changeRequest = getUpsertChangeResourceRecordSetsRequest(
@@ -127,10 +122,7 @@ public class DnsServiceSST extends BaseSST {
     @Test
     public void testShouldRenderRemoveFromRotationPageAfterDelete() throws Exception {
         //given
-        var resourceRecordSetToDelete = getUsaAResourceRecordSet(
-                NYC,
-                List.of(nycIp)
-        );
+        var resourceRecordSetToDelete = getNycAResourceRecordSet();
 
         var changeRequest = getDeleteChangeResourceRecordSetsRequest(
                 List.of(resourceRecordSetToDelete)
@@ -150,10 +142,7 @@ public class DnsServiceSST extends BaseSST {
     @Test
     public void testShouldRenderAddToRotationPageAfterUpsert() throws Exception {
         //given
-        var resourceRecordSetToAdd = getSwitzerlandAResourceRecordSet(
-                GENEVA,
-                List.of(genevaIp)
-        );
+        var resourceRecordSetToAdd = getGenevaAResourceRecordSet();
 
         var changeRequest = getUpsertChangeResourceRecordSetsRequest(
                 List.of(resourceRecordSetToAdd)

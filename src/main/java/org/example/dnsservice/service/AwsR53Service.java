@@ -53,8 +53,6 @@ public class AwsR53Service {
         changeResourceRecordSets(request);
     }
 
-
-
     public void removeResourceRecordByServer(
             Server server
     ) {
@@ -137,7 +135,7 @@ public class AwsR53Service {
         var hostedZoneName = getHostedZoneResponse().hostedZone().name();
         return buildChange(
                 ChangeAction.UPSERT,
-                server.getResourceRecordSetName(hostedZoneName),
+                server.regionSubdomain() + hostedZoneName,
                 server.ipAddress(),
                 server.clusterSubdomain()
         );

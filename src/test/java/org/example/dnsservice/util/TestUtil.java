@@ -3,39 +3,61 @@ package org.example.dnsservice.util;
 import org.example.dnsservice.model.ARecord;
 import org.example.dnsservice.model.Server;
 import software.amazon.awssdk.services.route53.model.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
+
+import java.util.*;
+import java.util.stream.Stream;
 
 public class TestUtil {
+    // r53 config
+    public static final String CHANGE_ID = "changeId";
+    public static final String HOSTED_ZONE_ID = "someHostedZoneId";
+    public static final String DOT_DOMAIN_COM = ".domain.com.";
+    public static final Long TTL = 10L;
+    public static final Long WEIGHT = 10L;
+    // domains
+    public static final String GERMANY = "germany";
+    public static final String SWITZERLAND = "switzerland";
+    public static final String USA = "usa";
+    public static final String ABC = "abc";
+    // subdomains
+    public static final String GENEVA = "ge";
+    public static final String FRANKFURT = "fra";
+    public static final String HONG_KONG = "hongkong";
+    public static final String LA = "la";
+    public static final String NYC = "nyc";
+    public static final String XYZ = "xyz";
+    // ip addresses
+    public static String LA_IP_1 = "123.123.123.123";
+    public static String LA_IP_2 = "125.125.125.125";
+    public static String HONG_KONG_IP_1 = "234.234.234.234";
+    public static String HONG_KONG_IP_2 = "235.235.235.235";
+    public static String FRANKFURT_IP = "12.12.12.12";
+    public static String NYC_IP = "13.13.13.13";
+    public static String XYZ_IP = "5.5.5.5";
+    public static String GENEVA_IP = "1.1.1.1";
+    // cluster names
+    public static final String LA_CLUSTER_NAME = "Los Angeles";
+    public static final String NYC_CLUSTER_NAME = "New York";
+    public static final String FRANKFURT_CLUSTER_NAME = "Frankfurt";
+    public static final String HONG_KONG_CLUSTER_NAME = "Hong Kong";
+    public static final String GENEVA_CLUSTER_NAME = "Geneva";
+    // friendly names
+    public static final String LA_FRIENDLY_NAME_1 = "ubiq-1";
+    public static final String LA_FRIENDLY_NAME_2 = "ubiq-2";
+    public static final String FRANKFURT_FRIENDLY_NAME = "leaseweb-de-1";
+    public static final String HONG_KONG_FRIENDLY_NAME_1 = "rackspace-1";
+    public static final String HONG_KONG_FRIENDLY_NAME_2 = "rackspace-2";
+    public static final String NYC_FRIENDLY_NAME = "nyc-server-1";
+    public static final String GENEVA_FRIENDLY_NAME = "geneva-friendly-name";
 
     public static class ResourceRecordSetTestData {
 
-        public static final String HOSTED_ZONE_ID = "someHostedZoneId";
-        public static final String DOT_DOMAIN_COM = ".domain.com.";
-        public static final String USA = "usa";
-        public static final String NYC = "nyc";
-        public static final String LA = "la";
-        public static final String SWITZERLAND = "switzerland";
-        public static final String GENEVA = "ge";
-        public static final String FRANKFURT = "fra";
-        public static final String HONG_KONG = "hongkong";
-        public static final String GERMANY = "germany";
-
         public static ListResourceRecordSetsResponse createListResourceRecordSetsResponse(List<ResourceRecordSet> resourceRecordSets){
             return ListResourceRecordSetsResponse.builder()
-                    .resourceRecordSets(createDefaultResourceRecordSets())
+                    .resourceRecordSets(getSoaResourceRecordSet())
+                    .resourceRecordSets(getNsResourceRecordSet())
                     .resourceRecordSets(resourceRecordSets)
                     .build();
-        }
-
-        private static List<ResourceRecordSet> createDefaultResourceRecordSets() {
-            return Arrays.asList(
-                    getNsResourceRecordSet(),
-                    getSoaResourceRecordSet()
-            );
         }
 
         public static ResourceRecordSet getSoaResourceRecordSet() {
@@ -53,65 +75,51 @@ public class TestUtil {
                     ));
         }
 
-        public static ResourceRecordSet getUsaAResourceRecordSet(String setIdentifier, List<String> ips){
-            return createAResourceRecordSet(
-                    USA + DOT_DOMAIN_COM,
-                    setIdentifier,
-                    createIpResourceRecords(ips)
-            );
-        }
-
-        public static ResourceRecordSet getUsaAResourceRecordSet(
-                String setIdentifier,
-                List<String> ips,
-                Long ttl,
-                Long weight
-        ){
-            return createAResourceRecordSet(
-                    USA + DOT_DOMAIN_COM,
-                    setIdentifier,
-                    createIpResourceRecords(ips),
-                    ttl,
-                    weight
-            );
-        }
-
-        public static ResourceRecordSet getSwitzerlandAResourceRecordSet(String setIdentifier, List<String> ips){
+        public static ResourceRecordSet getGenevaAResourceRecordSet(){
             return createAResourceRecordSet(
                     SWITZERLAND + DOT_DOMAIN_COM,
-                    setIdentifier,
-                    createIpResourceRecords(ips)
+                    GENEVA,
+                    createIpResourceRecords(List.of(GENEVA_IP))
             );
         }
 
-        public static ResourceRecordSet getHongKongAResourceRecordSet(String setIdentifier, List<String> ips){
+        public static ResourceRecordSet getLaAResourceRecordSet(){
+            return createAResourceRecordSet(
+                    USA + DOT_DOMAIN_COM,
+                    LA,
+                    createIpResourceRecords(List.of(LA_IP_1, LA_IP_2))
+            );
+        }
+
+        public static ResourceRecordSet getHongKongAResourceRecordSet(){
             return createAResourceRecordSet(
                     HONG_KONG + DOT_DOMAIN_COM,
-                    setIdentifier,
-                    createIpResourceRecords(ips)
+                    HONG_KONG,
+                    createIpResourceRecords(List.of(HONG_KONG_IP_1, HONG_KONG_IP_2))
             );
         }
 
-        public static ResourceRecordSet getHongKongAResourceRecordSet(
-                String setIdentifier,
-                List<String> ips,
-                Long ttl,
-                Long weight
-        ){
-            return createAResourceRecordSet(
-                    HONG_KONG + DOT_DOMAIN_COM,
-                    setIdentifier,
-                    createIpResourceRecords(ips),
-                    ttl,
-                    weight
-            );
-        }
-
-        public static ResourceRecordSet getGermanyAResourceRecordSet(String setIdentifier, List<String> ips){
+        public static ResourceRecordSet getFrankfurtAResourceRecordSet(){
             return createAResourceRecordSet(
                     GERMANY + DOT_DOMAIN_COM,
-                    setIdentifier,
-                    createIpResourceRecords(ips)
+                    FRANKFURT,
+                    createIpResourceRecords(List.of(FRANKFURT_IP))
+            );
+        }
+
+        public static ResourceRecordSet getNycAResourceRecordSet(){
+            return createAResourceRecordSet(
+                    USA + DOT_DOMAIN_COM,
+                    NYC,
+                    createIpResourceRecords(List.of(NYC_IP))
+            );
+        }
+
+        public static ResourceRecordSet getXyzAResourceRecordSet(){
+            return createAResourceRecordSet(
+                    USA + DOT_DOMAIN_COM,
+                    NYC,
+                    createIpResourceRecords(List.of(NYC_IP))
             );
         }
 
@@ -122,71 +130,15 @@ public class TestUtil {
         public static ResourceRecordSet createAResourceRecordSet(
                 String name,
                 String setIdentifier,
-                List<ResourceRecord> ipResourceRecords) {
-            return ResourceRecordSet.builder()
-                    .name(name)
-                    .setIdentifier(setIdentifier)
-                    .type(RRType.A)
-                    .resourceRecords(ipResourceRecords)
-                    .build();
-        }
-
-        public static ResourceRecordSet createAResourceRecordSet(
-                String name,
-                String setIdentifier,
-                List<ResourceRecord> resourceRecords,
-                Long ttl,
-                Long weight
+                List<ResourceRecord> resourceRecords
         ) {
             return ResourceRecordSet.builder()
                     .name(name)
                     .setIdentifier(setIdentifier)
                     .type(RRType.A)
                     .resourceRecords(resourceRecords)
-                    .ttl(ttl)
-                    .weight(weight)
-                    .build();
-        }
-
-        public static ChangeResourceRecordSetsRequest getDeleteChangeResourceRecordSetsRequest(
-                List<ResourceRecordSet> resourceRecordSets
-        ) {
-            return ChangeResourceRecordSetsRequest.builder()
-                    .hostedZoneId(HOSTED_ZONE_ID)
-                    .changeBatch(
-                            ChangeBatch.builder()
-                                    .changes(resourceRecordSets.stream()
-                                            .map(ResourceRecordSetTestData::getDeleteChange)
-                                            .collect(Collectors.toList()))
-                                    .build())
-                    .build();
-        }
-
-        public static Change getDeleteChange(ResourceRecordSet resourceRecordSet) {
-            return Change.builder()
-                    .action(ChangeAction.DELETE)
-                    .resourceRecordSet(resourceRecordSet)
-                    .build();
-        }
-
-        public static ChangeResourceRecordSetsRequest getUpsertChangeResourceRecordSetsRequest(
-                List<ResourceRecordSet> resourceRecordSets
-        ) {
-            return ChangeResourceRecordSetsRequest.builder()
-                    .hostedZoneId(HOSTED_ZONE_ID)
-                    .changeBatch(
-                            ChangeBatch.builder()
-                                    .changes(resourceRecordSets.stream()
-                                            .map(ResourceRecordSetTestData::getUpsertChange)
-                                            .collect(Collectors.toList()))
-                                    .build())
-                    .build();
-        }
-
-        public static Change getUpsertChange(ResourceRecordSet resourceRecordSet) {
-            return Change.builder()
-                    .action(ChangeAction.UPSERT)
-                    .resourceRecordSet(resourceRecordSet)
+                        .ttl(TTL)
+                    .weight(WEIGHT)
                     .build();
         }
 
@@ -205,11 +157,213 @@ public class TestUtil {
                     .build();
         }
 
+        public static List<ResourceRecord> createResourceRecords(List<String> values){
+            return values.stream().map(ResourceRecordSetTestData::createResourceRecord).toList();
+        }
+
         public static long generateRandomTTL() {
             var random = new Random();
             return (long) (random.nextDouble() * (172800L));
         }
 
+        public static List<ResourceRecordSet> getResourceRecordSets(ResourceRecordSet... resourceRecordSet) {
+            return Stream.concat(
+                    getNsAndSoaResourceRecordSets().stream(),
+                    Arrays.stream(resourceRecordSet)
+            ).toList();
+        }
+
+        public static List<ResourceRecordSet> getNsAndSoaResourceRecordSets() {
+            return List.of(getNsResourceRecordSet(), getSoaResourceRecordSet());
+        }
+
+        public static ChangeResourceRecordSetsRequest getExpectedChangeResourceRecordSetsRequest(
+                ChangeAction action,
+                ResourceRecordSet resourceRecordSet
+        ){
+            return ChangeResourceRecordSetsRequest.builder()
+                    .hostedZoneId(HOSTED_ZONE_ID)
+                    .changeBatch(
+                            ChangeBatch.builder()
+                                    .changes(
+                                            Stream.of(resourceRecordSet)
+                                                    .map(it ->
+                                                            Change.builder()
+                                                                    .action(action)
+                                                                    .resourceRecordSet(it)
+                                                                    .build()
+                                                    )
+                                                    .toList()
+                                    )
+                                    .build())
+                    .build();
+        }
+
+        public static GetHostedZoneRequest getGetHostedZoneRequest(){
+            return GetHostedZoneRequest.builder()
+                    .id(HOSTED_ZONE_ID)
+                    .build();
+        }
+
+        public static GetHostedZoneResponse getGetHostedZoneResponse(){
+            return GetHostedZoneResponse.builder().hostedZone(
+                    HostedZone.builder().name(DOT_DOMAIN_COM).build()
+            ).build();
+        }
+
+        public static ListResourceRecordSetsRequest getListResourceRecordSetsRequest(){
+            return ListResourceRecordSetsRequest.builder()
+                    .hostedZoneId(HOSTED_ZONE_ID)
+                    .build();
+        }
+
+        public static ChangeResourceRecordSetsResponse getChangeResourceRecordSetsResponse(){
+            return ChangeResourceRecordSetsResponse.builder()
+                    .changeInfo(
+                            ChangeInfo.builder().id(CHANGE_ID).build()
+                    )
+                    .build();
+        }
+    }
+
+    public static class ServerTestData {
+
+        public static final Server GENEVA_SERVER = new ServerBuilder()
+                .id(20)
+                .clusterId(5)
+                .regionSubdomain(SWITZERLAND)
+                .clusterSubdomain(GENEVA)
+                .clusterName(GENEVA_CLUSTER_NAME)
+                .ipAddress(GENEVA_IP)
+                .friendlyName(GENEVA_FRIENDLY_NAME)
+                .build();
+        
+        public static final Server NYC_SERVER = new ServerBuilder()
+                .id(6)
+                .clusterId(2)
+                .regionSubdomain(USA)
+                .clusterSubdomain(NYC)
+                .clusterName(NYC_CLUSTER_NAME)
+                .ipAddress(NYC_IP)
+                .friendlyName(NYC_FRIENDLY_NAME)
+                .build();
+
+        public static final Server LA_SERVER_1 = new ServerBuilder()
+                .id(1)
+                .clusterId(1)
+                .regionSubdomain(USA)
+                .clusterSubdomain(LA)
+                .clusterName(LA_CLUSTER_NAME)
+                .ipAddress(LA_IP_1)
+                .friendlyName(LA_FRIENDLY_NAME_1)
+                .build();
+
+        public static final Server LA_SERVER_2 = new ServerBuilder()
+                .id(2)
+                .clusterId(1)
+                .regionSubdomain(USA)
+                .clusterSubdomain(LA)
+                .clusterName(LA_CLUSTER_NAME)
+                .ipAddress(LA_IP_2)
+                .friendlyName(LA_FRIENDLY_NAME_2)
+                .build();
+
+        public static final Server FRANKFURT_SERVER = new ServerBuilder()
+                .id(3)
+                .clusterId(3)
+                .regionSubdomain(GERMANY)
+                .clusterSubdomain(FRANKFURT)
+                .clusterName(FRANKFURT_CLUSTER_NAME)
+                .ipAddress(FRANKFURT_IP)
+                .friendlyName(FRANKFURT_FRIENDLY_NAME)
+                .build();
+
+        public static final Server HONG_KONG_SERVER_1 = new ServerBuilder()
+                .id(4)
+                .clusterId(4)
+                .regionSubdomain(HONG_KONG)
+                .clusterSubdomain(HONG_KONG)
+                .clusterName(HONG_KONG_CLUSTER_NAME)
+                .ipAddress(HONG_KONG_IP_1)
+                .friendlyName(HONG_KONG_FRIENDLY_NAME_1)
+                .build();
+
+        public static final Server HONG_KONG_SERVER_2 = new ServerBuilder()
+                .id(5)
+                .clusterId(4)
+                .regionSubdomain(HONG_KONG)
+                .clusterSubdomain(HONG_KONG)
+                .clusterName(HONG_KONG_CLUSTER_NAME)
+                .ipAddress(HONG_KONG_IP_2)
+                .friendlyName(HONG_KONG_FRIENDLY_NAME_2)
+                .build();
+    }
+    
+    public static class ARecordTestData {
+
+        public static final ARecord GENEVA_A_RECORD = new ARecordBuilder()
+                .name(SWITZERLAND + DOT_DOMAIN_COM)
+                .setIdentifier(GENEVA)
+                .ipAddress(GENEVA_IP)
+                .weight(WEIGHT)
+                .ttl(TTL)
+                .build();
+
+        public static final ARecord NYC_A_RECORD = new ARecordBuilder()
+                .name(USA + DOT_DOMAIN_COM)
+                .setIdentifier(NYC)
+                .ipAddress(NYC_IP)
+                .weight(WEIGHT)
+                .ttl(TTL)
+                .build();
+
+        public static final ARecord LA_A_RECORD_1 = new ARecordBuilder()
+                .name(USA + DOT_DOMAIN_COM)
+                .setIdentifier(LA)
+                .ipAddress(LA_IP_1)
+                .weight(WEIGHT)
+                .ttl(TTL)
+                .build();
+
+        public static final ARecord LA_A_RECORD_2 = new ARecordBuilder()
+                .name(USA + DOT_DOMAIN_COM)
+                .setIdentifier(LA)
+                .ipAddress(LA_IP_2)
+                .weight(WEIGHT)
+                .ttl(TTL)
+                .build();
+
+        public static final ARecord FRANKFURT_A_RECORD = new ARecordBuilder()
+                .name(GERMANY + DOT_DOMAIN_COM)
+                .setIdentifier(FRANKFURT)
+                .ipAddress(FRANKFURT_IP)
+                .weight(WEIGHT)
+                .ttl(TTL)
+                .build();
+
+        public static final ARecord HONG_KONG_A_RECORD_1 = new ARecordBuilder()
+                .name(HONG_KONG + DOT_DOMAIN_COM)
+                .setIdentifier(HONG_KONG)
+                .ipAddress(HONG_KONG_IP_1)
+                .weight(WEIGHT)
+                .ttl(TTL)
+                .build();
+
+        public static final ARecord HONG_KONG_A_RECORD_2 = new ARecordBuilder()
+                .name(HONG_KONG + DOT_DOMAIN_COM)
+                .setIdentifier(HONG_KONG)
+                .ipAddress(HONG_KONG_IP_2)
+                .weight(WEIGHT)
+                .ttl(TTL)
+                .build();
+
+        public static final ARecord XYZ_A_RECORD = new ARecordBuilder()
+                .name(ABC + DOT_DOMAIN_COM)
+                .setIdentifier(XYZ)
+                .ipAddress(XYZ_IP)
+                .weight(WEIGHT)
+                .ttl(TTL)
+                .build();
     }
 
     public static class ServerBuilder {
@@ -262,7 +416,7 @@ public class TestUtil {
         }
     }
 
-    public static class ARecordBuilder {
+    private static class ARecordBuilder {
         private String setIdentifier = "si";
         private String name = "region.domain.com.";
         private String ipAddress = getRandomIp();
@@ -299,7 +453,7 @@ public class TestUtil {
         }
     }
 
-    private static String getRandomIp(){
+    public static String getRandomIp(){
         var r = new Random();
         return r.nextInt(256) + "." + r.nextInt(256) + "." + r.nextInt(256) + "." + r.nextInt(256);
     }
