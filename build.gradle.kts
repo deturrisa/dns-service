@@ -1,3 +1,5 @@
+import com.diffplug.gradle.spotless.JavaExtension
+
 plugins {
     java
     id("org.springframework.boot") version "3.2.11"
@@ -93,23 +95,31 @@ spotless {
         googleJavaFormat("1.17.0")
         target("src/**/*.java")
         removeUnusedImports()
-        custom("noWildcardImports") { str ->
-            if (str.contains(".*;")) {
-                throw IllegalArgumentException("Wildcard imports are not allowed.")
-            }
-            str
-        }
-        custom("maxLineLength") { content ->
-            content.lines().forEach { line ->
-                if (line.length > 120) {
-                    throw IllegalArgumentException("Line exceeds 120 characters: $line")
-                }
-            }
-            content
-        }
+        validateImports()
+        enforce120CharLimit()
     }
 }
 
 tasks.named("check") {
     dependsOn("spotlessCheck") // Ensures `spotlessCheck` runs as part of your checks
+}
+
+fun JavaExtension.validateImports() {
+    custom("noWildcardImports") { str ->
+        if (str.contains(".*;")) {
+            throw IllegalArgumentException("Wildcard imports are not allowed.")
+        }
+        str
+    }
+}
+
+fun JavaExtension.enforce120CharLimit() {
+    custom("maxLineLength") { content ->
+        content.lines().forEach { line ->
+            if (line.length > 120) {
+                throw IllegalArgumentException("Line exceeds 120 characters: $line")
+            }
+        }
+        content
+    }
 }
