@@ -15,6 +15,6 @@ WORKDIR /app
 # Copy application files
 COPY . .
 
-# Default command to keep the container running
-ENTRYPOINT ["top", "-b"]
+ENTRYPOINT ["java",     "-cp",     "/app",     "org.example.dnsservice.DnsServiceApplication"]
+
 LABEL authors="alexdeturris"

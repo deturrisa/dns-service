@@ -1,13 +1,12 @@
-# fly.toml app configuration file generated for dns-service-dry-firefly-8746 on 2025-03-03T18:26:53+08:00
+# fly.toml app configuration file generated for dns-service-winter-feather-1794 on 2025-03-03T19:11:20+08:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'dns-service-dry-firefly-8746'
+app = 'dns-service-winter-feather-1794'
 primary_region = 'syd'
 
 [build]
-dockerfile = "./Dockerfile"
 
 [http_service]
   internal_port = 8080
