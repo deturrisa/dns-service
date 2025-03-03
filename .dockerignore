@@ -1,0 +1,81 @@
+# flyctl launch added from .gitignore
+# Gradle files
+**/.gradle
+**/build
+**/**/build
+
+# Project specific
+**/*.iml
+**/*.ipr
+**/*.iws
+
+# IntelliJ IDEA
+**/.idea
+**/*.idea
+**/*.sublime-workspace
+
+# Eclipse
+**/*.classpath
+**/*.project
+**/*.settings
+
+# OS specific
+**/.DS_Store
+**/Thumbs.db
+**/desktop.ini
+
+# Logs
+**/*.log
+
+# Temporary files
+**/*.tmp
+**/*.temp
+**/*.swp
+**/*.swo
+**/*.bak
+**/*.backup
+
+# Compiled class files
+**/*.class
+
+# JAR files
+**/*.jar
+**/*.war
+**/*.ear
+
+# Generated files
+**/gen
+**/out
+**/target
+
+# Maven specific
+**/.mvn
+!**/**/src/main/resources/.keep
+
+# Application specific
+**/.vscode
+**/*.history
+**/.env
+
+# Spring Boot
+**/logs
+**/tmp
+**/spring.log
+**/*.db
+
+# JetBrains Rider
+**/.idea
+**/.idea_modules
+**/.idea/misc.xml
+**/.idea
+
+# flyctl launch added from .idea/.gitignore
+# Default ignored files
+.idea/shelf
+.idea/workspace.xml
+# Editor-based HTTP Client requests
+.idea/httpRequests
+# Datasource local storage ignored files
+.idea/dataSources
+.idea/dataSources.local.xml
+fly.toml
