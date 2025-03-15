@@ -21,7 +21,7 @@ public class ClusterEntity implements Serializable {
 
   @NotNull private String name;
 
-  @Column(name = "subdomain", nullable = false, length = 2)
+  @Column(name = "subdomain", nullable = false)
   private String subdomain;
 
   @OneToMany(
@@ -59,25 +59,8 @@ public class ClusterEntity implements Serializable {
     return subdomain;
   }
 
-  public void setSubdomain(String subdomain) {
-    this.subdomain = subdomain;
-  }
-
-  public List<ServerEntity> getServers() {
-    return servers;
-  }
-
-  public void setServers(List<ServerEntity> servers) {
-    this.servers = servers;
-  }
-
   public void addServer(ServerEntity server) {
     this.servers.add(server);
     server.setCluster(this);
-  }
-
-  public void removeServer(ServerEntity server) {
-    this.servers.remove(server);
-    server.setCluster(null);
   }
 }
