@@ -3,7 +3,9 @@ spring:
     active: ${PROFILES_ACTIVE:local}
   application:
     name: dns-service
-
+  sql:
+    init:
+      mode: always
   datasource:
     url: ${POSTGRES_DB:jdbc:postgresql://localhost:5432/dns_service}
     username: ${POSTGRES_USER:postgres}
