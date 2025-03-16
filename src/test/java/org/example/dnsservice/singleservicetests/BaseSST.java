@@ -49,7 +49,7 @@ public abstract class BaseSST {
         .withUri(BASE_URL + "/remove/" + server.getId())
         .withMethod("POST")
         .execute()
-        .andExpect(MockMvcResultMatchers.status().isOk());
+        .andExpect(MockMvcResultMatchers.status().is3xxRedirection());
   }
 
   protected ResultActions clickAddToRotationEndpoint(ServerEntity server) throws Exception {
@@ -57,7 +57,7 @@ public abstract class BaseSST {
         .withUri(BASE_URL + "/add/" + server.getId())
         .withMethod("POST")
         .execute()
-        .andExpect(MockMvcResultMatchers.status().isOk());
+        .andExpect(MockMvcResultMatchers.status().is3xxRedirection());
   }
 
   protected CompletableFuture<ChangeResourceRecordSetsResponse>

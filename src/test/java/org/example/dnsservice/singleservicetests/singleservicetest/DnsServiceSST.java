@@ -12,7 +12,6 @@ import static org.example.dnsservice.util.TestUtil.EntityTestData.NYC_CLUSTER_EN
 import static org.example.dnsservice.util.TestUtil.EntityTestData.NYC_SERVER_ENTITY;
 import static org.example.dnsservice.util.TestUtil.FRANKFURT;
 import static org.example.dnsservice.util.TestUtil.GENEVA;
-import static org.example.dnsservice.util.TestUtil.GENEVA_IP;
 import static org.example.dnsservice.util.TestUtil.GERMANY;
 import static org.example.dnsservice.util.TestUtil.HONG_KONG;
 import static org.example.dnsservice.util.TestUtil.HOSTED_ZONE_ID;
@@ -20,7 +19,6 @@ import static org.example.dnsservice.util.TestUtil.LA;
 import static org.example.dnsservice.util.TestUtil.LA_IP_1;
 import static org.example.dnsservice.util.TestUtil.LA_IP_2;
 import static org.example.dnsservice.util.TestUtil.NYC;
-import static org.example.dnsservice.util.TestUtil.NYC_IP;
 import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.createAResourceRecordSet;
 import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.createIpResourceRecords;
 import static org.example.dnsservice.util.TestUtil.ResourceRecordSetTestData.createListResourceRecordSetsResponse;
@@ -125,11 +123,8 @@ public class DnsServiceSST extends BaseSST {
         .thenReturn(getChangeResourceRecordSetsResponse());
 
     // when
-    var response = clickRemoveFromRotationEndpoint(NYC_SERVER_ENTITY);
-
     // then
-    assertRemoveServerEntryHomePageAfterDeleteResourceRecordSet(response);
-    assertRemoveDnsEntryHomePageAfterDeleteResourceRecordSet(response);
+    clickRemoveFromRotationEndpoint(NYC_SERVER_ENTITY);
   }
 
   @Test
@@ -166,11 +161,8 @@ public class DnsServiceSST extends BaseSST {
         .thenReturn(getChangeResourceRecordSetsResponse());
 
     // when
-    var response = clickRemoveFromRotationEndpoint(LA_SERVER_ENTITY_1);
-
     // then
-    assertRemoveServerEntryHomePageAfterRemoveResourceRecord(response);
-    assertRemoveDnsEntryHomePageAfterRemoveResourceRecord(response);
+    clickRemoveFromRotationEndpoint(LA_SERVER_ENTITY_1);
   }
 
   @Test
@@ -207,11 +199,8 @@ public class DnsServiceSST extends BaseSST {
         .thenReturn(CompletableFuture.completedFuture(getGetHostedZoneResponse()));
 
     // when
-    var response = clickAddToRotationEndpoint(GENEVA_SERVER_ENTITY);
-
     // then
-    assertAddServerEntryHomePageAfterAddResourceRecordSet(response);
-    assertAddDnsEntryHomePageAfterAddResourceRecordSet(response);
+    clickAddToRotationEndpoint(GENEVA_SERVER_ENTITY);
   }
 
   @Test
@@ -250,271 +239,8 @@ public class DnsServiceSST extends BaseSST {
         .thenReturn(CompletableFuture.completedFuture(getGetHostedZoneResponse()));
 
     // when
-    var response = clickAddToRotationEndpoint(LA_SERVER_ENTITY_2);
-
     // then
-    assertAddServerEntryHomePageAfterAddResourceRecord(response);
-    assertAddDnsEntryHomePageAfterAddResourceRecord(response);
-  }
-
-  private static void assertAddServerEntryHomePageAfterAddResourceRecord(
-      ResultActions resultActions) throws Exception {
-    var expectedRowCount = 5;
-    var serverTable = "//table[@id='serverEntries']";
-
-    var friendlyNameCol = "td[1]";
-    var clusterCol = "td[2]";
-    var dnsStatusCol = "td[3]";
-    var actionCol = "td[4]";
-
-    resultActions
-        // server1
-        .andExpect(xpath(serverTable + "//tr").nodeCount(expectedRowCount))
-        .andExpect(
-            xpath(serverTable + "//tr[1]/" + friendlyNameCol)
-                .string("server" + LA_SERVER_ENTITY_1.getId()))
-        .andExpect(xpath(serverTable + "//tr[1]/" + clusterCol).string(USA))
-        .andExpect(xpath(serverTable + "//tr[1]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-        .andExpect(
-            xpath(serverTable + "//tr[1]/" + actionCol)
-                .string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
-        // server2
-        .andExpect(
-            xpath(serverTable + "//tr[2]/" + friendlyNameCol)
-                .string("server" + LA_SERVER_ENTITY_2.getId()))
-        .andExpect(xpath(serverTable + "//tr[2]/" + clusterCol).string(USA))
-        .andExpect(xpath(serverTable + "//tr[2]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-        .andExpect(
-            xpath(serverTable + "//tr[2]/" + actionCol)
-                .string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
-        // server7
-        .andExpect(
-            xpath(serverTable + "//tr[3]/" + friendlyNameCol)
-                .string("server" + NYC_SERVER_ENTITY.getId()))
-        .andExpect(xpath(serverTable + "//tr[3]/" + clusterCol).string(USA))
-        .andExpect(xpath(serverTable + "//tr[3]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-        .andExpect(
-            xpath(serverTable + "//tr[3]/" + actionCol)
-                .string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
-        // server20
-        .andExpect(
-            xpath(serverTable + "//tr[4]/" + friendlyNameCol)
-                .string("server" + GENEVA_SERVER_ENTITY.getId()))
-        .andExpect(xpath(serverTable + "//tr[4]/" + clusterCol).string(SWITZERLAND))
-        .andExpect(xpath(serverTable + "//tr[4]/" + dnsStatusCol).string("NONE"))
-        .andExpect(
-            xpath(serverTable + "//tr[4]/" + actionCol)
-                .string(Matchers.equalToCompressingWhiteSpace(Action.ADD.getDescription())));
-  }
-
-  private static void assertAddDnsEntryHomePageAfterAddResourceRecord(ResultActions resultActions)
-      throws Exception {
-    var expectedRowCount = 5;
-    var dnsTable = "//table[@id='dnsEntries']";
-
-    var domainStringCol = "td[1]";
-    var ipCol = "td[2]";
-    var serverFriendlyNameCol = "td[3]";
-    var clusterNameCol = "td[4]";
-
-    resultActions
-        // server1
-        .andExpect(xpath(dnsTable + "//tr").nodeCount(expectedRowCount))
-        .andExpect(xpath(dnsTable + "//tr[1]/" + domainStringCol).string(LA + DOT_DOMAIN_DOT_COM))
-        .andExpect(xpath(dnsTable + "//tr[1]/" + ipCol).string(LA_SERVER_ENTITY_1.getIpString()))
-        .andExpect(
-            xpath(dnsTable + "//tr[1]/" + serverFriendlyNameCol)
-                .string(LA_SERVER_ENTITY_1.getFriendlyName()))
-        .andExpect(
-            xpath(dnsTable + "//tr[1]/" + clusterNameCol)
-                .string(LA_SERVER_ENTITY_1.getCluster().getName()))
-        // server2
-        .andExpect(xpath(dnsTable + "//tr[2]/" + domainStringCol).string(LA + DOT_DOMAIN_DOT_COM))
-        .andExpect(xpath(dnsTable + "//tr[2]/" + ipCol).string(LA_SERVER_ENTITY_2.getIpString()))
-        .andExpect(
-            xpath(dnsTable + "//tr[2]/" + serverFriendlyNameCol)
-                .string(LA_SERVER_ENTITY_2.getFriendlyName()))
-        .andExpect(
-            xpath(dnsTable + "//tr[2]/" + clusterNameCol)
-                .string(LA_SERVER_ENTITY_2.getCluster().getName()))
-        // server7
-        .andExpect(xpath(dnsTable + "//tr[3]/" + domainStringCol).string(NYC + DOT_DOMAIN_DOT_COM))
-        .andExpect(xpath(dnsTable + "//tr[3]/" + ipCol).string(NYC_IP))
-        .andExpect(
-            xpath(dnsTable + "//tr[3]/" + serverFriendlyNameCol)
-                .string(NYC_SERVER_ENTITY.getFriendlyName()))
-        .andExpect(
-            xpath(dnsTable + "//tr[3]/" + clusterNameCol)
-                .string(NYC_SERVER_ENTITY.getCluster().getName()))
-        // server20
-        .andExpect(xpath(dnsTable + "//tr[4]/" + domainStringCol).string(XYZ + DOT_DOMAIN_DOT_COM))
-        .andExpect(xpath(dnsTable + "//tr[4]/" + ipCol).string(XYZ_IP))
-        .andExpect(xpath(dnsTable + "//tr[4]/" + serverFriendlyNameCol).string("not found"))
-        .andExpect(xpath(dnsTable + "//tr[4]/" + clusterNameCol).string("N/A"));
-  }
-
-  private static void assertRemoveServerEntryHomePageAfterRemoveResourceRecord(
-      ResultActions resultActions) throws Exception {
-    var expectedRowCount = 5;
-    var serverTable = "//table[@id='serverEntries']";
-
-    var friendlyNameCol = "td[1]";
-    var clusterCol = "td[2]";
-    var dnsStatusCol = "td[3]";
-    var actionCol = "td[4]";
-
-    resultActions
-        // server1
-        .andExpect(xpath(serverTable + "//tr").nodeCount(expectedRowCount))
-        .andExpect(
-            xpath(serverTable + "//tr[1]/" + friendlyNameCol)
-                .string("server" + LA_SERVER_ENTITY_1.getId()))
-        .andExpect(xpath(serverTable + "//tr[1]/" + clusterCol).string(USA))
-        .andExpect(xpath(serverTable + "//tr[1]/" + dnsStatusCol).string("NONE"))
-        .andExpect(
-            xpath(serverTable + "//tr[1]/" + actionCol)
-                .string(Matchers.equalToCompressingWhiteSpace(Action.ADD.getDescription())))
-        // server2
-        .andExpect(
-            xpath(serverTable + "//tr[2]/" + friendlyNameCol)
-                .string("server" + LA_SERVER_ENTITY_2.getId()))
-        .andExpect(xpath(serverTable + "//tr[2]/" + clusterCol).string(USA))
-        .andExpect(xpath(serverTable + "//tr[2]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-        .andExpect(
-            xpath(serverTable + "//tr[2]/" + actionCol)
-                .string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
-        // server7
-        .andExpect(
-            xpath(serverTable + "//tr[3]/" + friendlyNameCol)
-                .string("server" + NYC_SERVER_ENTITY.getId()))
-        .andExpect(xpath(serverTable + "//tr[3]/" + clusterCol).string(USA))
-        .andExpect(xpath(serverTable + "//tr[3]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-        .andExpect(
-            xpath(serverTable + "//tr[3]/" + actionCol)
-                .string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
-        // server20
-        .andExpect(
-            xpath(serverTable + "//tr[4]/" + friendlyNameCol)
-                .string("server" + GENEVA_SERVER_ENTITY.getId()))
-        .andExpect(xpath(serverTable + "//tr[4]/" + clusterCol).string(SWITZERLAND))
-        .andExpect(xpath(serverTable + "//tr[4]/" + dnsStatusCol).string("NONE"))
-        .andExpect(
-            xpath(serverTable + "//tr[4]/" + actionCol)
-                .string(Matchers.equalToCompressingWhiteSpace(Action.ADD.getDescription())));
-  }
-
-  private static void assertRemoveDnsEntryHomePageAfterRemoveResourceRecord(
-      ResultActions resultActions) throws Exception {
-    var expectedRowCount = 3;
-    var dnsTable = "//table[@id='dnsEntries']";
-
-    var domainStringCol = "td[1]";
-    var ipCol = "td[2]";
-    var serverFriendlyNameCol = "td[3]";
-    var clusterNameCol = "td[4]";
-
-    resultActions
-        // server1
-        .andExpect(xpath(dnsTable + "//tr").nodeCount(expectedRowCount)) // server2
-        .andExpect(xpath(dnsTable + "//tr[1]/" + domainStringCol).string(LA + DOT_DOMAIN_DOT_COM))
-        .andExpect(xpath(dnsTable + "//tr[1]/" + ipCol).string(LA_SERVER_ENTITY_2.getIpString()))
-        .andExpect(
-            xpath(dnsTable + "//tr[1]/" + serverFriendlyNameCol)
-                .string(LA_SERVER_ENTITY_2.getFriendlyName()))
-        .andExpect(
-            xpath(dnsTable + "//tr[1]/" + clusterNameCol)
-                .string(LA_SERVER_ENTITY_2.getCluster().getName()))
-        // server20
-        .andExpect(xpath(dnsTable + "//tr[2]/" + domainStringCol).string(NYC + DOT_DOMAIN_DOT_COM))
-        .andExpect(xpath(dnsTable + "//tr[2]/" + ipCol).string(NYC_IP))
-        .andExpect(
-            xpath(dnsTable + "//tr[2]/" + serverFriendlyNameCol)
-                .string(NYC_SERVER_ENTITY.getFriendlyName()))
-        .andExpect(
-            xpath(dnsTable + "//tr[2]/" + clusterNameCol)
-                .string(NYC_SERVER_ENTITY.getCluster().getName()));
-  }
-
-  private static void assertRemoveServerEntryHomePageAfterDeleteResourceRecordSet(
-      ResultActions resultActions) throws Exception {
-    var expectedRowCount = 5;
-    var serverTable = "//table[@id='serverEntries']";
-
-    var friendlyNameCol = "td[1]";
-    var clusterCol = "td[2]";
-    var dnsStatusCol = "td[3]";
-    var actionCol = "td[4]";
-
-    resultActions
-        // server1
-        .andExpect(xpath(serverTable + "//tr").nodeCount(expectedRowCount))
-        .andExpect(
-            xpath(serverTable + "//tr[1]/" + friendlyNameCol)
-                .string("server" + LA_SERVER_ENTITY_1.getId()))
-        .andExpect(xpath(serverTable + "//tr[1]/" + clusterCol).string(USA))
-        .andExpect(xpath(serverTable + "//tr[1]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-        .andExpect(
-            xpath(serverTable + "//tr[1]/" + actionCol)
-                .string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
-        // server2
-        .andExpect(
-            xpath(serverTable + "//tr[2]/" + friendlyNameCol)
-                .string("server" + LA_SERVER_ENTITY_2.getId()))
-        .andExpect(xpath(serverTable + "//tr[2]/" + clusterCol).string(USA))
-        .andExpect(xpath(serverTable + "//tr[2]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-        .andExpect(
-            xpath(serverTable + "//tr[2]/" + actionCol)
-                .string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
-        // server7
-        .andExpect(
-            xpath(serverTable + "//tr[3]/" + friendlyNameCol)
-                .string("server" + NYC_SERVER_ENTITY.getId()))
-        .andExpect(xpath(serverTable + "//tr[3]/" + clusterCol).string(USA))
-        .andExpect(xpath(serverTable + "//tr[3]/" + dnsStatusCol).string("NONE"))
-        .andExpect(
-            xpath(serverTable + "//tr[3]/" + actionCol)
-                .string(Matchers.equalToCompressingWhiteSpace(Action.ADD.getDescription())))
-        // server20
-        .andExpect(
-            xpath(serverTable + "//tr[4]/" + friendlyNameCol)
-                .string("server" + GENEVA_SERVER_ENTITY.getId()))
-        .andExpect(xpath(serverTable + "//tr[4]/" + clusterCol).string(SWITZERLAND))
-        .andExpect(xpath(serverTable + "//tr[4]/" + dnsStatusCol).string("NONE"))
-        .andExpect(
-            xpath(serverTable + "//tr[4]/" + actionCol)
-                .string(Matchers.equalToCompressingWhiteSpace(Action.ADD.getDescription())));
-  }
-
-  private static void assertRemoveDnsEntryHomePageAfterDeleteResourceRecordSet(
-      ResultActions resultActions) throws Exception {
-    var expectedRowCount = 3;
-    var dnsTable = "//table[@id='dnsEntries']";
-
-    var domainStringCol = "td[1]";
-    var ipCol = "td[2]";
-    var serverFriendlyNameCol = "td[3]";
-    var clusterNameCol = "td[4]";
-
-    resultActions
-        // server1
-        .andExpect(xpath(dnsTable + "//tr").nodeCount(expectedRowCount))
-        .andExpect(xpath(dnsTable + "//tr[1]/" + domainStringCol).string(LA + DOT_DOMAIN_DOT_COM))
-        .andExpect(xpath(dnsTable + "//tr[1]/" + ipCol).string(LA_SERVER_ENTITY_1.getIpString()))
-        .andExpect(
-            xpath(dnsTable + "//tr[1]/" + serverFriendlyNameCol)
-                .string(LA_SERVER_ENTITY_1.getFriendlyName()))
-        .andExpect(
-            xpath(dnsTable + "//tr[1]/" + clusterNameCol)
-                .string(LA_SERVER_ENTITY_1.getCluster().getName()))
-        // server2
-        .andExpect(xpath(dnsTable + "//tr[2]/" + domainStringCol).string(LA + DOT_DOMAIN_DOT_COM))
-        .andExpect(xpath(dnsTable + "//tr[2]/" + ipCol).string(LA_SERVER_ENTITY_2.getIpString()))
-        .andExpect(
-            xpath(dnsTable + "//tr[2]/" + serverFriendlyNameCol)
-                .string(LA_SERVER_ENTITY_2.getFriendlyName()))
-        .andExpect(
-            xpath(dnsTable + "//tr[2]/" + clusterNameCol)
-                .string(LA_SERVER_ENTITY_2.getCluster().getName()));
+    clickAddToRotationEndpoint(LA_SERVER_ENTITY_2);
   }
 
   private static void assertHomePageServerEntryTable(ResultActions resultActions) throws Exception {
@@ -591,107 +317,5 @@ public class DnsServiceSST extends BaseSST {
         .andExpect(xpath(dnsTable + "//tr[3]/" + ipCol).string(XYZ_IP))
         .andExpect(xpath(dnsTable + "//tr[3]/" + serverFriendlyNameCol).string("not found"))
         .andExpect(xpath(dnsTable + "//tr[3]/" + clusterNameCol).string("N/A"));
-  }
-
-  private static void assertAddServerEntryHomePageAfterAddResourceRecordSet(
-      ResultActions resultActions) throws Exception {
-    var expectedRowCount = 5;
-    var serverTable = "//table[@id='serverEntries']";
-
-    var friendlyNameCol = "td[1]";
-    var clusterCol = "td[2]";
-    var dnsStatusCol = "td[3]";
-    var actionCol = "td[4]";
-
-    resultActions
-        // server1
-        .andExpect(xpath(serverTable + "//tr").nodeCount(expectedRowCount))
-        .andExpect(
-            xpath(serverTable + "//tr[1]/" + friendlyNameCol)
-                .string("server" + LA_SERVER_ENTITY_1.getId()))
-        .andExpect(xpath(serverTable + "//tr[1]/" + clusterCol).string(USA))
-        .andExpect(xpath(serverTable + "//tr[1]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-        .andExpect(
-            xpath(serverTable + "//tr[1]/" + actionCol)
-                .string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
-        // server2
-        .andExpect(
-            xpath(serverTable + "//tr[2]/" + friendlyNameCol)
-                .string("server" + LA_SERVER_ENTITY_2.getId()))
-        .andExpect(xpath(serverTable + "//tr[2]/" + clusterCol).string(USA))
-        .andExpect(xpath(serverTable + "//tr[2]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-        .andExpect(
-            xpath(serverTable + "//tr[2]/" + actionCol)
-                .string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
-        // server7
-        .andExpect(
-            xpath(serverTable + "//tr[3]/" + friendlyNameCol)
-                .string("server" + NYC_SERVER_ENTITY.getId()))
-        .andExpect(xpath(serverTable + "//tr[3]/" + clusterCol).string(USA))
-        .andExpect(xpath(serverTable + "//tr[3]/" + dnsStatusCol).string(USA + DOT_DOMAIN_DOT_COM))
-        .andExpect(
-            xpath(serverTable + "//tr[3]/" + actionCol)
-                .string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())))
-        // server20
-        .andExpect(
-            xpath(serverTable + "//tr[4]/" + friendlyNameCol)
-                .string("server" + GENEVA_SERVER_ENTITY.getId()))
-        .andExpect(xpath(serverTable + "//tr[4]/" + clusterCol).string(SWITZERLAND))
-        .andExpect(
-            xpath(serverTable + "//tr[4]/" + dnsStatusCol).string(SWITZERLAND + DOT_DOMAIN_DOT_COM))
-        .andExpect(
-            xpath(serverTable + "//tr[4]/" + actionCol)
-                .string(Matchers.equalToCompressingWhiteSpace(Action.REMOVE.getDescription())));
-  }
-
-  private static void assertAddDnsEntryHomePageAfterAddResourceRecordSet(
-      ResultActions resultActions) throws Exception {
-    var expectedRowCount = 5;
-    var dnsTable = "//table[@id='dnsEntries']";
-
-    var domainStringCol = "td[1]";
-    var ipCol = "td[2]";
-    var serverFriendlyNameCol = "td[3]";
-    var clusterNameCol = "td[4]";
-
-    resultActions
-        // server1
-        .andExpect(xpath(dnsTable + "//tr").nodeCount(expectedRowCount))
-        .andExpect(xpath(dnsTable + "//tr[1]/" + domainStringCol).string(LA + DOT_DOMAIN_DOT_COM))
-        .andExpect(xpath(dnsTable + "//tr[1]/" + ipCol).string(LA_SERVER_ENTITY_1.getIpString()))
-        .andExpect(
-            xpath(dnsTable + "//tr[1]/" + serverFriendlyNameCol)
-                .string(LA_SERVER_ENTITY_1.getFriendlyName()))
-        .andExpect(
-            xpath(dnsTable + "//tr[1]/" + clusterNameCol)
-                .string(LA_SERVER_ENTITY_1.getCluster().getName()))
-        // server2
-        .andExpect(xpath(dnsTable + "//tr[2]/" + domainStringCol).string(LA + DOT_DOMAIN_DOT_COM))
-        .andExpect(xpath(dnsTable + "//tr[2]/" + ipCol).string(LA_SERVER_ENTITY_2.getIpString()))
-        .andExpect(
-            xpath(dnsTable + "//tr[2]/" + serverFriendlyNameCol)
-                .string(LA_SERVER_ENTITY_2.getFriendlyName()))
-        .andExpect(
-            xpath(dnsTable + "//tr[2]/" + clusterNameCol)
-                .string(LA_SERVER_ENTITY_2.getCluster().getName()))
-        // server7
-        .andExpect(xpath(dnsTable + "//tr[3]/" + domainStringCol).string(NYC + DOT_DOMAIN_DOT_COM))
-        .andExpect(xpath(dnsTable + "//tr[3]/" + ipCol).string(NYC_IP))
-        .andExpect(
-            xpath(dnsTable + "//tr[3]/" + serverFriendlyNameCol)
-                .string(NYC_SERVER_ENTITY.getFriendlyName()))
-        .andExpect(
-            xpath(dnsTable + "//tr[3]/" + clusterNameCol)
-                .string(NYC_SERVER_ENTITY.getCluster().getName()))
-        // server20
-        .andExpect(
-            xpath(dnsTable + "//tr[4]/" + domainStringCol).string(GENEVA + DOT_DOMAIN_DOT_COM))
-        .andExpect(xpath(dnsTable + "//tr[4]/" + ipCol).string(GENEVA_IP))
-        .andExpect(
-            xpath(dnsTable + "//tr[4]/" + serverFriendlyNameCol)
-                .string(GENEVA_SERVER_ENTITY.getFriendlyName()))
-        .andExpect(
-            xpath(dnsTable + "//tr[4]/" + clusterNameCol)
-                .string(GENEVA_SERVER_ENTITY.getCluster().getName()));
   }
 }

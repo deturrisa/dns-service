@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 @RequestMapping(
@@ -32,17 +33,17 @@ public class HomeController {
   }
 
   @PostMapping("/add/{serverId}")
-  public ResponseEntity<String> add(@PathVariable Integer serverId) {
+  public RedirectView add(@PathVariable Integer serverId) {
     entryStoreService.addToRotation(serverId);
     log.info("Successfully added server: {}. Redirecting home", serverId);
-    return getHomeResponse();
+    return new RedirectView(HOME);
   }
 
   @PostMapping("/remove/{serverId}")
-  public ResponseEntity<String> remove(@PathVariable Integer serverId) {
+  public RedirectView remove(@PathVariable Integer serverId) {
     entryStoreService.removeFromRotation(serverId);
     log.info("Successfully removed server: {}. Redirecting home", serverId);
-    return getHomeResponse();
+    return new RedirectView(HOME);
   }
 
   @GetMapping(HOME)
