@@ -60,8 +60,12 @@
       <td th:text="'server' + ${server.serverId()}"></td>
       <td th:text="${server.cluster()}"></td>
       <td th:text="${server.trimDnsStatus().dnsStatus()}"></td>
-      <td>
-        <form th:action="'/dns-service' + ${server.endpoint}" method="post">
+      <td th:switch="${server.action().name()}">
+        <form th:case="'ADD'" th:action="'/dns-service' + ${server.endpoint}" method="POST">
+          <button type="submit" th:text="${server.action().getDescription()}"></button>
+        </form>
+        <form th:case="'REMOVE'" th:action="'/dns-service' + ${server.endpoint}" method="POST">
+          <input type="hidden" name="_method" value="DELETE"/>
           <button type="submit" th:text="${server.action().getDescription()}"></button>
         </form>
       </td>

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,7 +42,7 @@ public class HomeController {
     return new RedirectView(BASE_URL + HOME);
   }
 
-  @PostMapping("/remove/{serverId}")
+  @DeleteMapping("/remove/{serverId}")
   public RedirectView remove(@PathVariable Integer serverId) {
     entryStoreService.removeFromRotation(serverId);
     log.info("Successfully removed server: {}. Redirecting home", serverId);

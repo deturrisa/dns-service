@@ -47,7 +47,7 @@ public abstract class BaseSST {
   protected ResultActions clickRemoveFromRotationEndpoint(ServerEntity server) throws Exception {
     return rest.request()
         .withUri(BASE_URL + "/remove/" + server.getId())
-        .withMethod("POST")
+        .withMethod("DELETE")
         .execute()
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection());
   }
