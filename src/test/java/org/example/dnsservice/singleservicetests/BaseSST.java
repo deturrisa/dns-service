@@ -38,7 +38,7 @@ public abstract class BaseSST {
 
   protected ResultActions getDnsServiceHomePage() throws Exception {
     return rest.request()
-        .withUri(BASE_URL + "/home")
+        .withUri(BASE_URL)
         .withMethod("GET")
         .execute()
         .andExpect(MockMvcResultMatchers.status().isOk());
