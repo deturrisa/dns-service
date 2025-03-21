@@ -1,6 +1,5 @@
 package org.example.dnsservice.singleservicetests;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.concurrent.CompletableFuture;
 import org.example.dnsservice.configuration.DomainRegionProperties;
 import org.example.dnsservice.configuration.R53Properties;
@@ -9,7 +8,6 @@ import org.example.dnsservice.repository.ClusterRepository;
 import org.example.dnsservice.repository.ServerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -21,10 +19,6 @@ public abstract class BaseSST {
 
   public static final String BASE_URL = "/dns-service";
   @Autowired TestRestTemplateConfiguration.SingleServiceRestTemplate rest;
-
-  @Autowired KafkaTemplate<Object, Object> kafkaTemplate;
-
-  @Autowired ObjectMapper objectMapper;
 
   @Autowired protected ServerRepository serverRepository;
 
