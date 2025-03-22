@@ -1,0 +1,29 @@
+@startuml
+actor User
+actor Admin
+participant "App" as System
+participant "postgres" as Database
+participant "Route53" as Route53
+
+' Use Case 0: Navigate to home page
+Admin -> Database: Manually configure servers
+User -> System: Navigate to home page
+System -> Database: Fetch servers
+System -> Route53: Fetch A Records
+System --> System: Matches A Records with servers
+System -> User: Homepage
+
+' Use Case 1: Add an app to rotation
+User -> System: Click "Add to Rotation"
+System -> Database: Fetch server
+System -> Route53: Create A Record
+System --> System: Matches A Records with servers
+System -> User: 3XX: Redirected back to homepage
+
+' Use Case 2: Remove an app from rotation
+User -> System: Click "Remove from Rotation"
+System -> Database: Fetch server
+System -> Route53: Remove A Record
+System --> System: Matches A Records with servers
+System -> User: 3XX: Redirected back to homepage
+@enduml
