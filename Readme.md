@@ -1,1 +1,1 @@
-![PlantUML diagram](https://www.plantuml.com/plantuml/uml/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000)
+![alt text](https://github.com/deturrisa/dns-service/blob/master/sequence_diagram.png?raw=true)
